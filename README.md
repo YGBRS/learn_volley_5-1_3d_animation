@@ -1,6 +1,6 @@
 # Volley 5-1 en 3D
 
-Terrain 3D interactif pour comprendre la formation 5-1 au volley-ball : les 6 rotations, en attaque (réception, passe, attaque), en défense (contre, défense, contre-attaque) et en rally aléatoire.
+Terrain 3D interactif pour comprendre la formation 5-1 au volley-ball : les 6 rotations, en attaque (réception, passe, attaque), en défense (contre, défense, contre-attaque) et en rally aléatoire. Courtoisie de BRS, en collaboration avec le Big C.
 
 ## Ouvrir l'application
 
@@ -15,15 +15,6 @@ Terrain 3D interactif pour comprendre la formation 5-1 au volley-ball : les 6 ro
 - Caméras : vue joueur, vue tactique, côté, adverse, suivi du joueur
 - Utilisable sur ordinateur et sur smartphone
 
-## Mettre à jour
-
-Remplacer `index.html`, puis :
-
-```
-git add index.html
-git commit -m "Mise à jour de l'application"
-git push
-```
 
 GitHub Pages republie le site automatiquement en une à deux minutes.
 
