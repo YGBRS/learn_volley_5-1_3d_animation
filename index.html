@@ -99,6 +99,8 @@ button { cursor: pointer; }
 #panel { overflow-y: auto; background: var(--bg); border-left: 1px solid var(--line); padding: 16px 14px 28px; display: flex; flex-direction: column; gap: 12px; }
 .brand { padding: 0 2px 4px; }
 .brandTop { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; }
+.brandSw { display: flex; gap: 6px; flex-wrap: wrap; }
+html[lang="en"] .lexFr, html:not([lang="en"]) .lexEn { display: none; }
 .themeSw { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; flex: none; }
 .themeSw button { background: var(--surface); border: 0; border-left: 1px solid var(--line); padding: 4px 9px; font-size: 13px; color: var(--muted); }
 .themeSw button:first-child { border-left: 0; }
@@ -300,12 +302,12 @@ document.body.dataset.ui = matchMedia('(max-height: 520px) and (orientation: lan
   : matchMedia('(max-width: 900px) and (orientation: portrait), (max-width: 600px)').matches ? 'port' : 'desk';
 </script>
 <div id="app">
-  <section id="stage" aria-label="Terrain 3D">
+  <section id="stage" aria-label="Terrain 3D" data-en-aria="3D court">
     <div id="canvasWrap">
       <div class="caption" aria-live="polite">
         <div class="card">
-          <div class="eyebrow" id="capEyebrow">Attaque · P1</div>
-          <h2 id="capTitle">Positions de rotation</h2>
+          <div class="eyebrow" id="capEyebrow"></div>
+          <h2 id="capTitle"></h2>
           <p id="capText"></p>
         </div>
         <div class="card tip" id="capTip" hidden>
@@ -315,34 +317,34 @@ document.body.dataset.ui = matchMedia('(max-height: 520px) and (orientation: lan
       </div>
       <div class="miniCap" id="miniCap" aria-hidden="true"></div>
       <div class="pTip" id="pTip" role="tooltip" hidden></div>
-      <button class="ctxChip" id="ctxChip" title="Changer de phase, de rotation ou de scénario"></button>
-      <button class="camToggle" id="camToggle" aria-expanded="false" aria-label="Choisir la caméra"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 11l5-3v8l-5-3z"/></svg><span id="camLbl">Joueur</span> ▾</button>
-      <div class="camBar" role="group" aria-label="Caméra">
-        <button data-cam="team" aria-pressed="true"><span class="lg">Vue joueur</span><span class="sm">Joueur</span></button>
-        <button data-cam="top"><span class="lg">Vue tactique</span><span class="sm">Dessus</span></button>
-        <button data-cam="side"><span class="lg">Vue de côté</span><span class="sm">Côté</span></button>
-        <button data-cam="opp"><span class="lg">Vue adverse</span><span class="sm">Adverse</span></button>
-        <button data-cam="follow"><span class="lg">Suivre mon rôle</span><span class="sm">Suivre</span></button>
-        <button id="bFull" hidden title="Plein écran" aria-label="Plein écran">⛶<span class="lg"> Plein écran</span></button>
+      <button class="ctxChip" id="ctxChip" title="Changer de phase, de rotation ou de scénario" data-en-title="Change phase, rotation or scenario"></button>
+      <button class="camToggle" id="camToggle" aria-expanded="false" aria-label="Choisir la caméra" data-en-aria="Choose the camera"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 11l5-3v8l-5-3z"/></svg><span id="camLbl">Joueur</span> ▾</button>
+      <div class="camBar" role="group" aria-label="Caméra" data-en-aria="Camera">
+        <button data-cam="team" aria-pressed="true"><span class="lg" data-en="Player view">Vue joueur</span><span class="sm" data-en="Player">Joueur</span></button>
+        <button data-cam="top"><span class="lg" data-en="Top view">Vue tactique</span><span class="sm" data-en="Top">Dessus</span></button>
+        <button data-cam="side"><span class="lg" data-en="Side view">Vue de côté</span><span class="sm" data-en="Side">Côté</span></button>
+        <button data-cam="opp"><span class="lg" data-en="Opponent's view">Vue adverse</span><span class="sm" data-en="Opponent">Adverse</span></button>
+        <button data-cam="follow"><span class="lg" data-en="Follow my role">Suivre mon rôle</span><span class="sm" data-en="Follow">Suivre</span></button>
+        <button id="bFull" hidden title="Plein écran" aria-label="Plein écran" data-en-title="Full screen" data-en-aria="Full screen">⛶<span class="lg" data-en=" Full screen"> Plein écran</span></button>
       </div>
     </div>
     <div class="transport">
       <div class="tRow">
-        <button class="tBtn" id="bRestart" title="Recommencer (R)" aria-label="Recommencer">⟲</button>
-        <button class="tBtn" id="bPrev" title="Étape précédente (←)" aria-label="Étape précédente">◀︎</button>
-        <button class="tBtn primary" id="bPlay" title="Lecture / pause (Espace)">▶︎ Lecture</button>
-        <button class="tBtn" id="bNext" title="Étape suivante (→)" aria-label="Étape suivante">▶︎▶︎</button>
-        <button class="tBtn" id="bStepMode" aria-pressed="true" title="S'arrêter à la fin de chaque étape">Pas à pas</button>
+        <button class="tBtn" id="bRestart" title="Recommencer (R)" aria-label="Recommencer" data-en-title="Restart (R)" data-en-aria="Restart">⟲</button>
+        <button class="tBtn" id="bPrev" title="Étape précédente (←)" aria-label="Étape précédente" data-en-title="Previous step (←)" data-en-aria="Previous step">◀︎</button>
+        <button class="tBtn primary" id="bPlay" title="Lecture / pause (Espace)" data-en-title="Play / pause (Space)">▶︎</button>
+        <button class="tBtn" id="bNext" title="Étape suivante (→)" aria-label="Étape suivante" data-en-title="Next step (→)" data-en-aria="Next step">▶︎▶︎</button>
+        <button class="tBtn" id="bStepMode" aria-pressed="true" title="S'arrêter à la fin de chaque étape" data-en-title="Pause at the end of each step" data-en="Step by step">Pas à pas</button>
       </div>
       <div class="tRow">
-        <button class="tBtn speedCycle" id="speedCycle" aria-label="Vitesse de lecture">×½</button>
-        <div class="speed" role="group" aria-label="Vitesse">
+        <button class="tBtn speedCycle" id="speedCycle" aria-label="Vitesse de lecture" data-en-aria="Playback speed">×½</button>
+        <div class="speed" role="group" aria-label="Vitesse" data-en-aria="Speed">
           <button data-speed="0.25">×¼</button>
           <button data-speed="0.5" aria-pressed="true">×½</button>
           <button data-speed="1">×1</button>
-          <button data-speed="1.5">×1,5</button>
+          <button data-speed="1.5" data-en="×1.5">×1,5</button>
         </div>
-        <input type="range" id="scrub" min="0" max="1000" value="0" step="1" aria-label="Avancement">
+        <input type="range" id="scrub" min="0" max="1000" value="0" step="1" aria-label="Avancement" data-en-aria="Progress">
         <span class="time" id="time">0,0 / 0,0 s</span>
       </div>
       <div class="steps" id="steps"></div>
@@ -350,70 +352,76 @@ document.body.dataset.ui = matchMedia('(max-height: 520px) and (orientation: lan
   </section>
 
   <aside id="panel" data-mtab="etape">
-    <div class="drawerHead"><span id="drawerTitle">Étape</span><button id="drawerClose" aria-label="Fermer le panneau">✕</button></div>
+    <div class="drawerHead"><span id="drawerTitle">Étape</span><button id="drawerClose" aria-label="Fermer le panneau" data-en-aria="Close the panel">✕</button></div>
     <div id="capSlot" data-tab="etape"></div>
-    <p class="note" id="roleHint" data-tab="etape" hidden>Choisis ton rôle dans l'onglet <b>Rôle</b> : ton joueur sera mis en valeur et un conseil s'affichera ici à chaque étape.</p>
+    <p class="note" id="roleHint" data-tab="etape" hidden data-en="Pick your role in the &lt;b&gt;Role&lt;/b&gt; tab: your player will be highlighted and a tip will appear here at each step.">Choisis ton rôle dans l'onglet <b>Rôle</b> : ton joueur sera mis en valeur et un conseil s'affichera ici à chaque étape.</p>
     <div class="sec" id="secSteps" data-tab="etape">
-      <h3>Toutes les étapes</h3>
+      <h3 data-en="All steps">Toutes les étapes</h3>
       <div id="stepsSlot"></div>
     </div>
     <div class="brand" data-tab="plus">
       <div class="brandTop">
-        <h1>Volley <em>5-1</em> en 3D</h1>
-        <div class="themeSw" id="themeSw" role="group" aria-label="Thème de l'interface">
-          <button data-theme-opt="auto" title="Suivre le réglage de l'appareil">Auto</button>
-          <button data-theme-opt="light" title="Mode jour">☀︎ Jour</button>
-          <button data-theme-opt="dark" title="Mode nuit">☾ Nuit</button>
+        <h1 data-en="Volleyball &lt;em&gt;5-1&lt;/em&gt; in 3D">Volley <em>5-1</em> en 3D</h1>
+        <div class="brandSw">
+          <div class="themeSw" id="langSw" role="group" aria-label="Langue" data-en-aria="Language">
+            <button data-lang="fr" title="Français" lang="fr">FR</button>
+            <button data-lang="en" title="English" lang="en">EN</button>
+          </div>
+          <div class="themeSw" id="themeSw" role="group" aria-label="Thème de l'interface" data-en-aria="Interface theme">
+            <button data-theme-opt="auto" title="Suivre le réglage de l'appareil" data-en-title="Follow the device setting">Auto</button>
+            <button data-theme-opt="light" title="Mode jour" data-en-title="Light mode" data-en="☀︎ Light">☀︎ Jour</button>
+            <button data-theme-opt="dark" title="Mode nuit" data-en-title="Dark mode" data-en="☾ Dark">☾ Nuit</button>
+          </div>
         </div>
       </div>
-      <p>Chaque rotation, en attaque et en défense, joueur par joueur. Survole ou touche un joueur pour savoir pourquoi il est là.</p>
+      <p data-en="Every rotation, on offense and defense, player by player. Hover over or tap a player to see why they're there.">Chaque rotation, en attaque et en défense, joueur par joueur. Survole ou touche un joueur pour savoir pourquoi il est là.</p>
     </div>
 
     <div class="sec" data-tab="jeu">
-      <h3>Phase de jeu</h3>
+      <h3 data-en="Game phase">Phase de jeu</h3>
       <div class="seg" id="modeSeg">
-        <button data-mode="attack" aria-pressed="true"><b>Attaque</b><small>L'adversaire sert : réception, passe, attaque</small></button>
-        <button data-mode="defense"><b>Défense</b><small>On sert : bloc, défense, passe, contre-attaque</small></button>
-        <button data-mode="rally"><b>Rally aléatoire</b><small>Un long échange tiré au sort : qui reçoit, qui attaque, où l'adversaire frappe</small></button>
+        <button data-mode="attack" aria-pressed="true" data-en="&lt;b&gt;Offense&lt;/b&gt;&lt;small&gt;The opponent serves: pass, set, attack&lt;/small&gt;"><b>Attaque</b><small>L'adversaire sert : réception, passe, attaque</small></button>
+        <button data-mode="defense" data-en="&lt;b&gt;Defense&lt;/b&gt;&lt;small&gt;We serve: block, dig, set, counter-attack&lt;/small&gt;"><b>Défense</b><small>On sert : bloc, défense, passe, contre-attaque</small></button>
+        <button data-mode="rally" data-en="&lt;b&gt;Random rally&lt;/b&gt;&lt;small&gt;A long randomly drawn rally: who passes, who attacks, where the opponent hits&lt;/small&gt;"><b>Rally aléatoire</b><small>Un long échange tiré au sort : qui reçoit, qui attaque, où l'adversaire frappe</small></button>
       </div>
     </div>
 
     <div class="sec" data-tab="jeu">
       <h3>Rotation</h3>
       <div class="rot" id="rotSeg"></div>
-      <p class="hint">P1 = passeur en zone 1. Les boutons suivent l'ordre où l'équipe tourne.</p>
+      <p class="hint" data-en="S1 = setter in zone 1. The buttons follow the order in which the team rotates.">P1 = passeur en zone 1. Les boutons suivent l'ordre où l'équipe tourne.</p>
       <p class="note" id="rotNote"></p>
     </div>
 
     <div class="sec" data-tab="role">
-      <h3>Mon rôle</h3>
+      <h3 data-en="My role">Mon rôle</h3>
       <div class="chips" id="roleChips"></div>
-      <p class="hint">Ton joueur est mis en valeur, son trajet est dessiné au sol et un conseil s'affiche à chaque étape.</p>
+      <p class="hint" data-en="Your player is highlighted, their path is drawn on the floor and a tip appears at each step.">Ton joueur est mis en valeur, son trajet est dessiné au sol et un conseil s'affiche à chaque étape.</p>
     </div>
 
     <div class="sec" id="secRally" data-tab="jeu" hidden>
-      <h3>Rally aléatoire</h3>
-      <label class="hint" for="rallyN">Nombre de tours (un tour = notre attaque, puis la réponse adverse)</label>
+      <h3 data-en="Random rally">Rally aléatoire</h3>
+      <label class="hint" for="rallyN" data-en="Number of exchanges (one exchange = our attack, then the opponent's reply)">Nombre de tours (un tour = notre attaque, puis la réponse adverse)</label>
       <div class="rallyRow">
         <input type="range" id="rallyN" min="1" max="30" step="1" value="10">
         <output id="rallyNOut" for="rallyN">10</output>
       </div>
-      <button class="btn" id="bReroll">Tirer un nouveau rally</button>
+      <button class="btn" id="bReroll" data-en="Draw a new rally">Tirer un nouveau rally</button>
       <p class="hint" id="rallySummary"></p>
     </div>
 
     <div class="sec" id="secServe" data-tab="jeu">
-      <h3>Le service adverse arrive sur</h3>
+      <h3 data-en="The opponent serves to">Le service adverse arrive sur</h3>
       <div class="chips" id="serveChips"></div>
     </div>
 
     <div class="sec" id="secOpp" data-tab="jeu" hidden>
-      <h3>L'adversaire attaque</h3>
+      <h3 data-en="The opponent attacks with">L'adversaire attaque</h3>
       <div class="chips" id="oppChips"></div>
     </div>
 
     <div class="sec" id="secShot" data-tab="jeu" hidden>
-      <h3>Sa frappe</h3>
+      <h3 data-en="Their shot">Sa frappe</h3>
       <div class="chips" id="shotChips"></div>
       <p class="note" id="shotNote" hidden></p>
     </div>
@@ -424,36 +432,36 @@ document.body.dataset.ui = matchMedia('(max-height: 520px) and (orientation: lan
     </div>
 
     <div class="sec" data-tab="plus">
-      <h3>Affichage</h3>
+      <h3 data-en="Display">Affichage</h3>
       <div class="toggles">
-        <label><input type="checkbox" id="tPath" checked><span>Trajet de mon rôle<small>Pointillés au sol, un repère par étape</small></span></label>
-        <label><input type="checkbox" id="tAllPaths"><span>Trajets de tous les joueurs</span></label>
-        <label><input type="checkbox" id="tOverlap"><span>Règle de chevauchement<small>Vert : ordre respecté avant/arrière et gauche/droite (compte jusqu'à la frappe du service)</small></span></label>
-        <label><input type="checkbox" id="tZones" checked><span>Numéros des zones</span></label>
-        <label><input type="checkbox" id="tBallTrail" checked><span>Trajectoire du ballon</span></label>
-        <label><input type="checkbox" id="tOpp" checked><span>Afficher l'équipe adverse</span></label>
+        <label><input type="checkbox" id="tPath" checked><span data-en="My role's path&lt;small&gt;Dotted line on the floor, one marker per step&lt;/small&gt;">Trajet de mon rôle<small>Pointillés au sol, un repère par étape</small></span></label>
+        <label><input type="checkbox" id="tAllPaths"><span data-en="All players' paths">Trajets de tous les joueurs</span></label>
+        <label><input type="checkbox" id="tOverlap"><span data-en="Overlap rule&lt;small&gt;Green: front/back and left/right order respected (applies until the serve is contacted)&lt;/small&gt;">Règle de chevauchement<small>Vert : ordre respecté avant/arrière et gauche/droite (compte jusqu'à la frappe du service)</small></span></label>
+        <label><input type="checkbox" id="tZones" checked><span data-en="Zone numbers">Numéros des zones</span></label>
+        <label><input type="checkbox" id="tBallTrail" checked><span data-en="Ball trajectory">Trajectoire du ballon</span></label>
+        <label><input type="checkbox" id="tOpp" checked><span data-en="Show the opposing team">Afficher l'équipe adverse</span></label>
       </div>
-      <p class="hint">Étiquettes au-dessus des joueurs (combinables) :</p>
-      <div class="chips" id="labelChips" role="group" aria-label="Étiquettes">
-        <button data-label="role" aria-pressed="true">Rôle</button>
-        <button data-label="pos">Position de rotation</button>
-        <button data-label="name">Prénom</button>
+      <p class="hint" data-en="Labels above the players (can be combined):">Étiquettes au-dessus des joueurs (combinables) :</p>
+      <div class="chips" id="labelChips" role="group" aria-label="Étiquettes" data-en-aria="Labels">
+        <button data-label="role" aria-pressed="true" data-en="Role">Rôle</button>
+        <button data-label="pos" data-en="Rotational position">Position de rotation</button>
+        <button data-label="name" data-en="First name">Prénom</button>
       </div>
     </div>
 
     <div class="sec" data-tab="role">
-      <h3>Rôles</h3>
+      <h3 data-en="Roles">Rôles</h3>
       <div class="legend" id="legend"></div>
     </div>
 
     <details data-tab="role">
-      <summary>Prénoms de l'équipe</summary>
+      <summary data-en="Team first names">Prénoms de l'équipe</summary>
       <div class="names" id="names"></div>
     </details>
 
     <details data-tab="plus">
-      <summary>Lexique</summary>
-      <dl>
+      <summary data-en="Glossary">Lexique</summary>
+      <dl lang="fr" class="lexFr">
         <dt>Formation 5-1</dt><dd>5 joueurs qui attaquent et 1 seul passeur, qui fait la passe dans les 6 rotations.</dd>
         <dt>Rotation (P1 à P6)</dt><dd>Nommée d'après la zone où se trouve le passeur au moment du service.</dd>
         <dt>Zones</dt><dd>Avant : 4 (gauche), 3 (centre), 2 (droite). Arrière : 5, 6, 1. Le serveur est en zone 1.</dd>
@@ -464,20 +472,35 @@ document.body.dataset.ui = matchMedia('(max-height: 520px) and (orientation: lan
         <dt>Couverture</dt><dd>Les coéquipiers entourent l'attaquant, bas, au cas où le contre renvoie le ballon.</dd>
         <dt>Pipe</dt><dd>Attaque d'un arrière, au centre, derrière la ligne des 3 m.</dd>
         <dt>2e main</dt><dd>Le passeur avant envoie directement le ballon chez l'adversaire au lieu de faire la passe.</dd>
+        <dt>Relais</dt><dd>Quand le passeur joue le premier ballon, un autre joueur (ici le pointu) fait la passe.</dd>
         <dt>Défense « 6 arrière »</dt><dd>Le joueur en zone 6 reste au fond ; le contreur libre couvre les feintes.</dd>
+      </dl>
+      <dl lang="en" class="lexEn">
+        <dt>5-1 system</dt><dd>5 hitters and a single setter, who sets in all 6 rotations.</dd>
+        <dt>Rotation (S1 to S6)</dt><dd>Named after the zone the setter is in when the ball is served.</dd>
+        <dt>Zones</dt><dd>Front row: 4 (left), 3 (middle), 2 (right). Back row: 5, 6, 1. The server is in zone 1.</dd>
+        <dt>Overlap</dt><dd>When the serve is contacted, each front-row player must be closer to the net than the back-row player in their column, and each player must keep left/right order within their row. After that, everyone can move.</dd>
+        <dt>Switching</dt><dd>After the serve, everyone moves to their specialty position.</dd>
+        <dt>Setter release (penetration)</dt><dd>The back-row setter's run to the target at the net.</dd>
+        <dt>Target</dt><dd>Where the setter sets from: at the net, just right of center.</dd>
+        <dt>Hitter coverage</dt><dd>Teammates surround the hitter, low, in case the block sends the ball back.</dd>
+        <dt>Pipe</dt><dd>A back-row attack in the middle, from behind the 10-ft (3 m) line.</dd>
+        <dt>Setter dump</dt><dd>The front-row setter sends the second ball straight over instead of setting.</dd>
+        <dt>Emergency setter</dt><dd>When the setter plays the first ball, another player (here the opposite) takes the second ball.</dd>
+        <dt>Perimeter defense ("6 back")</dt><dd>The zone 6 player stays deep; the off-blocker covers tips.</dd>
       </dl>
     </details>
 
-    <p class="kbd" data-tab="plus"><kbd>Espace</kbd> lecture/pause · <kbd>←</kbd> <kbd>→</kbd> étapes · <kbd>R</kbd> recommencer · glisser pour tourner, molette pour zoomer.</p>
-    <p class="kbd touchHint" data-tab="plus">Sur le terrain : un doigt pour tourner, deux doigts pour zoomer ou déplacer. Touche un joueur pour savoir pourquoi il est là.</p>
-    <p class="hint" data-tab="plus">© 2026 Boris Yang. Tous droits réservés.</p>
+    <p class="kbd" data-tab="plus" data-en="&lt;kbd&gt;Space&lt;/kbd&gt; play/pause · &lt;kbd&gt;←&lt;/kbd&gt; &lt;kbd&gt;→&lt;/kbd&gt; steps · &lt;kbd&gt;R&lt;/kbd&gt; restart · drag to rotate, scroll to zoom."><kbd>Espace</kbd> lecture/pause · <kbd>←</kbd> <kbd>→</kbd> étapes · <kbd>R</kbd> recommencer · glisser pour tourner, molette pour zoomer.</p>
+    <p class="kbd touchHint" data-tab="plus" data-en="On the court: one finger to rotate, two fingers to zoom or pan. Tap a player to see why they're there.">Sur le terrain : un doigt pour tourner, deux doigts pour zoomer ou déplacer. Touche un joueur pour savoir pourquoi il est là.</p>
+    <p class="hint" data-tab="plus" data-en="© 2026 Boris Yang. All rights reserved.">© 2026 Boris Yang. Tous droits réservés.</p>
   </aside>
 
   <nav id="mNav" aria-label="Sections">
-    <button data-mt="etape" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/></svg>Étape</button>
-    <button data-mt="jeu"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3c-2 4-2 14 0 18M3.5 9c5 2 12 2 17 0M5 17c4-2 10-2 14 0"/></svg>Jeu</button>
-    <button data-mt="role"><svg viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="3.5"/><path d="M5 21c0-4 3.1-7 7-7s7 3 7 7"/></svg>Rôle</button>
-    <button data-mt="plus"><svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Plus</button>
+    <button data-mt="etape" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/></svg><span data-en="Step">Étape</span></button>
+    <button data-mt="jeu"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3c-2 4-2 14 0 18M3.5 9c5 2 12 2 17 0M5 17c4-2 10-2 14 0"/></svg><span data-en="Play">Jeu</span></button>
+    <button data-mt="role"><svg viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="3.5"/><path d="M5 21c0-4 3.1-7 7-7s7 3 7 7"/></svg><span data-en="Role">Rôle</span></button>
+    <button data-mt="plus"><svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg><span data-en="More">Plus</span></button>
   </nav>
 </div>
 
@@ -490,15 +513,30 @@ document.body.dataset.ui = matchMedia('(max-height: 520px) and (orientation: lan
 // ───────────────────────── Données de jeu ─────────────────────────
 // Repère : x = largeur (-4.5 gauche … +4.5 droite, vu de derrière notre équipe),
 // z = distance au filet (notre camp 0…9, camp adverse 0…-9), y = hauteur.
-const ROLES = {
-  S:   { label: 'P',  name: 'Passeur',                    short: 'le passeur',    color: '#2f6fdb' },
-  OH1: { label: 'R1', name: 'Réceptionneur-attaquant 1',  short: 'le R1',         color: '#f0822a' },
-  OH2: { label: 'R2', name: 'Réceptionneur-attaquant 2',  short: 'le R2',         color: '#f5b731' },
-  MB1: { label: 'C1', name: 'Central 1',                  short: 'le central 1',  color: '#16a085' },
-  MB2: { label: 'C2', name: 'Central 2',                  short: 'le central 2',  color: '#5fd3b0' },
-  OP:  { label: 'Pt', name: 'Pointu',                     short: 'le pointu',     color: '#8b5cf6' },
-  L:   { label: 'L',  name: 'Libéro',                     short: 'le libéro',     color: '#d63a3a' },
+// ── Langue : français par défaut, anglais au choix (clé v51.lang). tr(fr, en) renvoie le texte de la langue active ;
+// les textes de données sont des paires [fr, en] lues avec trp().
+let LANG = 'fr';
+try { if (JSON.parse(localStorage.getItem('v51.lang')) === 'en') LANG = 'en'; } catch (e) { /* stockage indisponible */ }
+const tr = (fr, en) => LANG === 'en' ? en : fr;
+const trp = p => Array.isArray(p) ? p[LANG === 'en' ? 1 : 0] : p;
+const rotLbl = r => LANG === 'en' ? r : r.replace('S', 'P');   // FR : P1…P6 ; EN : S1…S6 (« setter in 1 »)
+
+// [étiquette, nom, nom court dans les phrases] en français puis en anglais
+const ROLE_TXT = {
+  S:   [['P', 'Passeur', 'le passeur'], ['S', 'Setter', 'the setter']],
+  OH1: [['R1', 'Réceptionneur-attaquant 1', 'le R1'], ['OH1', 'Outside hitter 1', 'OH1']],
+  OH2: [['R2', 'Réceptionneur-attaquant 2', 'le R2'], ['OH2', 'Outside hitter 2', 'OH2']],
+  MB1: [['C1', 'Central 1', 'le central 1'], ['MB1', 'Middle blocker 1', 'MB1']],
+  MB2: [['C2', 'Central 2', 'le central 2'], ['MB2', 'Middle blocker 2', 'MB2']],
+  OP:  [['Pt', 'Pointu', 'le pointu'], ['OPP', 'Opposite', 'the opposite']],
+  L:   [['L', 'Libéro', 'le libéro'], ['L', 'Libero', 'the libero']],
 };
+const ROLE_COLOR = { S: '#2f6fdb', OH1: '#e2449b', OH2: '#f5b731', MB1: '#16a085', MB2: '#5fd3b0', OP: '#8b5cf6', L: '#d63a3a' };
+const ROLES = {};
+for (const id in ROLE_TXT) {
+  const t = () => ROLE_TXT[id][LANG === 'en' ? 1 : 0];
+  ROLES[id] = { color: ROLE_COLOR[id], get label() { return t()[0]; }, get name() { return t()[1]; }, get short() { return t()[2]; } };
+}
 const OUR = ['S', 'OH1', 'OH2', 'MB1', 'MB2', 'OP', 'L'];
 const OPP = ['oS', 'oL', 'oM', 'oR', 'oB1', 'oB2'];
 const ROT_ORDER = ['S1', 'S6', 'S5', 'S4', 'S3', 'S2'];
@@ -519,21 +557,27 @@ const RECV = {
   S2: { MB2: [-3.6, 0.9], OH1: [-2.3, 5.5], S: [3.6, 0.8], OP: [-3.9, 7.8], OH2: [0.3, 6.6], L: [2.8, 6.3] },
 };
 const NOTES = {
-  S1: "Passeur en zone 1 (arrière droit). Il est déjà du bon côté : il se cache derrière le R1 et monte au filet. Exception de cette rotation : le R1 reste à droite (zone 2) et le pointu à gauche (zone 4) pour attaquer.",
-  S6: "Passeur en zone 6 (arrière centre). Il se cache derrière le pointu, près du filet, puis glisse vers la droite. Le central passe au milieu et le pointu file à droite.",
-  S5: "Passeur en zone 5 (arrière gauche) : c'est son plus long trajet. Il se cache à gauche près du filet, derrière le central, puis longe le filet jusqu'à la cible.",
-  S4: "Passeur en zone 4 (avant gauche) : seulement deux attaquants avant (central et R2). Passeur et central se regroupent à gauche ; le pointu peut attaquer de l'arrière (zone 1).",
-  S3: "Passeur en zone 3 (avant centre) : déjà au filet, il glisse juste à droite. Le central part au milieu, le R1 à gauche, le pointu attaque de l'arrière.",
-  S2: "Passeur en zone 2 (avant droit) : il est déjà à sa place. Le central et le R1 se décalent à gauche ; il peut jouer la 2e main, et le R2 peut attaquer en pipe.",
+  S1: ["Passeur en zone 1 (arrière droit). Il est déjà du bon côté : il se cache derrière le R1 et monte au filet. Exception de cette rotation : le R1 reste à droite (zone 2) et le pointu à gauche (zone 4) pour attaquer.",
+    "Setter in zone 1 (right back). Already on the correct side: they hide behind OH1 and release to the net. Exception in this rotation: OH1 stays on the right (zone 2) and the opposite hits from the left (zone 4)."],
+  S6: ["Passeur en zone 6 (arrière centre). Il se cache derrière le pointu, près du filet, puis glisse vers la droite. Le central passe au milieu et le pointu file à droite.",
+    "Setter in zone 6 (middle back). They hide behind the opposite, close to the net, then slide right. The middle moves to the middle and the opposite releases to the right side."],
+  S5: ["Passeur en zone 5 (arrière gauche) : c'est son plus long trajet. Il se cache à gauche près du filet, derrière le central, puis longe le filet jusqu'à la cible.",
+    "Setter in zone 5 (left back): their longest release. They hide on the left near the net, behind the middle, then run along the net to the target."],
+  S4: ["Passeur en zone 4 (avant gauche) : seulement deux attaquants avant (central et R2). Passeur et central se regroupent à gauche ; le pointu peut attaquer de l'arrière (zone 1).",
+    "Setter in zone 4 (left front): only two front-row hitters (middle and OH2). Setter and middle stack on the left; the opposite can hit a back-row attack from zone 1."],
+  S3: ["Passeur en zone 3 (avant centre) : déjà au filet, il glisse juste à droite. Le central part au milieu, le R1 à gauche, le pointu attaque de l'arrière.",
+    "Setter in zone 3 (middle front): already at the net, they just slide right. The middle goes to the middle, OH1 to the left, the opposite hits from the back row."],
+  S2: ["Passeur en zone 2 (avant droit) : il est déjà à sa place. Le central et le R1 se décalent à gauche ; il peut jouer la 2e main, et le R2 peut attaquer en pipe.",
+    "Setter in zone 2 (right front): already in place. The middle and OH1 shift left; the setter can dump the second ball, and OH2 can hit a pipe."],
 };
 // Points de frappe et départs de course d'élan.
 const HIT = {
-  p4: { hit: [-3.3, 0.6], run: [-3.9, 3.8], land: [2.8, -6.8], set: 1.25, apex: 5.0, h: H.hit, name: 'balle haute au poste 4' },
-  p3: { hit: [0.2, 0.6], run: [0.4, 2.5], land: [-1.2, -4.6], set: 0.55, apex: 3.5, h: H.hit, name: 'balle rapide au centre' },
-  p2: { hit: [3.4, 0.6], run: [3.9, 3.6], land: [-2.6, -6.6], set: 0.95, apex: 4.2, h: H.hit, name: 'passe arrière au poste 2' },
-  pipe: { hit: [0.0, 3.5], run: [0.0, 6.6], land: [0.6, -7.6], set: 1.0, apex: 4.5, h: H.hitBack, name: 'passe pour la pipe (attaque arrière au centre)' },
-  d1: { hit: [2.8, 3.5], run: [3.0, 6.6], land: [-2.2, -7.2], set: 1.0, apex: 4.4, h: H.hitBack, name: 'passe pour une attaque arrière en zone 1' },
-  dump: { hit: [T[0], T[1]], land: [2.3, -1.9], name: '2e main' },
+  p4: { hit: [-3.3, 0.6], run: [-3.9, 3.8], land: [2.8, -6.8], set: 1.25, apex: 5.0, h: H.hit, name: ['balle haute au poste 4', 'high ball to the outside (position 4)'] },
+  p3: { hit: [0.2, 0.6], run: [0.4, 2.5], land: [-1.2, -4.6], set: 0.55, apex: 3.5, h: H.hit, name: ['balle rapide au centre', 'quick set (1-ball) to the middle'] },
+  p2: { hit: [3.4, 0.6], run: [3.9, 3.6], land: [-2.6, -6.6], set: 0.95, apex: 4.2, h: H.hit, name: ['passe arrière au poste 2', 'back set to the right side (position 2)'] },
+  pipe: { hit: [0.0, 3.5], run: [0.0, 6.6], land: [0.6, -7.6], set: 1.0, apex: 4.5, h: H.hitBack, name: ['passe pour la pipe (attaque arrière au centre)', 'pipe set (back-row attack in the middle)'] },
+  d1: { hit: [2.8, 3.5], run: [3.0, 6.6], land: [-2.2, -7.2], set: 1.0, apex: 4.4, h: H.hitBack, name: ['passe pour une attaque arrière en zone 1', 'set for a back-row attack from zone 1 (D-ball)'] },
+  dump: { hit: [T[0], T[1]], land: [2.3, -1.9], name: ['2e main', 'setter dump'] },
 };
 const ZONE_OF = { OHf: 4, MBf: 3, RF: 2, z5: 5, z6: 6, z1: 1 };
 const BASE = { OHf: [-3.0, 1.0], MBf: [0.0, 1.0], RF: [3.0, 1.0], z5: [-3.0, 6.2], z6: [0.0, 7.8], z1: [3.0, 6.2] };
@@ -576,22 +620,22 @@ function lineup(rot, mode) {
 }
 
 const ZONE_REASON = {
-  OHf: "attaquer et contrer à gauche",
-  MBf: "contrer au centre et attaquer en balle rapide",
-  RFS: "rester tout près de la cible pour faire la passe",
-  RFOP: "attaquer et contrer à droite",
-  z5L: "défendre la diagonale, là où arrivent le plus de ballons",
-  z5MB: "remplacer le libéro sur ce point (il ne peut pas servir)",
-  z6: "défendre le fond du terrain et pouvoir attaquer en pipe",
-  z1S: "être au plus près de la cible pour monter à la passe",
-  z1OP: "défendre derrière le contre et attaquer de l'arrière à droite",
+  OHf: ["attaquer et contrer à gauche", "attack and block on the left"],
+  MBf: ["contrer au centre et attaquer en balle rapide", "block in the middle and hit quick sets"],
+  RFS: ["rester tout près de la cible pour faire la passe", "stay right next to the target to set"],
+  RFOP: ["attaquer et contrer à droite", "attack and block on the right"],
+  z5L: ["défendre la diagonale, là où arrivent le plus de ballons", "dig cross-court, where most attacks land"],
+  z5MB: ["remplacer le libéro sur ce point (il ne peut pas servir)", "replace the libero on this rally (the libero can't serve here)"],
+  z6: ["défendre le fond du terrain et pouvoir attaquer en pipe", "cover the deep court and be ready to hit a pipe"],
+  z1S: ["être au plus près de la cible pour monter à la passe", "be as close as possible to the target to release and set"],
+  z1OP: ["défendre derrière le contre et attaquer de l'arrière à droite", "dig behind the block and hit from the back row on the right"],
 };
 function zoneReason(id, lu) {
   const r = lu.zoneOf[id];
-  if (r === 'RF') return ZONE_REASON[id === 'S' ? 'RFS' : 'RFOP'];
-  if (r === 'z1') return ZONE_REASON[id === 'S' ? 'z1S' : 'z1OP'];
-  if (r === 'z5') return ZONE_REASON[id === 'L' ? 'z5L' : 'z5MB'];
-  return ZONE_REASON[r];
+  if (r === 'RF') return trp(ZONE_REASON[id === 'S' ? 'RFS' : 'RFOP']);
+  if (r === 'z1') return trp(ZONE_REASON[id === 'S' ? 'z1S' : 'z1OP']);
+  if (r === 'z5') return trp(ZONE_REASON[id === 'L' ? 'z5L' : 'z5MB']);
+  return trp(ZONE_REASON[r]);
 }
 
 // ───────────────────────── Construction des séquences ─────────────────────────
@@ -659,30 +703,30 @@ Builder.prototype.add = function (s) {
 const OPP_SERVE = { oL: [3.0, -1.5], oM: [0, -1.5], oR: [-3.0, -1.5], oS: [2.8, -6.5], oB1: [0, -6.5], oB2: [-3.0, -9.9] };
 const OPP_RECV = { oL: [2.7, -5.6], oB1: [0, -6.4], oB2: [-2.7, -5.8], oR: [-3.4, -1.0], oM: [0.4, -1.0], oS: [-1.8, -1.8] };
 const OPP_HIT = {
-  L: { who: 'oL', hit: [3.3, -0.6], run: [3.9, -3.8], set: 1.2, apex: 5.0, label: "le poste 4 adverse (en face de notre zone 2)" },
-  M: { who: 'oM', hit: [-0.1, -0.6], run: [-0.3, -2.4], set: 0.55, apex: 3.5, label: "le central adverse (au centre)" },
-  R: { who: 'oR', hit: [-3.3, -0.6], run: [-3.9, -3.6], set: 0.95, apex: 4.2, label: "le pointu adverse (en face de notre zone 4)" },
-  B: { who: 'oB1', hit: [0.1, -3.5], run: [0.0, -6.6], set: 1.0, apex: 4.5, h: H.hitBack, label: "l'arrière adverse en pipe (au centre, derrière ses 3 m)" },
+  L: { who: 'oL', hit: [3.3, -0.6], run: [3.9, -3.8], set: 1.2, apex: 5.0, label: ["le poste 4 adverse (en face de notre zone 2)", "the opposing outside hitter (facing our zone 2)"] },
+  M: { who: 'oM', hit: [-0.1, -0.6], run: [-0.3, -2.4], set: 0.55, apex: 3.5, label: ["le central adverse (au centre)", "the opposing middle (in the middle)"] },
+  R: { who: 'oR', hit: [-3.3, -0.6], run: [-3.9, -3.6], set: 0.95, apex: 4.2, label: ["le pointu adverse (en face de notre zone 4)", "the opposing opposite (facing our zone 4)"] },
+  B: { who: 'oB1', hit: [0.1, -3.5], run: [0.0, -6.6], set: 1.0, apex: 4.5, h: H.hitBack, label: ["l'arrière adverse en pipe (au centre, derrière ses 3 m)", "the opposing back-row hitter on a pipe (middle, behind their 10-ft line)"] },
 };
-// Frappes adverses possibles selon l'attaquant : [clé, libellé, qui défend (zone ou contreur libre), point de défense]
+// Frappes adverses possibles selon l'attaquant : [clé, libellé [fr, en], qui défend (zone ou contreur libre), point de défense]
 const OPP_SHOTS_MID = [
-  ['deep', "Dans l'axe (zone 6)", 'z6', [-0.7, 7.6]],
-  ['z5', 'Vers notre zone 5', 'z5', [-2.9, 5.6]],
-  ['z1', 'Vers notre zone 1', 'z1', [3.1, 5.6]],
-  ['tip', 'Feinte (contreur libre)', 'off', [-1.3, 2.5]],
+  ['deep', ["Dans l'axe (zone 6)", 'Straight down (zone 6)'], 'z6', [-0.7, 7.6]],
+  ['z5', ['Vers notre zone 5', 'Toward our zone 5'], 'z5', [-2.9, 5.6]],
+  ['z1', ['Vers notre zone 1', 'Toward our zone 1'], 'z1', [3.1, 5.6]],
+  ['tip', ['Feinte (contreur libre)', 'Tip (off-blocker)'], 'off', [-1.3, 2.5]],
 ];
 const OPP_SHOTS = {
   L: [
-    ['diag', 'Diagonale (vers notre zone 5)', 'z5', [-2.9, 5.7]],
-    ['line', 'Ligne (vers notre zone 1)', 'z1', [3.6, 5.9]],
-    ['tip', 'Feinte derrière le contre', 'z1', [2.4, 2.7]],
-    ['deep', 'Balle longue (zone 6)', 'z6', [1.2, 8.1]],
+    ['diag', ['Diagonale (vers notre zone 5)', 'Cross-court (to our zone 5)'], 'z5', [-2.9, 5.7]],
+    ['line', ['Ligne (vers notre zone 1)', 'Line (to our zone 1)'], 'z1', [3.6, 5.9]],
+    ['tip', ['Feinte derrière le contre', 'Tip behind the block'], 'z1', [2.4, 2.7]],
+    ['deep', ['Balle longue (zone 6)', 'Deep shot (zone 6)'], 'z6', [1.2, 8.1]],
   ],
   R: [
-    ['diag', 'Diagonale (vers notre zone 1)', 'z1', [3.0, 5.7]],
-    ['line', 'Ligne (vers notre zone 5)', 'z5', [-3.6, 5.9]],
-    ['tip', 'Feinte derrière le contre', 'z5', [-2.4, 2.7]],
-    ['deep', 'Balle longue (zone 6)', 'z6', [-1.2, 8.1]],
+    ['diag', ['Diagonale (vers notre zone 1)', 'Cross-court (to our zone 1)'], 'z1', [3.0, 5.7]],
+    ['line', ['Ligne (vers notre zone 5)', 'Line (to our zone 5)'], 'z5', [-3.6, 5.9]],
+    ['tip', ['Feinte derrière le contre', 'Tip behind the block'], 'z5', [-2.4, 2.7]],
+    ['deep', ['Balle longue (zone 6)', 'Deep shot (zone 6)'], 'z6', [-1.2, 8.1]],
   ],
   M: OPP_SHOTS_MID,
   B: OPP_SHOTS_MID,
@@ -696,7 +740,7 @@ function oppShotPlan(lu, side, shot) {
   const offBlocker = side === 'R' ? lu.roleAt.RF : lu.roleAt.OHf;
   const digger = sh[2] === 'off' ? offBlocker : lu.roleAt[sh[2]];
   const relay = digger === 'S' ? { id: 'OP', spot: RELAY_SPOT } : null;
-  return { shot: sh[0], label: sh[1], digger, spot: sh[3], relay };
+  return { shot: sh[0], label: trp(sh[1]), digger, spot: sh[3], relay };
 }
 // Attaques possibles après la défense (avec un relais : ni 2e main, ni balle rapide, ni attaque du passeur ou du relayeur)
 function validAtts(lu, relay) {
@@ -788,11 +832,12 @@ function addSetAttack(b, lu, attKey, mode, cont, relay) {
     // saut au début de l'étape, contact du ballon au sommet du saut
     const jump = { S: { type: 'hop', h: 0.55, a: 0.02, b: 0.6 } };
     for (const o in blk) jump[o] = { type: 'hop', h: 0.5, a: 0.1, b: 0.7 };
-    b.add({ key: 'set', title: "2e main du passeur",
-      text: "Le passeur est en ligne avant : au lieu de faire la passe, il saute comme pour passer et pousse le ballon chez l'adversaire, dans la zone vide derrière le contre. Ses coéquipiers viennent quand même en couverture autour de lui.",
+    b.add({ key: 'set', title: tr("2e main du passeur", "Setter dump"),
+      text: tr("Le passeur est en ligne avant : au lieu de faire la passe, il saute comme pour passer et pousse le ballon chez l'adversaire, dans la zone vide derrière le contre. Ses coéquipiers viennent quand même en couverture autour de lui.",
+        "The setter is in the front row: instead of setting, they jump as if to set and push the ball over into the open spot behind the block. Teammates still come in to cover around them."),
       dur: 1.1, pos: Object.assign(pos, blk), jump, ball: { to: [HIT.dump.land[0], 0.11, HIT.dump.land[1]], apex: 3.4, win: [0.3, 0.85], bounce: true },
       ctx: { attacker: 'S', attKey, phase: 'dump' } });
-    b.add({ key: 'replace', title: "Point ! Puis replacement", text: replaceText(lu), dur: 2.6, pos: replacePos(lu), ctx: { attacker: 'S', attKey } });
+    b.add({ key: 'replace', title: tr("Point ! Puis replacement", "Point! Then back to base"), text: replaceText(lu), dur: 2.6, pos: replacePos(lu), ctx: { attacker: 'S', attKey } });
     return;
   }
   // Feintes : les autres attaquants avant font leur course d'élan (le central saute en même temps que l'attaque)
@@ -815,11 +860,14 @@ function addSetAttack(b, lu, attKey, mode, cont, relay) {
   if (cont) Object.assign(setPos, { oB1: [0.4, -7.4], oB2: [-3.0, -5.8], oS: [2.9, -5.9] }, { [cont.digger]: cont.spot });
   jumpSet[attacker] = { type: 'up', h: A.h > 3.1 ? 0.75 : 0.7 };
   for (const o in blk) jumpSet[o] = { type: 'up', h: 0.6 };
-  const decoyTxt = Object.keys(decoys).length ? "Les autres attaquants avant font leur course d'élan pour tromper le contre ; " : '';
-  b.add({ key: 'set', title: relay ? "Passe de relais du pointu" : "Passe",
+  const decoyTxt = Object.keys(decoys).length ? tr("Les autres attaquants avant font leur course d'élan pour tromper le contre ; ", "The other front-row hitters run their approach to fool the block; ") : '';
+  const where = attKey === 'pipe' ? 'pipe' : tr('poste ', 'position ') + attKey.slice(1);
+  b.add({ key: 'set', title: relay ? tr("Passe de relais du pointu", "Emergency set by the opposite") : tr("Passe", "Set"),
     text: relay
-      ? `Le passeur a joué le premier ballon : il ne peut pas faire la passe. ${cap(nm(setter))} assure le relais avec une passe haute, un peu loin du filet, pour ${nm(attacker)} (${attKey === 'pipe' ? 'pipe' : 'poste ' + attKey.slice(1)}), qui a ainsi le temps de prendre son élan. ${decoyTxt}${cap(nm('S'))} rejoint la couverture.`
-      : `Le passeur donne une ${A.name} pour ${nm(attacker)}. ${decoyTxt}les joueurs arrière vont déjà vers leur place de couverture.`,
+      ? tr(`Le passeur a joué le premier ballon : il ne peut pas faire la passe. ${cap(nm(setter))} assure le relais avec une passe haute, un peu loin du filet, pour ${nm(attacker)} (${where}), qui a ainsi le temps de prendre son élan. ${decoyTxt}${cap(nm('S'))} rejoint la couverture.`,
+        `The setter played the first ball, so they can't set. ${cap(nm(setter))} takes the second ball with a high set, a little off the net, for ${nm(attacker)} (${where}), who has time for a full approach. ${decoyTxt}${nm('S')} moves into coverage.`)
+      : tr(`Le passeur donne une ${trp(A.name)} pour ${nm(attacker)}. ${decoyTxt}les joueurs arrière vont déjà vers leur place de couverture.`,
+        `The setter delivers a ${trp(A.name)} for ${nm(attacker)}. ${decoyTxt}the back-row players are already moving to their coverage spots.`),
     dur: A.set + (relay ? 0.45 : 0.15), pos: setPos, jump: jumpSet,
     ball: { to: [A.hit[0], A.h, A.hit[1]], apex: A.apex + (relay ? 0.5 : 0) }, ctx: { attacker, attKey, decoys: Object.keys(decoys), plan, setter } });
   const cov = Object.assign({}, plan);
@@ -827,15 +875,17 @@ function addSetAttack(b, lu, attKey, mode, cont, relay) {
   const jumpAtt = { [attacker]: { type: 'down', h: 0.72 } };
   for (const o in blk) jumpAtt[o] = { type: 'down', h: 0.6 };
   if (cont) {
-    b.add({ key: 'attack', title: "Attaque et couverture",
-      text: `${cap(nm(attacker))} frappe. Les coéquipiers forment la couverture « 3-2 » autour de lui. Mais l'adversaire défend le ballon : l'échange continue.`,
+    b.add({ key: 'attack', title: tr("Attaque et couverture", "Attack and coverage"),
+      text: tr(`${cap(nm(attacker))} frappe. Les coéquipiers forment la couverture « 3-2 » autour de lui. Mais l'adversaire défend le ballon : l'échange continue.`,
+        `${cap(nm(attacker))} swings. Teammates form the 3-2 hitter coverage around them. But the opponent digs the ball: the rally goes on.`),
       dur: 1.0, pos: cov, jump: jumpAtt, ball: { to: [cont.spot[0] + 0.1, H.pass, cont.spot[1] + 0.15], arc: 0.35, win: [0, 0.42] }, ctx: { attacker, attKey, plan, oppDigger: cont.digger, setter } });
     return;
   }
-  b.add({ key: 'attack', title: "Attaque et couverture",
-    text: `${cap(nm(attacker))} frappe dans une zone libre. Les coéquipiers forment la couverture « 3-2 » : trois joueurs bas tout près de l'attaquant, deux autres plus loin dans les trous, pour relever un ballon renvoyé par le contre.`,
+  b.add({ key: 'attack', title: tr("Attaque et couverture", "Attack and coverage"),
+    text: tr(`${cap(nm(attacker))} frappe dans une zone libre. Les coéquipiers forment la couverture « 3-2 » : trois joueurs bas tout près de l'attaquant, deux autres plus loin dans les trous, pour relever un ballon renvoyé par le contre.`,
+      `${cap(nm(attacker))} hits into an open spot. Teammates form the 3-2 hitter coverage: three players low and close to the hitter, two more further back in the seams, to pick up a ball blocked back.`),
     dur: 1.0, pos: cov, jump: jumpAtt, ball: { to: [A.land[0], 0.11, A.land[1]], arc: 0.35, win: [0, 0.38], bounce: true }, ctx: { attacker, attKey, plan, setter } });
-  b.add({ key: 'replace', title: "Point ! Puis replacement", text: replaceText(lu), dur: 2.6, pos: replacePos(lu), ctx: { attacker, attKey } });
+  b.add({ key: 'replace', title: tr("Point ! Puis replacement", "Point! Then back to base"), text: replaceText(lu), dur: 2.6, pos: replacePos(lu), ctx: { attacker, attKey } });
 }
 function replacePos(lu) {
   const p = {};
@@ -844,7 +894,8 @@ function replacePos(lu) {
 }
 function replaceText(lu) {
   const f = lu.roleAt;
-  return `Si l'échange continue, chacun rejoint son poste de spécialité. Avant : ${nm(f.OHf)} en 4, ${nm(f.MBf)} en 3, ${nm(f.RF)} en 2. Arrière : ${nm(f.z5)} en 5, ${nm(f.z6)} en 6, ${nm(f.z1)} en 1.`;
+  return tr(`Si l'échange continue, chacun rejoint son poste de spécialité. Avant : ${nm(f.OHf)} en 4, ${nm(f.MBf)} en 3, ${nm(f.RF)} en 2. Arrière : ${nm(f.z5)} en 5, ${nm(f.z6)} en 6, ${nm(f.z1)} en 1.`,
+    `If the rally continues, everyone switches to their specialty position. Front row: ${nm(f.OHf)} in 4, ${nm(f.MBf)} in 3, ${nm(f.RF)} in 2. Back row: ${nm(f.z5)} in 5, ${nm(f.z6)} in 6, ${nm(f.z1)} in 1.`);
 }
 
 function buildAttack(rot, opts) {
@@ -857,12 +908,14 @@ function buildAttack(rot, opts) {
   const b = new Builder(init, [OPP_SERVE.oB2[0] + 0.3, 2.0, OPP_SERVE.oB2[1]]);
   b.lu = lu;
   // 0. rotation
-  b.add({ key: 'rotation', title: "Positions de rotation",
-    text: `Voici l'ordre officiel de la rotation ${rot.replace('S', 'P')}. Il faut respecter cet ordre au moment du service adverse (règle de chevauchement), mais pas forcément ces places exactes.`,
+  b.add({ key: 'rotation', title: tr("Positions de rotation", "Rotation positions"),
+    text: tr(`Voici l'ordre officiel de la rotation ${rotLbl(rot)}. Il faut respecter cet ordre au moment du service adverse (règle de chevauchement), mais pas forcément ces places exactes.`,
+      `This is the official order of rotation ${rotLbl(rot)}. Players must keep this order when the opponent serves (overlap rule), but not these exact spots.`),
     dur: 2.2, pos: {}, ctx: {} });
   // 1. formation
-  b.add({ key: 'formation', title: "Placement en réception",
-    text: "Trois réceptionneurs (R1, R2 et libéro) forment une ligne à environ 6 m du filet. Les autres se cachent pour ne pas gêner, tout en restant dans l'ordre de rotation. " + NOTES[rot],
+  b.add({ key: 'formation', title: tr("Placement en réception", "Serve-receive formation"),
+    text: tr("Trois réceptionneurs (R1, R2 et libéro) forment une ligne à environ 6 m du filet. Les autres se cachent pour ne pas gêner, tout en restant dans l'ordre de rotation. ",
+      "Three passers (OH1, OH2 and the libero) form a line about 6 m (20 ft) from the net. The others hide so they don't get in the way, while staying in rotational order. ") + trp(NOTES[rot]),
     dur: 2.6, pos: Object.assign({}, recv), ctx: {} });
   // receveur
   const passers = ['OH1', 'OH2', 'L'].sort((a, c) => recv[a][0] - recv[c][0]);
@@ -882,8 +935,9 @@ function buildAttack(rot, opts) {
   });
   serveMove[receiver] = [rp[0] + 0.15, rp[1] + 0.2];
   serveMove.oB2 = [-3.0, -6.6];
-  b.add({ key: 'serve', title: "Service adverse",
-    text: "Dès que le serveur adverse frappe, chacun peut quitter sa place : le passeur file vers la cible, les attaquants qui ne réceptionnent pas rejoignent leur couloir d'attaque.",
+  b.add({ key: 'serve', title: tr("Service adverse", "Opponent's serve"),
+    text: tr("Dès que le serveur adverse frappe, chacun peut quitter sa place : le passeur file vers la cible, les attaquants qui ne réceptionnent pas rejoignent leur couloir d'attaque.",
+      "As soon as the opposing server contacts the ball, everyone can leave their spot: the setter releases to the target, and the hitters who aren't passing move to their attack lanes."),
     dur: 1.5, pos: serveMove, ball: { to: [rp[0] + 0.15, H.pass, rp[1] + 0.2], apex: 4.2 }, ctx: { receiver, passers } });
   // 3. réception
   const recvMove = { S: T.slice() };
@@ -904,8 +958,9 @@ function buildAttack(rot, opts) {
     recvMove[receiver] = lerp2(b.cur[receiver], HIT[k].run, 0.75);
   }
   Object.assign(recvMove, { oL: [3.0, -0.6], oM: [0, -0.6], oR: [-3.0, -0.6], oB2: [-3.0, -6.0], oB1: [0, -8.0], oS: [2.8, -6.0] });
-  b.add({ key: 'reception', title: "Réception",
-    text: `${cap(nm(receiver))} fait une manchette vers la cible : au filet, un peu à droite du centre, assez haut pour laisser le temps au passeur d'arriver. Les attaquants reculent pour prendre leur élan.`,
+  b.add({ key: 'reception', title: tr("Réception", "Serve receive"),
+    text: tr(`${cap(nm(receiver))} fait une manchette vers la cible : au filet, un peu à droite du centre, assez haut pour laisser le temps au passeur d'arriver. Les attaquants reculent pour prendre leur élan.`,
+      `${cap(nm(receiver))} forearm-passes to the target: at the net, just right of center, high enough to give the setter time to get there. The hitters back off the net to start their approach.`),
     dur: 1.7, pos: recvMove, ball: { to: [T[0], H.set, T[1] + 0.25], apex: 4.6 }, ctx: { receiver } });
   if (opts.rally) rallyLoop(b, lu, rot, attKey, opts.rally);
   else addSetAttack(b, lu, attKey, 'attack');
@@ -938,15 +993,25 @@ function addDefenseCycle(b, lu, side, attKey, shotKey) {
   blockers.forEach(id => { jump[id] = { type: 'up', h: side === 'B' ? 0.45 : 0.55 }; });
   d[OH.who] = OH.hit; jump[OH.who] = { type: 'up', h: 0.7 };
   const blockTxt = side === 'B'
-    ? `${cap(nm(blockers[0]))} et ${nm(blockers[1])} montent au contre au centre (l'attaque part de loin, le contre a moins d'importance) ; ${nm(offBlocker)}, le contreur libre, recule vers la ligne des 3 m.`
-    : `${cap(nm(blockers[0]))} et ${nm(blockers[1])} se déplacent ensemble pour former un double contre ; ${nm(offBlocker)}, le contreur libre, recule vers la ligne des 3 m pour les feintes.`;
-  b.add({ key: 'oppSet', title: side === 'B' ? "Pipe adverse : contre et défense" : "Passe adverse : contre et défense",
-    text: `La passe part vers ${OH.label}. ${blockTxt} Les arrières se placent autour du contre : le joueur en zone 6 reste au fond.`,
+    ? tr(`${cap(nm(blockers[0]))} et ${nm(blockers[1])} montent au contre au centre (l'attaque part de loin, le contre a moins d'importance) ; ${nm(offBlocker)}, le contreur libre, recule vers la ligne des 3 m.`,
+      `${cap(nm(blockers[0]))} and ${nm(blockers[1])} go up to block in the middle (the attack comes from deep, so the block matters less); ${nm(offBlocker)}, the off-blocker, drops back to the 10-ft line.`)
+    : tr(`${cap(nm(blockers[0]))} et ${nm(blockers[1])} se déplacent ensemble pour former un double contre ; ${nm(offBlocker)}, le contreur libre, recule vers la ligne des 3 m pour les feintes.`,
+      `${cap(nm(blockers[0]))} and ${nm(blockers[1])} move together to form a double block; ${nm(offBlocker)}, the off-blocker, drops back to the 10-ft line to cover tips.`);
+  b.add({ key: 'oppSet', title: side === 'B' ? tr("Pipe adverse : contre et défense", "Opponent's pipe: block and defense") : tr("Passe adverse : contre et défense", "Opponent's set: block and defense"),
+    text: tr(`La passe part vers ${trp(OH.label)}. ${blockTxt} Les arrières se placent autour du contre : le joueur en zone 6 reste au fond.`,
+      `The set goes to ${trp(OH.label)}. ${blockTxt} The back-row players set up around the block: the zone 6 player stays deep.`),
     dur: OH.set + 0.2, pos: d, jump, ball: { to: [OH.hit[0], hitH, OH.hit[1]], apex: OH.apex },
     ctx: { blockers, offBlocker, digger, side, shot, setter: relay ? relay.id : 'S' } });
   const j2 = {}; blockers.forEach(id => { j2[id] = { type: 'down', h: side === 'B' ? 0.45 : 0.55 }; }); j2[OH.who] = { type: 'down', h: 0.7 };
   const D = cap(nm(digger));
-  const SHOT_TXT = {
+  const SHOT_TXT = LANG === 'en' ? {
+    diag: `The hitter swings cross-court, past the block. ${D}, lined up with the cross-court angle, digs it.`,
+    line: `The hitter goes down the line, between the block and the sideline. ${D} digs the line.`,
+    tip: `The hitter tips: they drop the ball just behind the block. ${D} dives forward to pick it up.`,
+    deep: `The hitter hits deep, toward the end line. ${D}, who stayed deep, digs it.`,
+    z5: `The hitter attacks toward our zone 5. ${D} digs it.`,
+    z1: `The hitter attacks toward our zone 1. ${D} digs it.`,
+  } : {
     diag: `L'attaquant frappe en diagonale, à côté du contre. ${D}, placé dans l'axe de la diagonale, défend.`,
     line: `L'attaquant frappe le long de la ligne, entre le contre et la ligne de côté. ${D} défend la ligne.`,
     tip: `L'attaquant feinte : il pose le ballon juste derrière le contre. ${D} se jette en avant pour le récupérer.`,
@@ -954,13 +1019,13 @@ function addDefenseCycle(b, lu, side, attKey, shotKey) {
     z5: `L'attaquant frappe vers notre zone 5. ${D} défend.`,
     z1: `L'attaquant frappe vers notre zone 1. ${D} défend.`,
   };
-  const relayTxt = relay ? " C'est le passeur qui touche le premier ballon : il ne pourra pas faire la passe." : '';
+  const relayTxt = relay ? tr(" C'est le passeur qui touche le premier ballon : il ne pourra pas faire la passe.", " The setter takes the first ball, so they won't be able to set.") : '';
   const isTip = shot === 'tip';
   // plongeon si le défenseur doit aller chercher le ballon loin de sa place (ou sur une feinte)
   const from = b.cur[digger], dive = isTip || Math.hypot(digSpot[0] - from[0], digSpot[1] - from[1]) > 1.0;
   const ballY = dive ? 0.42 : H.pass;
-  b.add({ key: 'oppAttack', title: isTip ? "Feinte adverse" : "Attaque adverse",
-    text: (isTip ? '' : "Les contreurs sautent, mains au-dessus du filet. ") + SHOT_TXT[shot] + relayTxt,
+  b.add({ key: 'oppAttack', title: isTip ? tr("Feinte adverse", "Opponent's tip") : tr("Attaque adverse", "Opponent's attack"),
+    text: (isTip ? '' : tr("Les contreurs sautent, mains au-dessus du filet. ", "The blockers jump, hands pressing over the net. ")) + SHOT_TXT[shot] + relayTxt,
     dur: isTip ? 1.2 : 0.8, pos: { [digger]: digSpot, [OH.who]: [OH.hit[0], OH.hit[1] - 0.4] }, jump: j2,
     ball: isTip
       ? { to: [digSpot[0] + 0.1, ballY, digSpot[1] - 0.45], apex: hitH + 0.45, win: [0.05, 0.92] }
@@ -968,21 +1033,23 @@ function addDefenseCycle(b, lu, side, attKey, shotKey) {
     ctx: { blockers, offBlocker, digger, side, shot, dive, setter: relay ? relay.id : 'S' } });
   // Transition
   const setter = relay ? relay.id : 'S', setSpot = relay ? relay.spot : T;
-  const tr = { [setter]: setSpot.slice() };
+  const trn = { [setter]: setSpot.slice() };
   for (const k in lu.att) {
     const id = lu.att[k];
     if (k === 'dump' || id === 'S' || id === setter || id === digger || (relay && k === 'p3')) continue;
-    tr[id] = HIT[k].run;
+    trn[id] = HIT[k].run;
   }
-  if (lu.att[attKey] === digger) tr[digger] = lerp2(digSpot, HIT[attKey].run, 0.6);
-  if (relay) tr.S = lerp2(digSpot, [1.6, 3.4], 0.5);   // le passeur se relève et vient vers la couverture
-  Object.assign(tr, { oL: [3.0, -0.6], oM: [0, -0.6], oR: [-3.0, -0.6], oS: [1.5, -5.5], oB1: [0, -7.8], oB2: [-2.8, -6.0] });
+  if (lu.att[attKey] === digger) trn[digger] = lerp2(digSpot, HIT[attKey].run, 0.6);
+  if (relay) trn.S = lerp2(digSpot, [1.6, 3.4], 0.5);   // le passeur se relève et vient vers la couverture
+  Object.assign(trn, { oL: [3.0, -0.6], oM: [0, -0.6], oR: [-3.0, -0.6], oS: [1.5, -5.5], oB1: [0, -7.8], oB2: [-2.8, -6.0] });
   const setterTxt = relay
-    ? `${cap(nm(setter))} annonce « Relais ! » et vient se placer sous le ballon pour faire la passe.`
-    : (r.z1 === 'S' ? "Le passeur, qui défendait en zone 1, file vers la cible." : (blockers.includes('S') ? "Le passeur, qui contrait, se retourne vers la cible." : "Le passeur rejoint la cible."));
-  b.add({ key: 'dig', title: "Défense",
-    text: `${D} défend le ballon haut, vers le centre du terrain. ${setterTxt} Les contreurs reculent vite pour reprendre leur élan : c'est la transition vers la contre-attaque.`,
-    dur: 1.8, pos: tr, ball: { to: [setSpot[0], H.set, setSpot[1] + 0.4], apex: 4.8 }, ctx: { digger, blockers, offBlocker, shot, dive, setter } });
+    ? tr(`${cap(nm(setter))} annonce « Relais ! » et vient se placer sous le ballon pour faire la passe.`, `${cap(nm(setter))} calls "Help!" and gets under the ball to set.`)
+    : (r.z1 === 'S' ? tr("Le passeur, qui défendait en zone 1, file vers la cible.", "The setter, who was defending in zone 1, releases to the target.")
+      : (blockers.includes('S') ? tr("Le passeur, qui contrait, se retourne vers la cible.", "The setter, who was blocking, turns and goes to the target.") : tr("Le passeur rejoint la cible.", "The setter goes to the target.")));
+  b.add({ key: 'dig', title: tr("Défense", "Dig"),
+    text: tr(`${D} défend le ballon haut, vers le centre du terrain. ${setterTxt} Les contreurs reculent vite pour reprendre leur élan : c'est la transition vers la contre-attaque.`,
+      `${D} digs the ball high toward the middle of the court. ${setterTxt} The blockers transition off the net to get their approach: this is the transition to the counter-attack.`),
+    dur: 1.8, pos: trn, ball: { to: [setSpot[0], H.set, setSpot[1] + 0.4], apex: 4.8 }, ctx: { digger, blockers, offBlocker, shot, dive, setter } });
   return relay;
 }
 
@@ -998,16 +1065,20 @@ function buildDefense(rot, opts) {
   const side = opts.oppSide || 'L';
   const OH = OPP_HIT[side];
   const r = lu.roleAt;
-  const mbNote = lu.libIn ? '' : ` C'est le central qui sert : le libéro ne peut pas servir, donc ${nm(lu.backMB)} reste et défend en zone 5 sur ce point.`;
-  b.add({ key: 'serveRot', title: "Au service",
-    text: `On sert en ${rot.replace('S', 'P')} : ${nm(lu.server)} sert depuis le fond, derrière la zone 1. Les autres respectent l'ordre de rotation jusqu'à la frappe.` + mbNote,
+  const mbNote = lu.libIn ? '' : tr(` C'est le central qui sert : le libéro ne peut pas servir, donc ${nm(lu.backMB)} reste et défend en zone 5 sur ce point.`,
+    ` The middle is serving: the libero can't serve here, so ${nm(lu.backMB)} stays in and plays defense in zone 5 for this rally.`);
+  b.add({ key: 'serveRot', title: tr("Au service", "Serving"),
+    text: tr(`On sert en ${rotLbl(rot)} : ${nm(lu.server)} sert depuis le fond, derrière la zone 1. Les autres respectent l'ordre de rotation jusqu'à la frappe.`,
+      `We serve in ${rotLbl(rot)}: ${nm(lu.server)} serves from behind the end line, behind zone 1. The others keep rotational order until the serve is contacted.`) + mbNote,
     dur: 2.2, pos: {}, ctx: {} });
-  b.add({ key: 'serve', title: "Service et permutation",
-    text: "Dès la frappe, chacun rejoint son poste de spécialité : c'est la permutation. " + replaceText(lu).replace("Si l'échange continue, chacun rejoint son poste de spécialité. ", ''),
+  b.add({ key: 'serve', title: tr("Service et permutation", "Serve and switch"),
+    text: tr("Dès la frappe, chacun rejoint son poste de spécialité : c'est la permutation. ", "On contact, everyone switches to their specialty position. ")
+      + replaceText(lu).replace(/^(Si l'échange continue, chacun rejoint son poste de spécialité|If the rally continues, everyone switches to their specialty position)\. /, ''),
     dur: 2.2, pos: Object.assign(replacePos(lu), { oS: lerp2(OPP_RECV.oS, T_OPP, 0.6) }),
     ball: { to: [0, H.pass, -6.2], apex: 4.2 }, ctx: {} });
-  b.add({ key: 'oppPass', title: "Réception adverse",
-    text: "L'adversaire réceptionne. On reste en position de base : les avants au filet, mains hautes ; les arrières entre 6 et 8 m. Tout le monde regarde le passeur adverse.",
+  b.add({ key: 'oppPass', title: tr("Réception adverse", "Opponent's pass"),
+    text: tr("L'adversaire réceptionne. On reste en position de base : les avants au filet, mains hautes ; les arrières entre 6 et 8 m. Tout le monde regarde le passeur adverse.",
+      "The opponent passes. We stay in base: front-row players at the net, hands up; back-row players between 6 and 8 m (20–26 ft). Everyone reads the opposing setter."),
     dur: 1.6, pos: { oS: T_OPP, oL: [3.9, -3.8], oM: [-0.3, -2.4], oR: [-3.9, -3.6], oB1: [0, -6.0] },
     ball: { to: [T_OPP[0], H.set, T_OPP[1] - 0.25], apex: 4.6 }, ctx: {} });
   const valid = validAtts(lu, oppShotPlan(lu, side, opts.shot).relay);
@@ -1015,7 +1086,7 @@ function buildDefense(rot, opts) {
   const relay = addDefenseCycle(b, lu, side, attKey, opts.shot);
   addSetAttack(b, lu, attKey, 'defense', null, relay);
   // renommer l'attaque en contre-attaque
-  b.steps.forEach(s => { if (s.key === 'attack') s.title = 'Contre-attaque'; });
+  b.steps.forEach(s => { if (s.key === 'attack') s.title = tr('Contre-attaque', 'Counter-attack'); });
   return b;
 }
 
@@ -1037,14 +1108,14 @@ function rallyLoop(b, luA, rot, firstKey, R) {
   const luR = lineup(rot, 'rally');
   const rng = R.rng, n = R.n;
   let key = firstKey, relay = null;
-  const SIDE_LBL = { L: 'à gauche', M: 'au centre', R: 'à droite', B: 'en pipe, au centre' };
+  const SIDE_LBL = { L: ['à gauche', 'from the left'], M: ['au centre', 'through the middle'], R: ['à droite', 'from the right'], B: ['en pipe, au centre', 'on a pipe, in the middle'] };
   for (let k = 1; k <= n; k++) {
     const lu = k === 1 ? luA : luR;
     const from = b.steps.length;
     if (k === n) {
       addSetAttack(b, lu, key, 'rally', null, relay);
       const last = b.steps[b.steps.length - 1];
-      last.title = "Point gagné ! Puis replacement";
+      last.title = tr("Point gagné ! Puis replacement", "Point won! Then back to base");
     } else {
       // attaque adverse tirée au sort : côté puis type de frappe (la pipe part de l'arrière centre, oB1)
       const side = pickW(rng, [['L', 0.4], ['M', 0.18], ['R', 0.3], ['B', 0.12]]);
@@ -1056,8 +1127,9 @@ function rallyLoop(b, luA, rot, firstKey, R) {
       const op = { oS: T_OPP, oL: OPP_HIT.L.run, oM: OPP_HIT.M.run, oR: OPP_HIT.R.run };
       op[digger] = spot;
       op[digger === 'oB1' ? 'oB2' : 'oB1'] = side === 'B' ? OPP_HIT.B.run : (digger === 'oB1' ? [-2.8, -6.2] : [0.3, -7.2]);
-      b.add({ key: 'oDig', title: "Défense adverse",
-        text: `L'adversaire défend et relance vers son passeur. Notre équipe quitte la couverture et revient en position de base : les avants au filet, mains hautes, les arrières en défense. L'attaque adverse va partir ${SIDE_LBL[side]}.`,
+      b.add({ key: 'oDig', title: tr("Défense adverse", "Opponent's dig"),
+        text: tr(`L'adversaire défend et relance vers son passeur. Notre équipe quitte la couverture et revient en position de base : les avants au filet, mains hautes, les arrières en défense. L'attaque adverse va partir ${trp(SIDE_LBL[side])}.`,
+          `The opponent digs and passes to their setter. Our team leaves coverage and gets back to base: front-row players at the net, hands up, back-row players in defense. The opposing attack will come ${trp(SIDE_LBL[side])}.`),
         dur: 2.2, pos: Object.assign(replacePos(luR), op), ball: { to: [T_OPP[0], H.set, T_OPP[1] - 0.25], apex: 4.6 }, ctx: { oppDigger: digger } });
       const r2 = oppShotPlan(luR, side, shot).relay;
       key = pickAttack(rng, luR, k + 1 === n && !r2, r2);
@@ -1066,7 +1138,7 @@ function rallyLoop(b, luA, rot, firstKey, R) {
     for (let i = from; i < b.steps.length; i++) b.steps[i].tour = k;
   }
   // préfixe des titres : numéro d'échange
-  b.steps.forEach(s => { if (s.tour) s.title = `Échange ${s.tour} · ${s.title}`; });
+  b.steps.forEach(s => { if (s.tour) s.title = `${tr('Échange', 'Exchange')} ${s.tour} · ${s.title}`; });
 }
 
 // ───────────────────────── Conseils par rôle ─────────────────────────
@@ -1075,8 +1147,10 @@ function coverTip(id, c, step) {
   const hit = HIT[c.attKey].hit;
   const d = Math.hypot(c.plan[id][0] - hit[0], c.plan[id][1] - hit[1]);
   return d < 3.2
-    ? "Couverture proche : à 1-2 m de l'attaquant, très bas, mains devant toi. Si le contre renvoie le ballon, il tombe ici."
-    : "Couverture lointaine : environ 4 m derrière, dans le trou entre deux coéquipiers proches, pour les ballons qui rebondissent plus loin.";
+    ? tr("Couverture proche : à 1-2 m de l'attaquant, très bas, mains devant toi. Si le contre renvoie le ballon, il tombe ici.",
+      "Close coverage: 1–2 m (3–6 ft) from the hitter, very low, hands out in front. If the block sends the ball back, it lands here.")
+    : tr("Couverture lointaine : environ 4 m derrière, dans le trou entre deux coéquipiers proches, pour les ballons qui rebondissent plus loin.",
+      "Deep coverage: about 4 m (13 ft) back, in the seam between two close covers, for balls that rebound further.");
 }
 function tipFor(id, step, lu, scen) {
   const c = step.ctx || {};
@@ -1085,82 +1159,101 @@ function tipFor(id, step, lu, scen) {
   const onCourt = lu.onCourt.includes(id);
   if (!onCourt) {
     return id === 'L'
-      ? "Tu es sur le banc pour ce point : le central qui sert ne peut pas être remplacé avant la fin de l'échange."
-      : "Tu es remplacé par le libéro tant que tu es en ligne arrière. Tu reviens quand ta rotation te ramène devant (zone 4).";
+      ? tr("Tu es sur le banc pour ce point : le central qui sert ne peut pas être remplacé avant la fin de l'échange.",
+        "You're on the bench for this rally: the serving middle can't be replaced until the rally is over.")
+      : tr("Tu es remplacé par le libéro tant que tu es en ligne arrière. Tu reviens quand ta rotation te ramène devant (zone 4).",
+        "The libero replaces you while you're in the back row. You come back in when your rotation brings you to the front row (zone 4).");
   }
   const p = lu.posOf[id];
   const isAtt = c.attacker === id;
+  const goZone = () => tr(`Dès la frappe, rejoins la zone ${zn} pour ${zoneReason(id, lu)}.`, `On contact, switch to zone ${zn} to ${zoneReason(id, lu)}.`);
   switch (step.key) {
     case 'rotation':
-      return id === 'L' ? `Tu remplaces ${nm(lu.backMB)} en ligne arrière (zone ${p}).` : `Ta place dans la rotation : zone ${p}${isFront(p) ? ' (ligne avant)' : ' (ligne arrière)'}. Tu dois rester dans cet ordre jusqu'à la frappe du service.`;
+      return id === 'L'
+        ? tr(`Tu remplaces ${nm(lu.backMB)} en ligne arrière (zone ${p}).`, `You replace ${nm(lu.backMB)} in the back row (zone ${p}).`)
+        : tr(`Ta place dans la rotation : zone ${p}${isFront(p) ? ' (ligne avant)' : ' (ligne arrière)'}. Tu dois rester dans cet ordre jusqu'à la frappe du service.`,
+          `Your rotational spot: zone ${p}${isFront(p) ? ' (front row)' : ' (back row)'}. You must keep this order until the serve is contacted.`);
     case 'formation': {
       if (['OH1', 'OH2', 'L'].includes(id)) {
         const order = ['OH1', 'OH2', 'L'].sort((a, b) => RECV[scen.rot][a][0] - RECV[scen.rot][b][0]);
-        const lane = ['gauche', 'centre', 'droite'][order.indexOf(id)];
-        return `Tu réceptionnes, couloir de ${lane}. Sur la ligne à environ 6 m du filet, jambes fléchies, poids vers l'avant, bras prêts.`;
+        const k = order.indexOf(id);
+        return tr(`Tu réceptionnes, couloir de ${['gauche', 'centre', 'droite'][k]}. Sur la ligne à environ 6 m du filet, jambes fléchies, poids vers l'avant, bras prêts.`,
+          `You're passing, ${['left', 'middle', 'right'][k]} lane. On the line about 6 m (20 ft) from the net, knees bent, weight forward, arms ready.`);
       }
-      if (id === 'S') return "Tu ne réceptionnes jamais : cache-toi en respectant l'ordre de rotation, prêt à partir vers la cible dès la frappe adverse.";
-      if (isFront(p)) return "Tu ne réceptionnes pas : reste près du filet, hors des trajectoires du service, pour ne pas gêner les réceptionneurs.";
-      return "Tu ne réceptionnes pas : place-toi au fond, hors des couloirs des réceptionneurs.";
+      if (id === 'S') return tr("Tu ne réceptionnes jamais : cache-toi en respectant l'ordre de rotation, prêt à partir vers la cible dès la frappe adverse.",
+        "You never pass: hide while respecting rotational order, ready to release to the target as soon as the server contacts the ball.");
+      if (isFront(p)) return tr("Tu ne réceptionnes pas : reste près du filet, hors des trajectoires du service, pour ne pas gêner les réceptionneurs.",
+        "You're not passing: stay close to the net, out of the serve's path, so you don't get in the passers' way.");
+      return tr("Tu ne réceptionnes pas : place-toi au fond, hors des couloirs des réceptionneurs.", "You're not passing: stand deep, out of the passers' lanes.");
     }
     case 'serve':
-      if (!c.passers) return `Dès la frappe, rejoins la zone ${zn} pour ${zoneReason(id, lu)}.`;
-      if (id === 'S') return "Pars vers la cible dès la frappe du serveur adverse, pas avant : sinon c'est une faute de position.";
-      if (id === c.receiver) return "Le ballon vient sur toi : annonce « J'ai ! », déplace-toi pour être derrière le ballon, plateforme vers la cible.";
-      if (c.passers && c.passers.includes(id)) return "Ce n'est pas pour toi : dis « Laisse ! » et ouvre-toi vers le receveur.";
-      if (isFront(p)) return "Rejoins ton couloir d'attaque et recule pour préparer ta course d'élan.";
-      return "Reste bas et suis le ballon des yeux.";
+      if (!c.passers) return goZone();
+      if (id === 'S') return tr("Pars vers la cible dès la frappe du serveur adverse, pas avant : sinon c'est une faute de position.",
+        "Release to the target when the server contacts the ball, not before: otherwise it's an overlap fault.");
+      if (id === c.receiver) return tr("Le ballon vient sur toi : annonce « J'ai ! », déplace-toi pour être derrière le ballon, plateforme vers la cible.",
+        "The ball is coming to you: call \"Mine!\", move to get behind the ball, platform angled to the target.");
+      if (c.passers && c.passers.includes(id)) return tr("Ce n'est pas pour toi : dis « Laisse ! » et ouvre-toi vers le receveur.", "It's not yours: call \"Out!\" or \"Yours!\" and open up toward the passer.");
+      if (isFront(p)) return tr("Rejoins ton couloir d'attaque et recule pour préparer ta course d'élan.", "Get to your attack lane and back off the net to prepare your approach.");
+      return tr("Reste bas et suis le ballon des yeux.", "Stay low and track the ball.");
     case 'reception':
-      if (id === c.receiver) return "Manchette : bras tendus et serrés, plateforme orientée vers la cible. Vise haut, à environ 1 m du filet.";
-      if (id === 'S') return "Arrive à la cible avant le ballon, épaules tournées vers la zone 4, mains au-dessus du front.";
-      if (Object.values(lu.att).includes(id)) return "Prends ton élan : environ 3-4 m du filet pour les attaquants d'aile, plus près pour le central, derrière la ligne des 3 m pour une attaque arrière.";
-      return "Avance un peu, prêt à couvrir l'attaque.";
+      if (id === c.receiver) return tr("Manchette : bras tendus et serrés, plateforme orientée vers la cible. Vise haut, à environ 1 m du filet.",
+        "Forearm pass: arms straight and together, platform facing the target. Pass high, about 1 m (3 ft) off the net.");
+      if (id === 'S') return tr("Arrive à la cible avant le ballon, épaules tournées vers la zone 4, mains au-dessus du front.",
+        "Get to the target before the ball, shoulders square to zone 4, hands up above your forehead.");
+      if (Object.values(lu.att).includes(id)) return tr("Prends ton élan : environ 3-4 m du filet pour les attaquants d'aile, plus près pour le central, derrière la ligne des 3 m pour une attaque arrière.",
+        "Get ready to approach: about 3–4 m (10–13 ft) off the net for pins, closer for the middle, behind the 10-ft line for a back-row attack.");
+      return tr("Avance un peu, prêt à couvrir l'attaque.", "Move in a little, ready to cover the hitter.");
     case 'set':
-      if (c.attKey === 'dump') return id === 'S' ? "Saute comme pour une passe, puis pousse le ballon d'une main dans la zone vide derrière le contre." : "Viens en couverture autour du passeur, au cas où le contre renvoie le ballon.";
-      if (c.setter && c.setter !== 'S' && id === c.setter) return `Passe de relais pour ${nm(c.attacker)} : haute, un peu loin du filet, pour qu'il ait le temps de frapper fort. Pas de balle rapide, la sécurité d'abord.`;
-      if (id === 'S' && c.setter && c.setter !== 'S') return "Tu as joué le premier ballon : laisse la passe au pointu et viens en couverture.";
-      if (id === 'S') return `Passe pour ${nm(c.attacker)}. Garde la même posture pour toutes tes passes : le contre adverse ne doit pas deviner.`;
-      if (isAtt) return "Course d'élan en 3 pas (gauche-droite-gauche pour un droitier), bras lancés en arrière, saut au dernier moment.";
-      if (c.decoys && c.decoys.includes(id)) return "Fais ta course comme si le ballon était pour toi : tu fixes un contreur adverse. Dès que la passe part ailleurs, file en couverture.";
-      return coverTip(id, c, step) || "Pars vers ta place de couverture.";
+      if (c.attKey === 'dump') return id === 'S'
+        ? tr("Saute comme pour une passe, puis pousse le ballon d'une main dans la zone vide derrière le contre.", "Jump as if to set, then push the ball with one hand into the open spot behind the block.")
+        : tr("Viens en couverture autour du passeur, au cas où le contre renvoie le ballon.", "Cover around the setter in case the block sends the ball back.");
+      if (c.setter && c.setter !== 'S' && id === c.setter) return tr(`Passe de relais pour ${nm(c.attacker)} : haute, un peu loin du filet, pour qu'il ait le temps de frapper fort. Pas de balle rapide, la sécurité d'abord.`,
+        `Emergency set for ${nm(c.attacker)}: high and a little off the net, so they have time to swing hard. No quick set — keep it safe.`);
+      if (id === 'S' && c.setter && c.setter !== 'S') return tr("Tu as joué le premier ballon : laisse la passe au pointu et viens en couverture.", "You played the first ball: let the opposite set and come in to cover.");
+      if (id === 'S') return tr(`Passe pour ${nm(c.attacker)}. Garde la même posture pour toutes tes passes : le contre adverse ne doit pas deviner.`,
+        `Set ${nm(c.attacker)}. Keep the same body position for every set so the opposing block can't read you.`);
+      if (isAtt) return tr("Course d'élan en 3 pas (gauche-droite-gauche pour un droitier), bras lancés en arrière, saut au dernier moment.",
+        "3-step approach (left-right-left for a right-hander), arms swing back, jump at the last moment.");
+      if (c.decoys && c.decoys.includes(id)) return tr("Fais ta course comme si le ballon était pour toi : tu fixes un contreur adverse. Dès que la passe part ailleurs, file en couverture.",
+        "Run your approach as if the set is yours: you freeze an opposing blocker. As soon as the set goes elsewhere, get into coverage.");
+      return coverTip(id, c, step) || tr("Pars vers ta place de couverture.", "Head to your coverage spot.");
     case 'attack':
-      if (isAtt) return "Frappe haut devant toi, bras tendu, et vise une zone libre.";
-      return coverTip(id, c, step) || "Reste bas en couverture tant que le ballon n'est pas tombé.";
+      if (isAtt) return tr("Frappe haut devant toi, bras tendu, et vise une zone libre.", "Contact high and in front, arm fully extended, and hit to an open spot.");
+      return coverTip(id, c, step) || tr("Reste bas en couverture tant que le ballon n'est pas tombé.", "Stay low in coverage until the ball hits the floor.");
     case 'replace':
-      return `Rejoins la zone ${zn} pour ${zoneReason(id, lu)}.`;
+      return tr(`Rejoins la zone ${zn} pour ${zoneReason(id, lu)}.`, `Go to zone ${zn} to ${zoneReason(id, lu)}.`);
     case 'oDig':
       return lu.front.includes(id)
-        ? "L'adversaire relance : reviens au filet face à ton attaquant adverse, mains à hauteur d'épaules, prêt à contrer."
-        : `L'adversaire relance : reviens vite en défense dans ta zone (${zn}), jambes fléchies, et lis la passe adverse.`;
+        ? tr("L'adversaire relance : reviens au filet face à ton attaquant adverse, mains à hauteur d'épaules, prêt à contrer.", "The opponent plays it back: get to the net in front of your hitter, hands at shoulder height, ready to block.")
+        : tr(`L'adversaire relance : reviens vite en défense dans ta zone (${zn}), jambes fléchies, et lis la passe adverse.`, `The opponent plays it back: get back to defense in your zone (${zn}) quickly, knees bent, and read their setter.`);
     case 'serveRot':
-      if (id === lu.server) return "C'est toi qui sers : derrière la ligne de fond, tu as 8 secondes après le coup de sifflet.";
-      return `Ta place dans la rotation : zone ${p}. Reste dans l'ordre jusqu'à la frappe du service.`;
-    case 'serve':
-      return `Dès la frappe, rejoins la zone ${zn} pour ${zoneReason(id, lu)}.`;
+      if (id === lu.server) return tr("C'est toi qui sers : derrière la ligne de fond, tu as 8 secondes après le coup de sifflet.", "You're serving: behind the end line, you have 8 seconds after the whistle.");
+      return tr(`Ta place dans la rotation : zone ${p}. Reste dans l'ordre jusqu'à la frappe du service.`, `Your rotational spot: zone ${p}. Keep the order until the serve is contacted.`);
     case 'oppPass':
-      if (lu.front.includes(id)) return "Au filet, mains à hauteur des épaules, regarde le passeur adverse pour deviner où part la passe.";
-      return "Position de base : jambes fléchies, poids vers l'avant, regarde la passe adverse.";
+      if (lu.front.includes(id)) return tr("Au filet, mains à hauteur des épaules, regarde le passeur adverse pour deviner où part la passe.", "At the net, hands at shoulder height, watch the opposing setter to read where the set goes.");
+      return tr("Position de base : jambes fléchies, poids vers l'avant, regarde la passe adverse.", "Base position: knees bent, weight forward, read the opponent's set.");
     case 'oppSet':
-      if (c.blockers && c.blockers.includes(id)) { const o = c.blockers.find(x => x !== id); return `Déplace-toi en pas chassés et forme le double contre avec ${nm(o)}.`; }
-      if (id === c.offBlocker) return "Tu ne contres pas : recule vers la ligne des 3 m pour récupérer les feintes et les ballons déviés.";
-      if (z === 'z1' && c.side === 'L') return "Défends la ligne derrière le contre, à environ 6 m du filet : c'est toi qui avances sur les feintes derrière le contre.";
-      if (z === 'z5' && c.side === 'R') return "Défends la ligne derrière le contre, à environ 6 m du filet : c'est toi qui avances sur les feintes derrière le contre.";
-      if (z === 'z1') return c.side === 'R' ? "Défends la diagonale côté droit : c'est là qu'arrivent le plus d'attaques." : "Défends ta zone, à environ 6 m du filet.";
-      if (z === 'z6') return "Reste au fond, dans l'axe entre les contreurs : tu prends les balles longues.";
-      if (z === 'z5') return "Défends la diagonale : c'est là qu'arrivent le plus d'attaques.";
-      return "Place-toi autour du contre.";
+      if (c.blockers && c.blockers.includes(id)) { const o = c.blockers.find(x => x !== id); return tr(`Déplace-toi en pas chassés et forme le double contre avec ${nm(o)}.`, `Shuffle over and close the double block with ${nm(o)}.`); }
+      if (id === c.offBlocker) return tr("Tu ne contres pas : recule vers la ligne des 3 m pour récupérer les feintes et les ballons déviés.", "You're the off-blocker: drop back to the 10-ft line to pick up tips and deflections.");
+      if ((z === 'z1' && c.side === 'L') || (z === 'z5' && c.side === 'R')) return tr("Défends la ligne derrière le contre, à environ 6 m du filet : c'est toi qui avances sur les feintes derrière le contre.",
+        "Dig the line behind the block, about 6 m (20 ft) off the net: you're the one who charges tips behind the block.");
+      if (z === 'z1') return c.side === 'R' ? tr("Défends la diagonale côté droit : c'est là qu'arrivent le plus d'attaques.", "Dig cross-court on the right: that's where most attacks land.")
+        : tr("Défends ta zone, à environ 6 m du filet.", "Defend your zone, about 6 m (20 ft) off the net.");
+      if (z === 'z6') return tr("Reste au fond, dans l'axe entre les contreurs : tu prends les balles longues.", "Stay deep, in the seam between the blockers: you take the deep shots.");
+      if (z === 'z5') return tr("Défends la diagonale : c'est là qu'arrivent le plus d'attaques.", "Dig cross-court: that's where most attacks land.");
+      return tr("Place-toi autour du contre.", "Set up around the block.");
     case 'oppAttack':
-      if (c.blockers && c.blockers.includes(id)) return "Saute, mains au-dessus et de l'autre côté du filet, pouces vers le haut.";
-      if (id === c.digger && c.shot === 'tip') return "Feinte : avance vite, bas, et remonte le ballon haut avec les bras tendus (ou d'une main si tu es trop loin).";
-      if (id === c.digger) return "Le ballon arrive sur toi : reste bas, immobile au moment de la frappe, plateforme vers la cible.";
-      return "Arrête-toi et reste bas au moment de la frappe adverse.";
+      if (c.blockers && c.blockers.includes(id)) return tr("Saute, mains au-dessus et de l'autre côté du filet, pouces vers le haut.", "Jump and press your hands over the net, thumbs up.");
+      if (id === c.digger && c.shot === 'tip') return tr("Feinte : avance vite, bas, et remonte le ballon haut avec les bras tendus (ou d'une main si tu es trop loin).", "Tip: move in fast and low, and dig the ball up with straight arms (or one arm if you're too far).");
+      if (id === c.digger) return tr("Le ballon arrive sur toi : reste bas, immobile au moment de la frappe, plateforme vers la cible.", "The ball is coming to you: stay low and still at the hitter's contact, platform toward the target.");
+      return tr("Arrête-toi et reste bas au moment de la frappe adverse.", "Stop and stay low as the opposing hitter contacts the ball.");
     case 'dig':
-      if (id === c.digger && id === 'S') return "Tu as défendu le premier ballon : défends haut vers le centre et crie « Relais ! ». Le pointu fera la passe.";
-      if (id === c.digger) return "Défends haut vers le centre du terrain, pas trop près du filet : le passeur a besoin de temps.";
-      if (c.setter && c.setter !== 'S' && id === c.setter) return "Le passeur a touché le premier ballon : c'est toi qui fais la passe. Annonce « J'ai ! », va sous le ballon, face au poste 4.";
-      if (id === 'S') return "File vers la cible pour faire la passe.";
-      if (Object.values(lu.att).includes(id)) return "Recule vite pour reprendre ta course d'élan : c'est la transition.";
-      return "Reste en place, prêt à couvrir.";
+      if (id === c.digger && id === 'S') return tr("Tu as défendu le premier ballon : défends haut vers le centre et crie « Relais ! ». Le pointu fera la passe.", "You took the first ball: dig it high to the middle and call \"Help!\". The opposite will set.");
+      if (id === c.digger) return tr("Défends haut vers le centre du terrain, pas trop près du filet : le passeur a besoin de temps.", "Dig high to the middle of the court, not too close to the net: the setter needs time.");
+      if (c.setter && c.setter !== 'S' && id === c.setter) return tr("Le passeur a touché le premier ballon : c'est toi qui fais la passe. Annonce « J'ai ! », va sous le ballon, face au poste 4.", "The setter played the first ball: you take the second ball. Call \"Mine!\", get under it, facing position 4.");
+      if (id === 'S') return tr("File vers la cible pour faire la passe.", "Get to the target to set.");
+      if (Object.values(lu.att).includes(id)) return tr("Recule vite pour reprendre ta course d'élan : c'est la transition.", "Transition off the net quickly to get your approach: this is the transition.");
+      return tr("Reste en place, prêt à couvrir.", "Hold your spot, ready to cover.");
   }
   return '';
 }
@@ -1591,7 +1684,6 @@ const rotSeg = $('rotSeg');
 ROT_ORDER.forEach(r => {
   const b = document.createElement('button');
   b.dataset.rot = r;
-  b.innerHTML = `<b>${r.replace('S', 'P')}</b><small>zone ${r[1]}</small>`;
   b.onclick = () => { state.rot = r; rebuild(true); };
   rotSeg.appendChild(b);
 });
@@ -1605,28 +1697,33 @@ $('rallyN').oninput = e => { $('rallyNOut').value = e.target.value; };
 $('rallyN').onchange = e => { state.rallyN = +e.target.value; store.set('rallyN', state.rallyN); rebuild(true); };
 $('bReroll').onclick = () => { state.seed = 1 + Math.floor(Math.random() * 1e9); rebuild(true); play(); };
 
-// Rôles
+// Rôles, légende et prénoms (reconstruits au changement de langue)
 const roleChips = $('roleChips');
-const roleOpts = [['none', 'Aucun', null]].concat(OUR.map(id => [id, ROLES[id].name.replace('Réceptionneur-attaquant', 'R4'), ROLES[id].color]));
-roleOpts.forEach(([id, label, color]) => {
-  const b = document.createElement('button');
-  b.dataset.role = id;
-  b.innerHTML = (color ? `<span class="dot" style="background:${color}"></span>` : '') + label;
-  b.onclick = () => { state.role = id; store.set('role', id); applyRole(); };
-  roleChips.appendChild(b);
-});
-// Légende + prénoms
 const legend = $('legend'), namesBox = $('names');
-OUR.forEach(id => {
-  const d = document.createElement('div');
-  d.innerHTML = `<span class="dot" style="background:${ROLES[id].color}"></span><span><b>${ROLES[id].label}</b> · ${ROLES[id].name.replace('Réceptionneur-attaquant', 'Récep.-attaquant')}</span>`;
-  legend.appendChild(d);
-  const l = document.createElement('label'); l.htmlFor = 'name_' + id; l.textContent = ROLES[id].label;
-  const i = document.createElement('input'); i.id = 'name_' + id; i.maxLength = 10; i.placeholder = ROLES[id].name; i.value = state.names[id] || '';
-  i.oninput = () => { state.names[id] = i.value.trim(); store.set('names', state.names); refreshLabels(); applyRole(); };
-  namesBox.append(l, i);
-});
-{ const d = document.createElement('div'); d.innerHTML = `<span class="dot" style="background:#7b8794"></span><span>Adversaires</span>`; legend.appendChild(d); }
+function buildLists() {
+  rotSeg.querySelectorAll('button').forEach(b => { b.innerHTML = `<b>${rotLbl(b.dataset.rot)}</b><small>zone ${b.dataset.rot[1]}</small>`; });
+  roleChips.innerHTML = '';
+  const shortName = id => ROLES[id].name.replace('Réceptionneur-attaquant', 'R4').replace('Outside hitter', 'Outside').replace('Middle blocker', 'Middle');
+  [['none', tr('Aucun', 'None'), null]].concat(OUR.map(id => [id, shortName(id), ROLES[id].color])).forEach(([id, label, color]) => {
+    const b = document.createElement('button');
+    b.dataset.role = id;
+    b.innerHTML = (color ? `<span class="dot" style="background:${color}"></span>` : '') + label;
+    b.onclick = () => { state.role = id; store.set('role', id); applyRole(); };
+    roleChips.appendChild(b);
+  });
+  legend.innerHTML = ''; namesBox.innerHTML = '';
+  OUR.forEach(id => {
+    const d = document.createElement('div');
+    d.innerHTML = `<span class="dot" style="background:${ROLES[id].color}"></span><span><b>${ROLES[id].label}</b> · ${ROLES[id].name.replace('Réceptionneur-attaquant', 'Récep.-attaquant')}</span>`;
+    legend.appendChild(d);
+    const l = document.createElement('label'); l.htmlFor = 'name_' + id; l.textContent = ROLES[id].label;
+    const i = document.createElement('input'); i.id = 'name_' + id; i.maxLength = 10; i.placeholder = ROLES[id].name; i.value = state.names[id] || '';
+    i.oninput = () => { state.names[id] = i.value.trim(); store.set('names', state.names); refreshLabels(); applyRole(); };
+    namesBox.append(l, i);
+  });
+  const d = document.createElement('div'); d.innerHTML = `<span class="dot" style="background:#7b8794"></span><span>${tr('Adversaires', 'Opponents')}</span>`; legend.appendChild(d);
+}
+buildLists();
 
 // Options
 function chipRow(el, items, cur, onPick) {
@@ -1648,35 +1745,37 @@ function renderOptions(lu) {
   if (isAtt) {
     const recv = RECV[state.rot];
     const order = ['OH1', 'OH2', 'L'].sort((a, b) => recv[a][0] - recv[b][0]);
-    chipRow($('serveChips'), ['g', 'c', 'd'].map((v, i) => ({ v, label: `${['À gauche', 'Au centre', 'À droite'][i]} · ${dispName(order[i])}` })), state.serveTo, v => { state.serveTo = v; rebuild(true); });
+    const lanes = tr(['À gauche', 'Au centre', 'À droite'], ['Left', 'Middle', 'Right']);
+    chipRow($('serveChips'), ['g', 'c', 'd'].map((v, i) => ({ v, label: `${lanes[i]} · ${dispName(order[i])}` })), state.serveTo, v => { state.serveTo = v; rebuild(true); });
   }
   let relay = null;
   if (!isAtt) {
     chipRow($('oppChips'), [
-      { v: 'L', label: 'Poste 4 adverse (vers notre zone 2)' },
-      { v: 'M', label: 'Central adverse' },
-      { v: 'R', label: 'Pointu adverse (vers notre zone 4)' },
-      { v: 'B', label: 'Pipe adverse (arrière centre)' },
+      { v: 'L', label: tr('Poste 4 adverse (vers notre zone 2)', 'Their outside hitter (toward our zone 2)') },
+      { v: 'M', label: tr('Central adverse', 'Their middle') },
+      { v: 'R', label: tr('Pointu adverse (vers notre zone 4)', 'Their opposite (toward our zone 4)') },
+      { v: 'B', label: tr('Pipe adverse (arrière centre)', 'Their pipe (back-row middle)') },
     ], state.oppSide, v => { state.oppSide = v; rebuild(true); });
     const shots = OPP_SHOTS[state.oppSide];
     if (!shots.some(x => x[0] === state.oppShot)) state.oppShot = shots[0][0];
     const sp = oppShotPlan(lu, state.oppSide, state.oppShot);
     relay = sp.relay;
-    chipRow($('shotChips'), shots.map(x => ({ v: x[0], label: `${x[1]} · ${dispName(oppShotPlan(lu, state.oppSide, x[0]).digger)}` })), state.oppShot, v => { state.oppShot = v; rebuild(true); });
+    chipRow($('shotChips'), shots.map(x => ({ v: x[0], label: `${trp(x[1])} · ${dispName(oppShotPlan(lu, state.oppSide, x[0]).digger)}` })), state.oppShot, v => { state.oppShot = v; rebuild(true); });
     $('shotNote').hidden = !relay;
-    if (relay) $('shotNote').textContent = `Le ballon arrive sur le passeur : il ne peut pas toucher deux fois de suite. ${cap(nm('OP'))} assure la passe de relais, donc pas de balle rapide ni d'attaque du pointu sur cette contre-attaque.`;
+    if (relay) $('shotNote').textContent = tr(`Le ballon arrive sur le passeur : il ne peut pas toucher deux fois de suite. ${cap(nm('OP'))} assure la passe de relais, donc pas de balle rapide ni d'attaque du pointu sur cette contre-attaque.`,
+      `The ball goes to the setter, who can't touch it twice in a row. ${cap(nm('OP'))} takes the second ball, so no quick set and no attack by the opposite on this counter-attack.`);
   }
-  $('attTitle').textContent = isAtt ? 'Le passeur sert' : (relay ? 'Le pointu fait la passe vers' : 'La contre-attaque part vers');
+  $('attTitle').textContent = isAtt ? tr('Le passeur sert', 'The setter sets') : (relay ? tr('Le pointu fait la passe vers', 'The opposite sets to') : tr('La contre-attaque part vers', 'The counter-attack goes to'));
   const valid = validAtts(lu, relay);
-  const off = k => !valid.includes(k) ? { disabled: true, title: 'Impossible avec une passe de relais' } : {};
+  const off = k => !valid.includes(k) ? { disabled: true, title: tr('Impossible avec une passe de relais', 'Not possible on an emergency set') } : {};
   const items = [
-    Object.assign({ v: 'p4', label: `Poste 4 · ${dispName(lu.att.p4)}` }, off('p4')),
-    Object.assign({ v: 'p3', label: `Centre · ${dispName(lu.att.p3)}` }, off('p3')),
+    Object.assign({ v: 'p4', label: `${tr('Poste 4', 'Outside (4)')} · ${dispName(lu.att.p4)}` }, off('p4')),
+    Object.assign({ v: 'p3', label: `${tr('Centre', 'Quick (middle)')} · ${dispName(lu.att.p3)}` }, off('p3')),
   ];
-  if (lu.att.p2) items.push(Object.assign({ v: 'p2', label: `Poste 2 · ${dispName(lu.att.p2)}` }, off('p2')));
-  if (lu.att.dump) items.push(Object.assign({ v: 'dump', label: '2e main du passeur', title: 'Possible car le passeur est en ligne avant' }, off('dump')));
+  if (lu.att.p2) items.push(Object.assign({ v: 'p2', label: `${tr('Poste 2', 'Right side (2)')} · ${dispName(lu.att.p2)}` }, off('p2')));
+  if (lu.att.dump) items.push(Object.assign({ v: 'dump', label: tr('2e main du passeur', 'Setter dump'), title: tr('Possible car le passeur est en ligne avant', 'Possible because the setter is in the front row') }, off('dump')));
   if (lu.att.pipe) items.push(Object.assign({ v: 'pipe', label: `Pipe · ${dispName(lu.att.pipe)}` }, off('pipe')));
-  if (lu.att.d1) items.push(Object.assign({ v: 'd1', label: `Arrière zone 1 · ${dispName(lu.att.d1)}` }, off('d1')));
+  if (lu.att.d1) items.push(Object.assign({ v: 'd1', label: `${tr('Arrière zone 1', 'Back row zone 1 (D)')} · ${dispName(lu.att.d1)}` }, off('d1')));
   if (!valid.includes(state.attack)) state.attack = 'p4';
   chipRow($('attChips'), items, state.attack, v => { state.attack = v; rebuild(true); });
 }
@@ -1731,7 +1830,7 @@ function play() {
 function pause() { state.playing = false; pauseAt = null; updatePlayBtn(); }
 function togglePlay() { state.playing ? pause() : play(); }
 function updatePlayBtn() {
-  const [ic, tx] = state.playing ? ['❚❚', 'Pause'] : (state.t >= total - 1e-3 ? ['⟲', 'Revoir'] : ['▶︎', 'Lecture']);
+  const [ic, tx] = state.playing ? ['❚❚', 'Pause'] : (state.t >= total - 1e-3 ? ['⟲', tr('Revoir', 'Replay')] : ['▶︎', tr('Lecture', 'Play')]);
   bPlay.innerHTML = `${ic}<span class="tx"> ${tx}</span>`;
   bPlay.setAttribute('aria-label', tx);
 }
@@ -1763,7 +1862,10 @@ function rebuild(resetTime) {
     const opp = scen.steps.filter(s => s.key === 'oppSet').length;
     const relays = scen.steps.filter(s => s.key === 'set' && s.ctx.setter && s.ctx.setter !== 'S').length;
     const tips = scen.steps.filter(s => s.key === 'oppAttack' && s.ctx.shot === 'tip').length;
-    $('rallySummary').textContent = `Ce tirage : ${atts.length} attaques de notre équipe (${atts.slice(0, 6).join(', ')}${atts.length > 6 ? '…' : ''}) et ${opp} attaques adverses${tips ? `, dont ${tips} feinte${tips > 1 ? 's' : ''}` : ''}.${relays ? ` ${relays} passe${relays > 1 ? 's' : ''} de relais du pointu.` : ''} Durée : ${Math.round(scen.steps.reduce((x, s) => x + s.dur, 0))} s à vitesse ×1.`;
+    const dur = Math.round(scen.steps.reduce((x, s) => x + s.dur, 0)), list = `${atts.slice(0, 6).join(', ')}${atts.length > 6 ? '…' : ''}`;
+    $('rallySummary').textContent = tr(
+      `Ce tirage : ${atts.length} attaques de notre équipe (${list}) et ${opp} attaques adverses${tips ? `, dont ${tips} feinte${tips > 1 ? 's' : ''}` : ''}.${relays ? ` ${relays} passe${relays > 1 ? 's' : ''} de relais du pointu.` : ''} Durée : ${dur} s à vitesse ×1.`,
+      `This draw: ${atts.length} attacks by our team (${list}) and ${opp} opponent attacks${tips ? `, including ${tips} tip${tips > 1 ? 's' : ''}` : ''}.${relays ? ` ${relays} emergency set${relays > 1 ? 's' : ''} by the opposite.` : ''} Length: ${dur} s at ×1 speed.`);
   }
   scen.rot = state.rot;
   computeVel(scen.steps);
@@ -1771,7 +1873,7 @@ function rebuild(resetTime) {
   scen.steps.forEach(s => { stepStarts.push(total); total += s.dur; });
   pressed($('modeSeg'), 'mode', state.mode);
   pressed(rotSeg, 'rot', state.rot);
-  $('rotNote').textContent = NOTES[state.rot];
+  $('rotNote').textContent = trp(NOTES[state.rot]);
   const stepsEl = $('steps'); stepsEl.innerHTML = '';
   scen.steps.forEach((s, i) => {
     const b = document.createElement('button');
@@ -1793,7 +1895,7 @@ function refreshLabels() {
     const P = players[id];
     const parts = [];
     if (state.labels.role) parts.push(ROLES[id].label);
-    if (state.labels.pos) parts.push(lu && lu.onCourt.includes(id) ? 'pos ' + lu.posOf[id] : 'banc');
+    if (state.labels.pos) parts.push(lu && lu.onCourt.includes(id) ? 'pos ' + lu.posOf[id] : tr('banc', 'bench'));
     if (state.labels.name) parts.push(state.names[id] || (state.labels.role ? '' : ROLES[id].label));
     const text = parts.filter(Boolean).join(' · ') || ROLES[id].label;
     if (P.labelKey === text) return;
@@ -1924,11 +2026,11 @@ function render() {
     trail.visible = true;
   } else trail.visible = false;
   zoneGroup.visible = state.show.zones;
-  if (scen.rally) { const tr = s.tour || 0; if (tr !== render._tour) { render._tour = tr; drawPaths(); } }
+  if (scen.rally) { const tour = s.tour || 0; if (tour !== render._tour) { render._tour = tour; drawPaths(); } }
   drawOverlap(i, u);
   // Légende
-  const modeLbl = { attack: 'Attaque', defense: 'Défense', rally: 'Rally' }[state.mode];
-  $('capEyebrow').textContent = `${modeLbl} · ${state.rot.replace('S', 'P')} · étape ${i + 1}/${scen.steps.length}`;
+  const modeLbl = { attack: tr('Attaque', 'Offense'), defense: tr('Défense', 'Defense'), rally: 'Rally' }[state.mode];
+  $('capEyebrow').textContent = `${modeLbl} · ${rotLbl(state.rot)} · ${tr('étape', 'step')} ${i + 1}/${scen.steps.length}`;
   $('capTitle').textContent = s.title;
   $('miniCap').textContent = `${i + 1}/${scen.steps.length} · ${s.title}`;
   $('capText').textContent = s.text;
@@ -1936,7 +2038,8 @@ function render() {
   if (state.role !== 'none') {
     const tip = tipFor(state.role, s, lu, scen);
     tipBox.hidden = !tip;
-    $('capTipWho').textContent = `Toi, ${state.names[state.role] ? state.names[state.role] + ' (' + ROLES[state.role].name.toLowerCase() + ')' : ROLES[state.role].name.toLowerCase()} :`;
+    const rn = LANG === 'en' ? ROLES[state.role].name : ROLES[state.role].name.toLowerCase();
+    $('capTipWho').textContent = tr(`Toi, ${state.names[state.role] ? state.names[state.role] + ' (' + rn + ')' : rn} :`, `You, ${state.names[state.role] ? state.names[state.role] + ' (' + rn + ')' : rn}:`);
     $('capTipText').textContent = tip;
     tipBox.style.setProperty('--tipc', ROLES[state.role].color);
   } else tipBox.hidden = true;
@@ -2058,33 +2161,40 @@ function pickPlayer(cx, cy) {
 }
 function moveDesc(a, b) {
   const dx = b[0] - a[0], dz = b[1] - a[1], d = Math.hypot(dx, dz);
-  if (d < 0.4) return 'tu restes à ta place';
+  if (d < 0.4) return STAY();
   const parts = [];
-  if (dz < -0.5) parts.push('vers le filet'); else if (dz > 0.5) parts.push('vers le fond');
-  if (dx < -0.5) parts.push('vers la gauche'); else if (dx > 0.5) parts.push('vers la droite');
-  return `tu te déplaces d'environ ${d.toFixed(1).replace('.', ',')} m ${parts.join(' et ')}`;
+  if (dz < -0.5) parts.push(tr('vers le filet', 'toward the net')); else if (dz > 0.5) parts.push(tr('vers le fond', 'toward the end line'));
+  if (dx < -0.5) parts.push(tr('vers la gauche', 'to the left')); else if (dx > 0.5) parts.push(tr('vers la droite', 'to the right'));
+  return tr(`tu te déplaces d'environ ${d.toFixed(1).replace('.', ',')} m ${parts.join(' et ')}`, `you move about ${d.toFixed(1)} m (${Math.round(d * 3.28)} ft) ${parts.join(' and ')}`);
 }
+const STAY = () => tr('tu restes à ta place', 'you stay where you are');
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 function tipHTML(id) {
   const i = curStep(), s = scen.steps[i], nx = scen.steps[i + 1];
   const on = lu.onCourt.includes(id);
   const who = state.names[id] ? `${esc(state.names[id])} · ${ROLES[id].name}` : ROLES[id].name;
-  let sub = on ? `Position de rotation ${lu.posOf[id]} (${isFront(lu.posOf[id]) ? 'ligne avant' : 'ligne arrière'})` : 'Hors du terrain pour ce point';
+  const front = isFront(lu.posOf[id]);
+  let sub = on ? tr(`Position de rotation ${lu.posOf[id]} (${front ? 'ligne avant' : 'ligne arrière'})`, `Rotational position ${lu.posOf[id]} (${front ? 'front row' : 'back row'})`)
+    : tr('Hors du terrain pour ce point', 'Off the court for this rally');
   let html = `<h4>${who}</h4><div class="sub">${sub}</div>`;
   const now = tipFor(id, s, lu, scen);
-  if (now) html += `<p><b>Maintenant (${esc(s.title)}) :</b> ${esc(now)}</p>`;
+  const colon = tr(' :', ':');
+  if (now) html += `<p><b>${tr('Maintenant', 'Now')} (${esc(s.title)})${colon}</b> ${esc(now)}</p>`;
   if (on) {
     const mv = moveDesc(s.start[id], s.end[id]);
-    if (mv !== 'tu restes à ta place') html += `<p><b>Pendant cette étape :</b> ${mv}.</p>`;
+    if (mv !== STAY()) html += `<p><b>${tr('Pendant cette étape', 'During this step')}${colon}</b> ${mv}.</p>`;
     if (nx) {
       const next = tipFor(id, nx, lu, scen);
-      html += `<p><b>Ensuite (${esc(nx.title)}) :</b> ${moveDesc(nx.start[id], nx.end[id])}${next ? '. ' + esc(next) : '.'}</p>`;
+      html += `<p><b>${tr('Ensuite', 'Next')} (${esc(nx.title)})${colon}</b> ${moveDesc(nx.start[id], nx.end[id])}${next ? '. ' + esc(next) : '.'}</p>`;
     }
     if (lu.zoneOf[id]) {
       let extra = '';
       if (state.mode === 'attack' && state.rot === 'S1' && (id === 'OH1' || id === 'OP'))
-        extra = id === 'OH1' ? " Exception en P1 : sur la réception, tu attaques d'abord à droite (zone 2), puis tu repasses en zone 4 si l'échange continue." : " Exception en P1 : sur la réception, tu attaques d'abord à gauche (zone 4), puis tu repasses en zone 2 si l'échange continue.";
-      html += `<p><b>Ton poste en jeu :</b> zone ${ZONE_OF[lu.zoneOf[id]]}, pour ${zoneReason(id, lu)}.${extra}</p>`;
+        extra = id === 'OH1'
+          ? tr(" Exception en P1 : sur la réception, tu attaques d'abord à droite (zone 2), puis tu repasses en zone 4 si l'échange continue.", " Exception in S1: off serve receive, you first hit on the right (zone 2), then switch back to zone 4 if the rally continues.")
+          : tr(" Exception en P1 : sur la réception, tu attaques d'abord à gauche (zone 4), puis tu repasses en zone 2 si l'échange continue.", " Exception in S1: off serve receive, you first hit on the left (zone 4), then switch back to zone 2 if the rally continues.");
+      html += tr(`<p><b>Ton poste en jeu :</b> zone ${ZONE_OF[lu.zoneOf[id]]}, pour ${zoneReason(id, lu)}.${extra}</p>`,
+        `<p><b>Your base position:</b> zone ${ZONE_OF[lu.zoneOf[id]]}, to ${zoneReason(id, lu)}.${extra}</p>`);
     }
   }
   return html;
@@ -2162,7 +2272,7 @@ const landMQ = window.matchMedia('(max-height: 520px) and (orientation: landscap
 const portMQ = window.matchMedia('(max-width: 900px) and (orientation: portrait), (max-width: 600px)');
 const captionEl = document.querySelector('.caption');
 const appEl = $('app'), panelEl = $('panel'), stageEl = $('stage');
-const TAB_TITLES = { etape: 'Étape', jeu: 'Jeu', role: 'Rôle', plus: 'Plus' };
+const TAB_TITLES = { etape: ['Étape', 'Step'], jeu: ['Jeu', 'Play'], role: ['Rôle', 'Role'], plus: ['Plus', 'More'] };
 const isMobile = () => document.body.dataset.ui !== 'desk';
 function applyUI() {
   const ui = landMQ.matches ? 'land' : portMQ.matches ? 'port' : 'desk';
@@ -2190,7 +2300,7 @@ function setTab(t, open = true) {
   }
   if (land && open && appEl.classList.contains('drawerOpen') && panelEl.dataset.mtab === t) { closeDrawer(); return; }
   panelEl.dataset.mtab = t;
-  $('drawerTitle').textContent = TAB_TITLES[t];
+  $('drawerTitle').textContent = trp(TAB_TITLES[t]);
   panelEl.scrollTop = 0;
   if (land && open) appEl.classList.add('drawerOpen');
   pressed($('mNav'), 'mt', land && !appEl.classList.contains('drawerOpen') ? '' : t);
@@ -2200,25 +2310,51 @@ $('mNav').querySelectorAll('button').forEach(b => { b.onclick = () => setTab(b.d
 $('drawerClose').onclick = closeDrawer;
 $('miniCap').onclick = () => { if (document.body.dataset.ui === 'land') setTab('etape'); };
 // Vitesse sur téléphone : une touche qui fait défiler les vitesses
-const SPEEDS = [0.25, 0.5, 1, 1.5], SPEED_LBL = { 0.25: '×¼', 0.5: '×½', 1: '×1', 1.5: '×1,5' };
+const SPEEDS = [0.25, 0.5, 1, 1.5], SPEED_LBL = { 0.25: '×¼', 0.5: '×½', 1: '×1', 1.5: ['×1,5', '×1.5'] };
 $('speedCycle').onclick = () => {
   const v = SPEEDS[(SPEEDS.indexOf(state.speed) + 1) % SPEEDS.length];
   document.querySelector(`[data-speed="${v}"]`).click();
-  $('speedCycle').textContent = SPEED_LBL[v];
+  $('speedCycle').textContent = trp(SPEED_LBL[v]);
 };
+
+// ── Langue : bascule français / anglais ──
+// Textes fixes du HTML : la version anglaise est dans data-en (contenu), data-en-title et data-en-aria ;
+// la version française d'origine est gardée dans data-fr* au premier passage.
+function applyStaticLang() {
+  const en = LANG === 'en';
+  document.documentElement.lang = LANG;
+  document.title = tr('Volley 5-1 en 3D', '5-1 Volleyball in 3D');
+  document.querySelectorAll('[data-en]').forEach(el => { if (el.dataset.fr == null) el.dataset.fr = el.innerHTML; el.innerHTML = en ? el.dataset.en : el.dataset.fr; });
+  document.querySelectorAll('[data-en-title]').forEach(el => { if (el.dataset.frTitle == null) el.dataset.frTitle = el.title; el.title = en ? el.dataset.enTitle : el.dataset.frTitle; });
+  document.querySelectorAll('[data-en-aria]').forEach(el => { if (el.dataset.frAria == null) el.dataset.frAria = el.getAttribute('aria-label'); el.setAttribute('aria-label', en ? el.dataset.enAria : el.dataset.frAria); });
+  pressed($('langSw'), 'lang', LANG);
+  $('camLbl').textContent = trp(CAM_LBL[camMode] || CAM_LBL.team);
+  $('drawerTitle').textContent = trp(TAB_TITLES[panelEl.dataset.mtab]);
+  $('speedCycle').textContent = trp(SPEED_LBL[state.speed]);
+}
+function setLang(l) {
+  if (l === LANG) return;
+  LANG = l; store.set('lang', l);
+  applyStaticLang();
+  buildLists();
+  render._tipStep = -1;
+  rebuild(false);   // scénario reconstruit dans la nouvelle langue, sans revenir au début
+  updatePlayBtn();
+}
+$('langSw').querySelectorAll('button').forEach(b => { b.onclick = () => setLang(b.dataset.lang); });
 wrap.addEventListener('pointerdown', e => { if (!e.target.closest('.camBar, .camToggle')) stageEl.classList.remove('camOpen'); });
 $('ctxChip').onclick = () => {
   const open = document.body.dataset.ui === 'port' ? !appEl.classList.contains('sheetMin') : appEl.classList.contains('drawerOpen');
   if (!(open && panelEl.dataset.mtab === 'jeu')) setTab('jeu');
 };
 // Menu caméra : un bouton qui ouvre la liste des vues
-const CAM_LBL = { team: 'Joueur', top: 'Dessus', side: 'Côté', opp: 'Adverse', follow: 'Suivre' };
+const CAM_LBL = { team: ['Joueur', 'Player'], top: ['Dessus', 'Top'], side: ['Côté', 'Side'], opp: ['Adverse', 'Opponent'], follow: ['Suivre', 'Follow'] };
 $('camToggle').onclick = e => { e.stopPropagation(); const o = stageEl.classList.toggle('camOpen'); $('camToggle').setAttribute('aria-expanded', String(o)); };
-document.querySelectorAll('[data-cam]').forEach(b => b.addEventListener('click', () => { stageEl.classList.remove('camOpen'); $('camToggle').setAttribute('aria-expanded', 'false'); $('camLbl').textContent = CAM_LBL[b.dataset.cam]; }));
+document.querySelectorAll('[data-cam]').forEach(b => b.addEventListener('click', () => { stageEl.classList.remove('camOpen'); $('camToggle').setAttribute('aria-expanded', 'false'); $('camLbl').textContent = trp(CAM_LBL[b.dataset.cam]); }));
 // Puce de contexte en haut du terrain : phase · rotation · rôle
 function updateCtx() {
-  const m = { attack: 'Attaque', defense: 'Défense', rally: 'Rally' }[state.mode];
-  $('ctxChip').textContent = `${m} · ${state.rot.replace('S', 'P')}${state.role !== 'none' ? ' · ' + dispName(state.role) : ''}`;
+  const m = { attack: tr('Attaque', 'Offense'), defense: tr('Défense', 'Defense'), rally: 'Rally' }[state.mode];
+  $('ctxChip').textContent = `${m} · ${rotLbl(state.rot)}${state.role !== 'none' ? ' · ' + dispName(state.role) : ''}`;
   $('roleHint').hidden = state.role !== 'none';
 }
 [landMQ, portMQ].forEach(mq => mq.addEventListener ? mq.addEventListener('change', () => { applyUI(); setTab(panelEl.dataset.mtab, false); }) : mq.addListener(applyUI));
@@ -2329,6 +2465,8 @@ function loop(now) {
 }
 
 // Démarrage
+applyStaticLang();
+buildLists();
 pressed(document.querySelector('.speed'), 'speed', state.speed);
 if (!ROLES[state.role] && state.role !== 'none') state.role = 'S';
 rebuild(true);
