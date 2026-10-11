@@ -568,16 +568,16 @@ const NOTES = {
     "Setter in zone 4 (left front): only two front-row hitters (middle and OH2). Setter and middle stack on the left; the opposite can hit a back-row attack from zone 1."],
   S3: ["Passeur en zone 3 (avant centre) : déjà au filet, il glisse juste à droite. Le central part au milieu, le R1 à gauche, le pointu attaque de l'arrière.",
     "Setter in zone 3 (middle front): already at the net, they just slide right. The middle goes to the middle, OH1 to the left, the opposite hits from the back row."],
-  S2: ["Passeur en zone 2 (avant droit) : il est déjà à sa place. Le central et le R1 se décalent à gauche ; il peut jouer la 2e main, et le R2 peut attaquer en pipe.",
-    "Setter in zone 2 (right front): already in place. The middle and OH1 shift left; the setter can dump the second ball, and OH2 can hit a pipe."],
+  S2: ["Passeur en zone 2 (avant droit) : il est déjà à sa place. Le central et le R1 se décalent à gauche ; il peut jouer la 2e main ; le R2 peut attaquer en pipe et le pointu, parti tout à droite dès le service, en attaque arrière zone 1.",
+    "Setter in zone 2 (right front): already in place. The middle and OH1 shift left; the setter can dump the second ball; OH2 can hit a pipe and the opposite, who releases all the way right on the serve, can hit a back-row attack from zone 1."],
 };
-// Points de frappe et départs de course d'élan.
+// Points de frappe et départs de course d'élan (attaquants de côté : sur la ligne de côté, environ 1 m derrière la ligne des 3 m).
 const HIT = {
-  p4: { hit: [-3.3, 0.6], run: [-3.9, 3.8], land: [2.8, -6.8], set: 1.25, apex: 5.0, h: H.hit, name: ['balle haute au poste 4', 'high ball to the outside (position 4)'] },
-  p3: { hit: [0.2, 0.6], run: [0.4, 2.5], land: [-1.2, -4.6], set: 0.55, apex: 3.5, h: H.hit, name: ['balle rapide au centre', 'quick set (1-ball) to the middle'] },
-  p2: { hit: [3.4, 0.6], run: [3.9, 3.6], land: [-2.6, -6.6], set: 0.95, apex: 4.2, h: H.hit, name: ['passe arrière au poste 2', 'back set to the right side (position 2)'] },
+  p4: { hit: [-3.3, 0.6], run: [-4.5, 4.1], land: [2.8, -6.8], set: 1.25, apex: 5.0, h: H.hit, name: ['balle haute au poste 4', 'high ball to the outside (position 4)'] },
+  p3: { hit: [0.2, 0.6], run: [0.4, 2.7], land: [-1.2, -4.6], set: 0.55, apex: 3.5, h: H.hit, name: ['balle rapide au centre', 'quick set (1-ball) to the middle'] },
+  p2: { hit: [3.4, 0.6], run: [4.5, 4.0], land: [-2.6, -6.6], set: 0.95, apex: 4.2, h: H.hit, name: ['passe arrière au poste 2', 'back set to the right side (position 2)'] },
   pipe: { hit: [0.0, 3.5], run: [0.0, 6.6], land: [0.6, -7.6], set: 1.0, apex: 4.5, h: H.hitBack, name: ['passe pour la pipe (attaque arrière au centre)', 'pipe set (back-row attack in the middle)'] },
-  d1: { hit: [2.8, 3.5], run: [3.0, 6.6], land: [-2.2, -7.2], set: 1.0, apex: 4.4, h: H.hitBack, name: ['passe pour une attaque arrière en zone 1', 'set for a back-row attack from zone 1 (D-ball)'] },
+  d1: { hit: [3.2, 3.6], run: [4.5, 6.6], land: [-2.2, -7.2], set: 1.0, apex: 4.4, h: H.hitBack, name: ['passe pour une attaque arrière en zone 1', 'set for a back-row attack from zone 1 (D-ball)'] },
   dump: { hit: [T[0], T[1]], land: [2.3, -1.9], name: ['2e main', 'setter dump'] },
 };
 const ZONE_OF = { OHf: 4, MBf: 3, RF: 2, z5: 5, z6: 6, z1: 1 };
@@ -615,8 +615,9 @@ function lineup(rot, mode) {
   const att = {};
   if (mode === 'attack' && rot === 'S1') { att.p4 = 'OP'; att.p3 = MBf; att.p2 = 'OH1'; }
   else { att.p4 = OHf; att.p3 = MBf; if (setterFront) att.dump = 'S'; else att.p2 = 'OP'; }
-  if (setterFront && !(mode === 'attack' && rot === 'S2')) att.d1 = 'OP';
-  else att.pipe = OHb;
+  // attaque arrière : le pointu en ligne arrière (zone 1, à droite) ; pipe du réceptionneur-attaquant arrière quand le passeur est arrière, et aussi en P2
+  if (setterFront) att.d1 = 'OP';
+  if (!setterFront || (mode === 'attack' && rot === 'S2')) att.pipe = OHb;
   return { posMap, posOf, onCourt, bench, front, back, roleAt, zoneOf, setterFront, att, server: posMap[1], libIn, backMB };
 }
 
@@ -828,7 +829,9 @@ function addSetAttack(b, lu, attKey, mode, cont, relay) {
   const A = HIT[attKey];
   const pos0 = b.cur;
   if (attKey === 'dump') {
-    const pos = coverPlan(lu, 'S', 'dump', pos0);
+    const plan = coverPlan(lu, 'S', 'dump', pos0), pos = {};
+    // 2e main : action soudaine, les coéquipiers n'ont le temps de faire qu'une partie du chemin vers la couverture
+    for (const id in plan) pos[id] = lerp2(pos0[id], plan[id], 0.65);
     const blk = oppBlock(T[0], pos0);
     // saut au début de l'étape, contact du ballon au sommet du saut
     const jump = { S: { type: 'hop', h: 0.55, a: 0.02, b: 0.6 } };
@@ -933,6 +936,13 @@ function buildAttack(rot, opts) {
     if (passers.includes(id) || id === 'S') return;
     const key = Object.keys(lu.att).find(k => lu.att[k] === id && k !== 'dump');
     if (key) serveMove[id] = lerp2(recv[id], HIT[key].run, 0.5);
+  });
+  // attaquant arrière qui ne réceptionne pas (le pointu en ligne arrière) : dès le service, il file en zone 1,
+  // tout à droite, pour préparer son attaque arrière, sans attendre la réception
+  lu.back.forEach(id => {
+    if (passers.includes(id) || id === 'S') return;
+    const key = Object.keys(lu.att).find(k => lu.att[k] === id && k !== 'dump');
+    if (key) serveMove[id] = HIT[key].run.slice();
   });
   serveMove[receiver] = [rp[0] + 0.15, rp[1] + 0.2];
   serveMove.oB2 = [-3.0, -6.6];
@@ -1195,14 +1205,16 @@ function tipFor(id, step, lu, scen) {
         "The ball is coming to you: call \"Mine!\", move to get behind the ball, platform angled to the target.");
       if (c.passers && c.passers.includes(id)) return tr("Ce n'est pas pour toi : dis « Laisse ! » et ouvre-toi vers le receveur.", "It's not yours: call \"Out!\" or \"Yours!\" and open up toward the passer.");
       if (isFront(p)) return tr("Rejoins ton couloir d'attaque et recule pour préparer ta course d'élan.", "Get to your attack lane and back off the net to prepare your approach.");
+      if (Object.values(lu.att).includes(id)) return tr("Dès la frappe du service, file tout à droite en zone 1, sur la ligne de côté, pour préparer ton attaque arrière derrière les 3 m.",
+        "As soon as the serve is contacted, release all the way right to zone 1, on the sideline, to get ready for your back-row attack behind the 10-ft line.");
       return tr("Reste bas et suis le ballon des yeux.", "Stay low and track the ball.");
     case 'reception':
       if (id === c.receiver) return tr("Manchette : bras tendus et serrés, plateforme orientée vers la cible. Vise haut, à environ 1 m du filet.",
         "Forearm pass: arms straight and together, platform facing the target. Pass high, about 1 m (3 ft) off the net.");
       if (id === 'S') return tr("Arrive à la cible avant le ballon, épaules tournées vers la zone 4, mains au-dessus du front.",
         "Get to the target before the ball, shoulders square to zone 4, hands up above your forehead.");
-      if (Object.values(lu.att).includes(id)) return tr("Prends ton élan : environ 3-4 m du filet pour les attaquants d'aile, plus près pour le central, derrière la ligne des 3 m pour une attaque arrière.",
-        "Get ready to approach: about 3–4 m (10–13 ft) off the net for pins, closer for the middle, behind the 10-ft line for a back-row attack.");
+      if (Object.values(lu.att).includes(id)) return tr("Place-toi pour ton élan, corps tourné vers le filet, prêt à courir : sur la ligne de côté, environ 1 m derrière la ligne des 3 m pour les attaquants d'aile ; juste devant les 3 m pour le central ; vers 6-7 m pour une attaque arrière.",
+        "Get set for your approach, body facing the net, ready to run: on the sideline about 1 m (3 ft) behind the 10-ft line for pins; just inside the 10-ft line for the middle; around 6–7 m (20–23 ft) for a back-row attack.");
       return tr("Avance un peu, prêt à couvrir l'attaque.", "Move in a little, ready to cover the hitter.");
     case 'set':
       if (c.attKey === 'dump') return id === 'S'
@@ -1484,6 +1496,7 @@ const POSES = {
   dive:       { c: 0.55, lean: 0.35, tilt: 1.05, head: -0.25, w: 0.32, la: [2.25, -0.04, 0.04], ra: [2.25, -0.04, 0.04], k: 14 }, // plongeon : tout le corps bascule vers l'avant, bras tendus sous le ballon
   blockReady: { c: 0.25, lean: 0.02, head: 0.1, w: 0.12, la: [0.5, 0.25, 2.1], ra: [0.5, 0.25, 2.1] },           // au filet, mains à hauteur d'épaules
   block:      { c: 0.12, lean: -0.05, head: 0.35, w: 0.08, la: [2.72, 0.14, 0.05], ra: [2.72, 0.14, 0.05], k: 22 }, // contre : bras tendus, mains qui passent au-dessus du filet
+  approachReady: { c: 0.26, lean: 0.24, head: 0.05, w: 0.13, la: [-0.3, 0.14, 0.5], ra: [-0.3, 0.14, 0.5], k: 9 },   // prêt à l'élan : presque droit, penché vers l'avant, bras relâchés un peu en arrière
   approach:   { c: 0.55, lean: 0.55, head: 0.2, w: 0.14, la: [-1.05, 0.15, 0.15], ra: [-1.05, 0.15, 0.15], k: 16 }, // élan : bras lancés en arrière
   armsUp:     { c: 0.15, lean: 0.05, head: 0.45, w: 0.1, la: [2.9, 0.2, 0.15], ra: [2.9, 0.2, 0.15], k: 24 },      // impulsion : les deux bras montent
   spikePrep:  { c: 0.1, lean: 0.22, head: 0.5, w: 0.1, la: [2.75, 0.25, 0.2], ra: [2.35, 0.95, 2.3], k: 20 },     // armé : bras gauche vise, coude droit haut derrière la tête
@@ -1507,6 +1520,27 @@ const setGesture = u => u < 0.08 ? POSES.set : POSES.setPush;
 const passGesture = u => u < 0.1 ? POSES.pass : POSES.passFollow;
 
 // Choix de la posture selon l'étape et le rôle du joueur à cet instant
+// Attaquant qui se prépare à prendre son élan : renvoie sa clé d'attaque (pour la posture et l'orientation vers son point de frappe).
+// Pendant le service adverse (s'il ne réceptionne pas), après sa manchette (réceptionneur), en transition après une défense,
+// et au début de la passe (attaquant servi et feintes, avant de courir).
+function readyKey(id, s, u) {
+  if (!lu || !lu.onCourt.includes(id) || id === 'S') return null;
+  const c = s.ctx || {};
+  const key = Object.keys(lu.att).find(k => k !== 'dump' && lu.att[k] === id);
+  if (!key) return null;
+  switch (s.key) {
+    case 'serve': return c.passers && !c.passers.includes(id) && u > 0.3 ? key : null;
+    case 'reception': return id !== c.receiver || u > 0.35 ? key : null;
+    case 'dig':
+      if (id === c.setter || (c.setter && c.setter !== 'S' && key === 'p3')) return null;
+      return id !== c.digger || u > 0.4 ? key : null;
+    case 'set':
+      if (c.attKey === 'dump') return null;
+      if (id === c.attacker) return u <= 0.3 ? c.attKey : null;
+      return c.decoys && c.decoys.includes(id) && u <= 0.35 ? key : null;
+  }
+  return null;
+}
 function poseFor(id, s, u, y) {
   const c = s.ctx || {}, key = s.key, j = s.jump[id];
   const opp = id.charAt(0) === 'o' && id.length > 1 && id !== 'OP' && id !== 'OH1' && id !== 'OH2';
@@ -1558,6 +1592,8 @@ function poseFor(id, s, u, y) {
     return u > hitU - 0.3 ? POSES.dig : POSES.ready;
   }
   if (key === 'dig' && id === c.digger && u < 0.4) return c.dive ? (u < 0.18 ? POSES.dive : POSES.ready) : passGesture(u);
+  // Attaquants qui se placent pour leur élan
+  if (readyKey(id, s, u)) return POSES.approachReady;
   // Postures de phase
   if (key === 'rotation' || key === 'serveRot') return POSES.stand;
   if (key === 'formation') return ['OH1', 'OH2', 'L'].includes(id) ? POSES.recvReady : POSES.stand;
@@ -2009,6 +2045,8 @@ function render() {
     P.ring.position.y = 0.02 - y;
     P.y = y;
     P.target = poseFor(id, s, u, y);
+    const rk = P.opp ? null : readyKey(id, s, u);
+    P.faceAt = rk ? HIT[rk].hit : null;   // prêt à l'élan : le corps regarde son point de frappe, la tête suit le ballon
     P.ballDir = [bp[0] - p[0], bp[2] - p[1]];
     const vis = P.opp ? state.show.opp : true;
     P.root.visible = vis;
@@ -2228,11 +2266,10 @@ function placeTip() {
   if (y + h > r.height - 8) y = Math.max(8, r.height - h - 8);
   el.style.left = x + 'px'; el.style.top = y + 'px';
 }
-// ── Zone de défense du joueur survolé ──
-// Partie de notre terrain dont il est le défenseur le plus proche (cellule de Voronoï, découpée dans le terrain).
-// En phase de défense (réception, passe et attaque adverses) : positions réelles, les contreurs à part (bande au filet) ;
-// sinon : positions de base en défense.
-const DEF_KEYS = ['oppPass', 'oppSet', 'oppAttack'];
+// ── Zone du joueur survolé ──
+// Partie de notre terrain dont il est le plus proche (cellule de Voronoï, découpée dans le terrain), calculée à chaque image
+// depuis les positions réelles : elle suit les joueurs pendant toutes les phases. Selon la phase, seuls certains joueurs
+// se partagent le terrain : les 3 réceptionneurs en réception, les couvreurs autour de l'attaquant, les défenseurs hors contre.
 const defZone = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.3, depthWrite: false, side: THREE.DoubleSide }));
 defZone.rotation.x = -Math.PI / 2; defZone.position.y = 0.028; defZone.renderOrder = 3; defZone.visible = false; scene.add(defZone);
 const defEdge = new THREE.LineLoop(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ transparent: true, opacity: 0.95, depthWrite: false }));
@@ -2251,23 +2288,35 @@ function clipCloser(poly, a, b) {
 }
 function defZoneOf(id) {
   if (!lu.onCourt.includes(id)) return null;
-  const s = scen.steps[curStep()];
-  const live = DEF_KEYS.includes(s.key);
-  const blockers = live ? (s.ctx.blockers || []) : [];
-  const base = replacePos(lu);
-  const at = o => live ? [players[o].root.position.x, players[o].root.position.z] : base[o];
+  const s = scen.steps[curStep()], c = s.ctx || {};
+  const at = o => [players[o].root.position.x, players[o].root.position.z];
   const me = at(id);
-  if (blockers.includes(id)) {
-    const x0 = Math.max(-4.5, me[0] - 0.8), x1 = Math.min(4.5, me[0] + 0.8);
-    return { mode: 'block', poly: [[x0, 0], [x1, 0], [x1, 1.1], [x0, 1.1]] };
+  let pool = lu.onCourt, mode = 'live';
+  if (s.key === 'formation' || s.key === 'reception' || (s.key === 'serve' && c.passers)) {
+    // réception de service : le terrain se partage entre les 3 réceptionneurs
+    pool = ['OH1', 'OH2', 'L'].filter(o => lu.onCourt.includes(o));
+    if (!pool.includes(id)) return { mode: 'noRecv', poly: null };
+    mode = 'recv';
+  } else if ((s.key === 'oppSet' || s.key === 'oppAttack') && c.blockers) {
+    // attaque adverse : les contreurs tiennent le filet, les autres se partagent le terrain
+    if (c.blockers.includes(id)) {
+      const x0 = Math.max(-4.5, me[0] - 0.8), x1 = Math.min(4.5, me[0] + 0.8);
+      return { mode: 'block', poly: [[x0, 0], [x1, 0], [x1, 1.1], [x0, 1.1]] };
+    }
+    pool = lu.onCourt.filter(o => !c.blockers.includes(o));
+  } else if ((s.key === 'set' || s.key === 'attack') && c.attacker) {
+    // notre attaque : les autres couvrent l'attaquant
+    if (id === c.attacker) return { mode: 'hitter', poly: null };
+    pool = lu.onCourt.filter(o => o !== c.attacker);
+    mode = 'cover';
   }
   let poly = [[-4.5, 0], [4.5, 0], [4.5, 9], [-4.5, 9]];
-  lu.onCourt.forEach(o => { if (o !== id && !blockers.includes(o)) poly = clipCloser(poly, me, at(o)); });
-  return { mode: live ? 'live' : 'base', poly };
+  pool.forEach(o => { if (o !== id) poly = clipCloser(poly, me, at(o)); });
+  return { mode, poly };
 }
 function updateDefZone() {
   const z = hoverId && state.show.defZone && scen ? defZoneOf(hoverId) : null;
-  defZone.visible = defEdge.visible = !!(z && z.poly.length >= 3);
+  defZone.visible = defEdge.visible = !!(z && z.poly && z.poly.length >= 3);
   if (!defZone.visible) return;
   const shape = new THREE.Shape(z.poly.map(p => new THREE.Vector2(p[0], -p[1])));
   defZone.geometry.dispose(); defZone.geometry = new THREE.ShapeGeometry(shape);
@@ -2280,8 +2329,11 @@ function defZoneNote(id) {
   if (!z) return '';
   const t = {
     block: tr('Zone colorée : tu contres, ta zone est au filet, devant toi.', 'Shaded area: you\'re blocking, your zone is at the net in front of you.'),
-    live: tr('Zone colorée : la partie du terrain que tu défends à ce moment (là où tu es le plus proche du ballon).', 'Shaded area: the part of the court you defend right now (where you\'re the closest player).'),
-    base: tr('Zone colorée : la partie du terrain que tu défends depuis ta position de base en défense.', 'Shaded area: the part of the court you defend from your base defensive position.'),
+    live: tr('Zone colorée : la partie du terrain dont tu es responsable à ce moment (là où tu es le plus proche). Elle suit les déplacements.', 'Shaded area: the part of the court you\'re responsible for right now (where you\'re the closest player). It follows the movement.'),
+    recv: tr('Zone colorée : la partie du terrain que tu réceptionnes, partagée entre les trois réceptionneurs.', 'Shaded area: the part of the court you pass in serve receive, shared by the three passers.'),
+    noRecv: tr('Tu ne réceptionnes pas ce service : pas de zone de réception pour toi.', 'You\'re not passing this serve: no receive zone for you.'),
+    cover: tr('Zone colorée : la partie du terrain que tu couvres autour de l\'attaquant, si le contre renvoie le ballon.', 'Shaded area: the part of the court you cover around the hitter, in case the ball is blocked back.'),
+    hitter: tr('Tu attaques : tes coéquipiers couvrent le terrain autour de toi.', 'You\'re hitting: your teammates cover the court around you.'),
   }[z.mode];
   return `<p class="sub">${t}</p>`;
 }
@@ -2479,6 +2531,7 @@ function animatePlayers(dt) {
     const bd = Math.hypot(bx, bz);
     let yawT = bd > 0.05 ? Math.atan2(-bx, -bz) : P.yaw;
     if (P.run > 0.5 && bd > 4 && Math.hypot(mdx, mdz) > 1e-4) yawT = Math.atan2(-mdx, -mdz);
+    if (P.faceAt && P.run < 0.5) yawT = Math.atan2(-(P.faceAt[0] - pos.x), -(P.faceAt[1] - pos.z));
     P.yaw = angleLerp(P.yaw, yawT, 1 - Math.exp(-dt * (scrubbing ? 60 : 9)));
     // part latérale du déplacement par rapport au regard (pas chassés)
     let latT = 0;
