@@ -642,7 +642,7 @@ Builder.prototype.add = function (s) {
   if (this.lu) {
     const ids = this.lu.onCourt.filter(id => end[id][1] <= 9 && end[id][1] >= 0);
     const c = s.ctx || {};
-    const fixed = new Set(['S', c.setter, c.receiver, c.attacker, c.digger, ...(c.blockers || [])].filter(Boolean));
+    const fixed = new Set([c.setter || 'S', c.receiver, c.attacker, c.digger, ...(c.blockers || [])].filter(Boolean));
     ids.forEach(id => { if (!s.pos || !s.pos[id]) fixed.add(id); });
     relax(end, ids, fixed);
   }
@@ -710,63 +710,70 @@ function oppBlock(ax, cur) {
   return a;
 }
 
-// Phase commune : passe, attaque, replacement
-// Couverture « 3-2 » : 3 joueurs proches (en coupe autour de l'attaquant), 2 plus loin dans les trous.
+// Couverture « 3-2 » : 3 joueurs bas en coupe autour de l'attaquant (là où retombe un ballon contré),
+// 2 autres en deuxième ligne. Les 3 places proches vont aux joueurs qui peuvent les atteindre le plus vite
+// (somme des carrés des distances, en partant d'où ils sont vraiment : après leur feinte, ou à la cible pour le passeur) ;
+// les 2 autres se rapprochent seulement de l'attaquant, sans traverser le terrain.
 const clx = x => Math.max(-4.2, Math.min(4.2, x));
-function bestAssign(ids, slots, pos) {
-  // affectation qui minimise la distance totale (permutations, au plus 5 joueurs)
+const COVER_R2 = 3.6;      // rayon de la deuxième ligne autour de l'attaquant
+const COVER_MAXMOVE = 2.6; // déplacement maximal d'un joueur de deuxième ligne
+function bestAssign(ids, slots, pos, sq, w) {
+  // affectation qui minimise la distance totale (ou la somme des carrés) ; ids peut être plus nombreux que slots
   let best = null, bestCost = Infinity;
-  const used = new Array(slots.length).fill(false), cur = [];
+  const usedId = new Array(ids.length).fill(false), cur = [];
+  const n = Math.min(ids.length, slots.length);
   (function rec(k, cost) {
     if (cost >= bestCost) return;
-    if (k === ids.length) { bestCost = cost; best = cur.slice(); return; }
-    for (let j = 0; j < slots.length; j++) {
-      if (used[j]) continue;
-      used[j] = true; cur[k] = j;
-      rec(k + 1, cost + Math.hypot(pos[ids[k]][0] - slots[j][0], pos[ids[k]][1] - slots[j][1]));
-      used[j] = false;
+    if (k === n) { bestCost = cost; best = cur.slice(); return; }
+    for (let i = 0; i < ids.length; i++) {
+      if (usedId[i]) continue;
+      const p = pos[ids[i]], d = Math.hypot(p[0] - slots[k][0], p[1] - slots[k][1]);
+      usedId[i] = true; cur[k] = i;
+      rec(k + 1, cost + (sq ? d * d : d) * (w ? w(ids[i]) : 1));
+      usedId[i] = false;
     }
   })(0, 0);
   const out = {};
-  ids.forEach((id, k) => { out[id] = slots[best[k]]; });
+  for (let k = 0; k < n; k++) out[ids[best[k]]] = slots[k];
   return out;
 }
-function coverPlan(lu, attacker, attKey, pos, setter = 'S', spot = T) {
+function coverPlan(lu, attacker, attKey, pos, setter = 'S', spot = T, late = []) {
   const others = lu.onCourt.filter(id => id !== attacker);
-  const out = {};
+  const from = {};
+  others.forEach(id => { from[id] = id === setter ? spot : pos[id]; });
+  // A : point où l'attaquant retombe ; cup : les 3 places proches ; zMin : profondeur minimale de la deuxième ligne
+  let A, cup, zMin;
   if (attKey === 'dump') {
-    const ax = T[0];
-    return bestAssign(others, [[clx(ax - 1.3), 1.7], [clx(ax + 1.3), 1.7], [ax, 2.7], [clx(ax - 2.3), 4.6], [clx(ax + 2.0), 4.6]], pos);
+    const ax = T[0]; A = [ax, 1.0];
+    cup = [[clx(ax - 1.3), 1.7], [clx(ax + 1.3), 1.7], [ax, 2.7]]; zMin = 3.4;
+  } else {
+    const ax = HIT[attKey].hit[0];
+    if (attKey === 'pipe' || attKey === 'd1') {
+      // attaque arrière : le ballon contré retombe vers la ligne des 3 m et derrière l'attaquant
+      A = [ax, 3.1];
+      cup = [[clx(ax - 1.5), 2.4], [clx(ax + 1.5), 2.4], [ax, 5.1]]; zMin = 4.6;
+    } else if (attKey === 'p3') {
+      A = [ax, 1.0];
+      cup = [[clx(ax - 1.3), 1.7], [clx(ax + 1.3), 1.7], [ax, 2.7]]; zMin = 3.4;
+    } else {
+      // attaque d'aile : un joueur côté ligne, un à l'intérieur près du filet, un derrière
+      const inw = ax < 0 ? 1 : -1;
+      A = [ax, 1.0];
+      cup = [[clx(ax - inw * 0.4), 2.1], [clx(ax + inw * 1.4), 1.6], [clx(ax + inw * 0.6), 2.9]]; zMin = 3.4;
+    }
   }
-  const A = HIT[attKey], ax = A.hit[0];
-  const rest = others.filter(id => id !== setter);
-  if (attKey === 'pipe' || attKey === 'd1') {
-    // Attaque arrière : les avants (après leur feinte) couvrent devant, le passeur sur le côté, deux arrières derrière.
-    out[setter] = lerp2(spot, [ax, 2.2], 0.45);
-    return Object.assign(out, bestAssign(rest, [[clx(ax - 1.7), 2.2], [clx(ax + 1.7), 2.2], [clx(ax - 1.5), 5.2], [clx(ax + 1.5), 5.2]], pos));
-  }
-  if (attKey === 'p3') {
-    out[setter] = [ax + 1.2, 1.6];
-    return Object.assign(out, bestAssign(rest, [[ax - 1.2, 1.7], [ax, 2.7], [ax - 2.0, 4.4], [ax + 1.9, 4.4]], pos));
-  }
-  // Attaque d'aile (poste 4 ou poste 2)
-  const inw = ax < 0 ? 1 : -1;
-  const behind = [clx(ax + inw * 0.3), 2.5];
-  const netS = [clx(ax + inw * 1.4), 1.3];
-  const midS = [clx(ax + inw * 2.5), 2.0];
-  const deep1 = [clx(ax + inw * 0.5), 4.6];
-  const deep2 = [clx(ax + inw * 2.3), 4.4];
-  const dNet = Math.hypot(spot[0] - netS[0], spot[1] - netS[1]), dMid = Math.hypot(spot[0] - midS[0], spot[1] - midS[1]);
-  out[setter] = dNet <= dMid ? netS : midS;
-  const mb = lu.roleAt.MBf;
-  out[mb] = dNet <= dMid ? midS : netS;
-  // Le joueur arrière du côté de l'attaque couvre juste derrière lui ; les deux autres prennent les trous au fond.
-  const left = rest.filter(id => id !== mb);
-  const backs = left.filter(id => lu.back.includes(id));
-  const zoneBehind = ax < 0 ? 'z5' : 'z1';
-  let behindId = backs.includes(lu.roleAt[zoneBehind]) ? lu.roleAt[zoneBehind] : (backs.includes(lu.roleAt.z6) ? lu.roleAt.z6 : left[0]);
-  out[behindId] = behind;
-  return Object.assign(out, bestAssign(left.filter(id => id !== behindId), [deep1, deep2], pos));
+  // ceux qui ne partent qu'à la frappe (passeur, attaquants qui font une feinte) ont deux fois moins de temps
+  const out = bestAssign(others, cup, from, true, id => (id === setter || late.includes(id) ? 4 : 1));
+  // deuxième ligne : chacun se rapproche de l'attaquant jusqu'à environ 3,6 m, un peu en retrait, sans trop courir
+  others.filter(id => !out[id]).forEach(id => {
+    const p = from[id], dx = p[0] - A[0], dz = p[1] - A[1], d = Math.hypot(dx, dz) || 1;
+    let tgt = d > COVER_R2 ? [A[0] + dx / d * COVER_R2, A[1] + dz / d * COVER_R2] : p.slice();
+    tgt[1] = Math.max(tgt[1], Math.min(p[1], zMin));   // les joueurs déjà près du filet ne reculent pas
+    tgt = [clx(tgt[0]), Math.min(8.4, tgt[1])];
+    const mx = tgt[0] - p[0], mz = tgt[1] - p[1], m = Math.hypot(mx, mz);
+    out[id] = m > COVER_MAXMOVE ? [p[0] + mx / m * COVER_MAXMOVE, p[1] + mz / m * COVER_MAXMOVE] : tgt;
+  });
+  return out;
 }
 
 // Phase commune : passe, attaque, replacement
@@ -785,10 +792,9 @@ function addSetAttack(b, lu, attKey, mode, cont, relay) {
       text: "Le passeur est en ligne avant : au lieu de faire la passe, il saute comme pour passer et pousse le ballon chez l'adversaire, dans la zone vide derrière le contre. Ses coéquipiers viennent quand même en couverture autour de lui.",
       dur: 1.1, pos: Object.assign(pos, blk), jump, ball: { to: [HIT.dump.land[0], 0.11, HIT.dump.land[1]], apex: 3.4, win: [0.3, 0.85], bounce: true },
       ctx: { attacker: 'S', attKey, phase: 'dump' } });
-    b.add({ key: 'replace', title: "Point ! Puis replacement", text: replaceText(lu), dur: 1.8, pos: replacePos(lu), ctx: { attacker: 'S', attKey } });
+    b.add({ key: 'replace', title: "Point ! Puis replacement", text: replaceText(lu), dur: 2.6, pos: replacePos(lu), ctx: { attacker: 'S', attKey } });
     return;
   }
-  const plan = coverPlan(lu, attacker, attKey, pos0, setter, spot);
   // Feintes : les autres attaquants avant font leur course d'élan (le central saute en même temps que l'attaque)
   const decoys = {}; const jumpSet = {};
   lu.front.filter(id => id !== attacker && id !== 'S' && id !== setter).forEach(id => {
@@ -798,8 +804,10 @@ function addSetAttack(b, lu, attKey, mode, cont, relay) {
     decoys[id] = key === 'p3' ? tgt : lerp2(pos0[id], tgt, 0.6);
     if (key === 'p3') jumpSet[id] = { type: 'hop', h: 0.5 };
   });
+  // les couvreurs partent d'où ils sont vraiment : après leur feinte pour les attaquants avant
+  const plan = coverPlan(lu, attacker, attKey, Object.assign({}, pos0, decoys), setter, spot, Object.keys(decoys));
   const setPos = {};
-  lu.onCourt.forEach(id => { if (id !== attacker && !decoys[id]) setPos[id] = id === setter ? [spot[0], spot[1] + 0.3] : plan[id]; });
+  lu.onCourt.forEach(id => { if (id !== attacker && !decoys[id]) setPos[id] = id === setter ? [spot[0], spot[1] + 0.3] : lerp2(pos0[id], plan[id], A.set < 0.7 ? 0.4 : 0.6); });   // la couverture se forme pendant la passe et la frappe
   Object.assign(setPos, decoys);
   setPos[attacker] = A.hit;
   const blk = oppBlock(A.hit[0], pos0);
@@ -827,7 +835,7 @@ function addSetAttack(b, lu, attKey, mode, cont, relay) {
   b.add({ key: 'attack', title: "Attaque et couverture",
     text: `${cap(nm(attacker))} frappe dans une zone libre. Les coéquipiers forment la couverture « 3-2 » : trois joueurs bas tout près de l'attaquant, deux autres plus loin dans les trous, pour relever un ballon renvoyé par le contre.`,
     dur: 1.0, pos: cov, jump: jumpAtt, ball: { to: [A.land[0], 0.11, A.land[1]], arc: 0.35, win: [0, 0.38], bounce: true }, ctx: { attacker, attKey, plan, setter } });
-  b.add({ key: 'replace', title: "Point ! Puis replacement", text: replaceText(lu), dur: 1.8, pos: replacePos(lu), ctx: { attacker, attKey } });
+  b.add({ key: 'replace', title: "Point ! Puis replacement", text: replaceText(lu), dur: 2.6, pos: replacePos(lu), ctx: { attacker, attKey } });
 }
 function replacePos(lu) {
   const p = {};
@@ -996,7 +1004,7 @@ function buildDefense(rot, opts) {
     dur: 2.2, pos: {}, ctx: {} });
   b.add({ key: 'serve', title: "Service et permutation",
     text: "Dès la frappe, chacun rejoint son poste de spécialité : c'est la permutation. " + replaceText(lu).replace("Si l'échange continue, chacun rejoint son poste de spécialité. ", ''),
-    dur: 1.6, pos: Object.assign(replacePos(lu), { oS: lerp2(OPP_RECV.oS, T_OPP, 0.6) }),
+    dur: 2.2, pos: Object.assign(replacePos(lu), { oS: lerp2(OPP_RECV.oS, T_OPP, 0.6) }),
     ball: { to: [0, H.pass, -6.2], apex: 4.2 }, ctx: {} });
   b.add({ key: 'oppPass', title: "Réception adverse",
     text: "L'adversaire réceptionne. On reste en position de base : les avants au filet, mains hautes ; les arrières entre 6 et 8 m. Tout le monde regarde le passeur adverse.",
@@ -1050,7 +1058,7 @@ function rallyLoop(b, luA, rot, firstKey, R) {
       op[digger === 'oB1' ? 'oB2' : 'oB1'] = side === 'B' ? OPP_HIT.B.run : (digger === 'oB1' ? [-2.8, -6.2] : [0.3, -7.2]);
       b.add({ key: 'oDig', title: "Défense adverse",
         text: `L'adversaire défend et relance vers son passeur. Notre équipe quitte la couverture et revient en position de base : les avants au filet, mains hautes, les arrières en défense. L'attaque adverse va partir ${SIDE_LBL[side]}.`,
-        dur: 1.7, pos: Object.assign(replacePos(luR), op), ball: { to: [T_OPP[0], H.set, T_OPP[1] - 0.25], apex: 4.6 }, ctx: { oppDigger: digger } });
+        dur: 2.2, pos: Object.assign(replacePos(luR), op), ball: { to: [T_OPP[0], H.set, T_OPP[1] - 0.25], apex: 4.6 }, ctx: { oppDigger: digger } });
       const r2 = oppShotPlan(luR, side, shot).relay;
       key = pickAttack(rng, luR, k + 1 === n && !r2, r2);
       relay = addDefenseCycle(b, luR, side, key, shot);
