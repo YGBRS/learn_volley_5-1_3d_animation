@@ -4,8 +4,8 @@ Terrain 3D interactif pour comprendre la formation 5-1 au volley-ball : les 6 ro
 
 ## Ouvrir l'application
 
-- En ligne : https://ygbrs.github.io/learn_volley_5-1_3d_animation/volley_3D.html
-- En local : ouvrir `volley_3D.html` dans un navigateur (connexion internet nécessaire pour charger three.js).
+- En ligne : https://ygbrs.github.io/learn_volley_5-1_3d_animation/
+- En local : ouvrir `index.html` dans un navigateur (connexion internet nécessaire pour charger three.js).
 
 ## Fonctionnalités
 
@@ -17,10 +17,10 @@ Terrain 3D interactif pour comprendre la formation 5-1 au volley-ball : les 6 ro
 
 ## Mettre à jour
 
-Remplacer `volley_3D.html`, puis :
+Remplacer `index.html`, puis :
 
 ```
-git add volley_3D.html
+git add index.html
 git commit -m "Mise à jour de l'application"
 git push
 ```
