@@ -166,64 +166,118 @@ dd { margin: 0 0 4px; color: var(--muted); }
 #capSlot:empty { display: none; }
 @media (hover: none) { .touchHint { display: block; } }
 
-/* Téléphone en portrait (et petites tablettes) : terrain + lecture collés en haut, réglages qui défilent dessous */
-@media (max-width: 900px) and (orientation: portrait), (max-width: 600px) {
-  #app { display: block; height: auto; }
-  #stage { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
-  #canvasWrap { height: 42vh; height: 42svh; min-height: 250px; flex: none; }
-  #panel { border-left: 0; overflow: visible; padding-top: 12px; }
-  #capSlot .caption { position: static; max-width: none; pointer-events: auto; }
-  #capSlot .caption .card { background: var(--court); }
-  .caption h2 { font-size: 21px; }
-  .caption p { font-size: 14px; }
-  .miniCap { display: block; position: absolute; left: 8px; bottom: 8px; right: 8px; pointer-events: none; font-family: var(--display); font-weight: 600; font-size: 15px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .camBar { top: 6px; right: 6px; left: 6px; flex-direction: row; flex-wrap: nowrap; justify-content: flex-end; gap: 4px; }
-  .camBar button { font-size: 12.5px; padding: 5px 8px; min-height: 32px; }
-  .camBar .lg { display: none; } .camBar .sm { display: inline; }
-  .transport { padding: 6px 10px 8px; gap: 6px; }
-  .tBtn { min-height: 40px; min-width: 44px; }
-  .tBtn.primary { flex: 1; }
-  .speed button { min-height: 36px; padding: 6px 8px; }
-  .time { display: none; }
-  .steps button { min-height: 32px; }
-  .seg button, .rot button, .chips button { min-height: 42px; }
-  .themeSw button { min-height: 36px; }
-  .rot button b { font-size: 18px; }
-  .toggles label { min-height: 34px; align-items: center; }
-  .toggles input { width: 20px; height: 20px; margin-top: 0; }
-  .names input { min-height: 38px; font-size: 16px; }
-  .kbd:not(.touchHint) { display: none; }
-}
-/* Téléphone en paysage : terrain à gauche, réglages à droite, tout sur un écran */
-@media (max-height: 520px) and (orientation: landscape) {
-  #app { display: grid; grid-template-columns: minmax(0, 1fr) 300px; height: 100%; }
-  #stage { position: relative; }
-  #panel { overflow-y: auto; padding: 10px 12px 20px; }
-  #capSlot .caption { position: static; max-width: none; pointer-events: auto; }
-  #capSlot .caption .card { background: var(--court); padding: 8px 12px; }
-  .caption h2 { font-size: 19px; }
-  .caption p { font-size: 13.5px; }
-  .miniCap { display: block; position: absolute; left: 8px; bottom: 6px; right: 8px; pointer-events: none; font-family: var(--display); font-weight: 600; font-size: 15px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .camBar { top: 6px; right: 6px; left: 6px; flex-direction: row; justify-content: flex-end; gap: 3px; }
-  .camBar button { font-size: 12px; padding: 4px 8px; }
-  .camBar .lg { display: none; } .camBar .sm { display: inline; }
-  .transport { padding: 4px 8px; gap: 4px 10px; grid-template-columns: auto minmax(0, 1fr); align-items: center; }
-  .tRow { flex-wrap: nowrap; gap: 5px; }
-  .steps { display: none; }
-  .speed button { padding: 4px 6px; }
-  #scrub { min-width: 50px; }
-  .tBtn { padding: 4px 8px; min-width: 34px; }
-  .tBtn.primary { min-width: 80px; }
-  .time { display: none; }
-  .steps button { font-size: 12px; padding: 2px 8px; }
-  .brand p, .kbd:not(.touchHint) { display: none; }
-  .brand h1 { font-size: 22px; }
-}
+/* ───────── Version téléphone ─────────
+   body[data-ui] vaut « desk », « port » (téléphone vertical) ou « land » (téléphone horizontal), fixé par JS.
+   Sur téléphone, le panneau est découpé en 4 onglets (Étape, Jeu, Rôle, Plus) :
+   en vertical, barre d'onglets en bas et contenu entre le terrain et la barre ;
+   en horizontal, terrain plein écran, rail d'icônes à droite et tiroir qui s'ouvre par-dessus. */
+#mNav, .ctxChip, .camToggle, .drawerHead, #secSteps, #roleHint, .speedCycle { display: none; }
+/* Téléphone : une seule touche de vitesse (×¼ → ×½ → ×1 → ×1,5), phases de jeu sur une ligne */
+body:not([data-ui="desk"]) .speed { display: none; }
+body:not([data-ui="desk"]) .speedCycle { display: inline-block; min-width: 56px; font-variant-numeric: tabular-nums; font-weight: 600; }
+body:not([data-ui="desk"]) .seg { grid-template-columns: repeat(3, 1fr); }
+body:not([data-ui="desk"]) .seg button[data-mode="rally"] { grid-column: auto; }
+body:not([data-ui="desk"]) .seg button { text-align: center; padding: 8px 4px; }
+body:not([data-ui="desk"]) .seg button small { display: none; }
+body[data-ui="land"] .miniCap { pointer-events: auto; cursor: pointer; right: auto; max-width: calc(100% - 20px); }
+body[data-ui="land"] .miniCap::after { content: "  ⓘ"; opacity: .8; }
+body:not([data-ui="desk"]) #panel[data-mtab="etape"] > [data-tab]:not([data-tab~="etape"]),
+body:not([data-ui="desk"]) #panel[data-mtab="jeu"] > [data-tab]:not([data-tab~="jeu"]),
+body:not([data-ui="desk"]) #panel[data-mtab="role"] > [data-tab]:not([data-tab~="role"]),
+body:not([data-ui="desk"]) #panel[data-mtab="plus"] > [data-tab]:not([data-tab~="plus"]) { display: none; }
+body:not([data-ui="desk"]) #secSteps { display: grid; }
+body:not([data-ui="desk"]) #roleHint:not([hidden]) { display: block; }
+body:not([data-ui="desk"]) .brand p, body:not([data-ui="desk"]) .kbd:not(.touchHint) { display: none; }
+body:not([data-ui="desk"]) .brand h1 { font-size: 24px; }
+body:not([data-ui="desk"]) .time { display: none; }
+/* Légende de l'étape dans l'onglet « Étape » */
+body:not([data-ui="desk"]) #capSlot .caption { position: static; max-width: none; pointer-events: auto; }
+body:not([data-ui="desk"]) #capSlot .caption .card { background: var(--court); }
+body:not([data-ui="desk"]) .caption h2 { font-size: 22px; }
+body:not([data-ui="desk"]) .caption p { font-size: 15px; line-height: 1.5; }
+/* Liste des étapes (déplacée depuis la barre de lecture) */
+#stepsSlot .steps { flex-direction: column; overflow: visible; gap: 4px; }
+#stepsSlot .steps button { background: var(--surface-2); border: 1px solid var(--line); color: var(--fg); border-radius: 10px; padding: 9px 12px; font-size: 14.5px; text-align: left; white-space: normal; min-height: 44px; }
+#stepsSlot .steps button.done { color: var(--muted); border-color: var(--line); }
+#stepsSlot .steps button.cur { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+#stepsSlot .steps button span { display: inline-block; min-width: 2.2ch; }
+/* Titre de l'étape sur le terrain */
+body:not([data-ui="desk"]) .miniCap { display: block; position: absolute; left: 10px; bottom: 8px; right: 10px; pointer-events: none; font-family: var(--display); font-weight: 600; font-size: 16px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Puce de contexte (mode · rotation · rôle) et menu caméra, en haut du terrain */
+body:not([data-ui="desk"]) .ctxChip { display: inline-flex; align-items: center; gap: 6px; position: absolute; left: 8px; top: 8px; z-index: 4; max-width: calc(100% - 150px); background: rgba(10, 16, 23, .78); color: #fff; border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 0 12px; min-height: 38px; font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; backdrop-filter: blur(4px); }
+body:not([data-ui="desk"]) .ctxChip::after { content: "▾"; opacity: .7; }
+body:not([data-ui="desk"]) .camToggle { display: inline-flex; align-items: center; gap: 6px; position: absolute; right: 8px; top: 8px; z-index: 4; background: rgba(10, 16, 23, .78); color: #fff; border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 0 12px; min-height: 38px; font-size: 14px; backdrop-filter: blur(4px); }
+body:not([data-ui="desk"]) .camBar { display: none; top: 52px; right: 8px; left: auto; z-index: 5; background: rgba(10, 16, 23, .94); border-radius: 12px; padding: 6px; gap: 4px; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+body:not([data-ui="desk"]) #stage.camOpen .camBar { display: flex; }
+body:not([data-ui="desk"]) .camBar button { min-height: 42px; min-width: 150px; font-size: 15px; padding: 8px 12px; border-radius: 8px; }
+body:not([data-ui="desk"]) .camBar .lg { display: inline; } body:not([data-ui="desk"]) .camBar .sm { display: none; }
+/* Commandes tactiles plus grandes */
+body:not([data-ui="desk"]) .seg button, body:not([data-ui="desk"]) .rot button, body:not([data-ui="desk"]) .chips button { min-height: 44px; }
+body:not([data-ui="desk"]) .chips button { font-size: 15px; padding: 8px 12px; }
+body:not([data-ui="desk"]) .themeSw button { min-height: 40px; padding: 4px 12px; font-size: 14px; }
+body:not([data-ui="desk"]) .rot button b { font-size: 20px; }
+body:not([data-ui="desk"]) .toggles label { min-height: 44px; align-items: center; font-size: 15px; }
+body:not([data-ui="desk"]) .toggles input { width: 22px; height: 22px; margin-top: 0; flex: none; }
+body:not([data-ui="desk"]) .names input { min-height: 42px; font-size: 16px; }
+body:not([data-ui="desk"]) summary { min-height: 48px; }
+body:not([data-ui="desk"]) .rallyRow input[type=range] { height: 32px; }
+body:not([data-ui="desk"]) .btn { min-height: 46px; font-size: 15px; }
+/* Barre d'onglets */
+#mNav button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: none; border: 0; color: var(--muted); font-family: var(--display); font-weight: 600; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; min-height: 56px; padding: 6px 2px; }
+#mNav svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+#mNav button[aria-pressed="true"] { color: var(--accent); }
+
+/* Vertical : terrain + lecture en haut, contenu de l'onglet, barre d'onglets en bas ; la page elle-même ne défile pas */
+body[data-ui="port"] { overflow: hidden; }
+body[data-ui="port"] #app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+body[data-ui="port"] #stage { flex: none; z-index: 5; box-shadow: 0 4px 14px rgba(0,0,0,.25); padding-top: env(safe-area-inset-top, 0px); }
+body[data-ui="port"] #canvasWrap { height: 40vh; height: 40dvh; min-height: 210px; flex: none; }
+body[data-ui="port"] #panel { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; border-left: 0; padding: 12px 12px 18px; gap: 10px; }
+body[data-ui="port"] #mNav { display: flex; flex: none; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body[data-ui="port"] .transport { padding: 6px 10px 8px; gap: 6px; }
+body[data-ui="port"] .tRow { flex-wrap: nowrap; gap: 6px; }
+body[data-ui="port"] .tBtn { min-height: 44px; min-width: 46px; font-size: 16px; }
+body[data-ui="port"] .tBtn.primary { flex: 1; min-width: 0; }
+body[data-ui="port"] #bStepMode { font-size: 13px; padding: 4px 8px; }
+body[data-ui="port"] .speed button { min-height: 40px; padding: 6px 9px; }
+body[data-ui="port"] #scrub { height: 32px; }
+body[data-ui="port"] .steps { display: none; }
+body[data-ui="port"] #stepsSlot .steps { display: flex; }
+:root:has(body[data-ui="port"]) { padding: 0; }
+
+/* Horizontal : terrain plein écran, lecture en surimpression, rail d'onglets à droite, tiroir par-dessus le terrain */
+body[data-ui="land"] { overflow: hidden; --rail: calc(64px + env(safe-area-inset-right, 0px)); }
+:root:has(body[data-ui="land"]) { padding: 0; }
+body[data-ui="land"] #app { display: block; position: relative; height: 100vh; height: 100dvh; overflow: hidden; }
+body[data-ui="land"] #stage { position: absolute; top: 0; bottom: 0; left: 0; right: var(--rail); padding-left: env(safe-area-inset-left, 0px); }
+body[data-ui="land"] #canvasWrap { position: absolute; inset: 0; }
+body[data-ui="land"] .transport { position: absolute; left: env(safe-area-inset-left, 0px); right: 0; bottom: 0; z-index: 3; display: flex; align-items: center; gap: 8px; padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px)); background: rgba(8, 12, 18, .72); backdrop-filter: blur(6px); }
+body[data-ui="land"] .tRow { flex-wrap: nowrap; gap: 6px; }
+body[data-ui="land"] .tRow:nth-child(2) { flex: 1; min-width: 0; }
+body[data-ui="land"] .tBtn { min-height: 42px; min-width: 44px; padding: 4px 8px; font-size: 16px; }
+body[data-ui="land"] .tBtn.primary { min-width: 104px; }
+body[data-ui="land"] #bStepMode { font-size: 13px; }
+body[data-ui="land"] .speed button { min-height: 40px; padding: 4px 8px; }
+body[data-ui="land"] #scrub { min-width: 60px; height: 32px; }
+body[data-ui="land"] .steps { display: none; }
+body[data-ui="land"] #stepsSlot .steps { display: flex; }
+body[data-ui="land"] .miniCap { bottom: 64px; }
+body[data-ui="land"] #mNav { display: flex; flex-direction: column; position: absolute; top: 0; bottom: 0; right: 0; width: var(--rail); padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) 0; background: var(--surface); border-left: 1px solid var(--line); z-index: 30; }
+body[data-ui="land"] #mNav button { font-size: 11.5px; min-height: 0; }
+body[data-ui="land"] #panel { position: absolute; top: 0; bottom: 0; right: var(--rail); width: min(400px, 56vw); z-index: 20; overflow-y: auto; overscroll-behavior: contain; padding: 0 12px 16px; gap: 10px; border-left: 1px solid var(--line); box-shadow: -12px 0 30px rgba(0,0,0,.35); transform: translateX(calc(100% + var(--rail))); visibility: hidden; transition: transform .22s ease, visibility 0s linear .22s; }
+body[data-ui="land"] #app.drawerOpen #panel { transform: none; visibility: visible; transition: transform .22s ease; }
+body[data-ui="land"] .drawerHead { display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 2; background: var(--bg); margin: 0 -12px; padding: 8px 8px 8px 16px; border-bottom: 1px solid var(--line); font-family: var(--display); font-weight: 700; font-size: 18px; letter-spacing: .06em; text-transform: uppercase; }
+.drawerHead button { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; min-width: 44px; min-height: 44px; font-size: 18px; }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
 </style>
 
 </head>
 <body>
+<script>
+// Mise en page choisie avant le premier affichage : bureau, téléphone vertical ou téléphone horizontal
+document.body.dataset.ui = matchMedia('(max-height: 520px) and (orientation: landscape)').matches ? 'land'
+  : matchMedia('(max-width: 900px) and (orientation: portrait), (max-width: 600px)').matches ? 'port' : 'desk';
+</script>
 <div id="app">
   <section id="stage" aria-label="Terrain 3D">
     <div id="canvasWrap">
@@ -240,6 +294,8 @@ dd { margin: 0 0 4px; color: var(--muted); }
       </div>
       <div class="miniCap" id="miniCap" aria-hidden="true"></div>
       <div class="pTip" id="pTip" role="tooltip" hidden></div>
+      <button class="ctxChip" id="ctxChip" title="Changer de phase, de rotation ou de scénario"></button>
+      <button class="camToggle" id="camToggle" aria-expanded="false" aria-label="Choisir la caméra"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 11l5-3v8l-5-3z"/></svg><span id="camLbl">Joueur</span> ▾</button>
       <div class="camBar" role="group" aria-label="Caméra">
         <button data-cam="team" aria-pressed="true"><span class="lg">Vue joueur</span><span class="sm">Joueur</span></button>
         <button data-cam="top"><span class="lg">Vue tactique</span><span class="sm">Dessus</span></button>
@@ -258,6 +314,7 @@ dd { margin: 0 0 4px; color: var(--muted); }
         <button class="tBtn" id="bStepMode" aria-pressed="true" title="S'arrêter à la fin de chaque étape">Pas à pas</button>
       </div>
       <div class="tRow">
+        <button class="tBtn speedCycle" id="speedCycle" aria-label="Vitesse de lecture">×½</button>
         <div class="speed" role="group" aria-label="Vitesse">
           <button data-speed="0.25">×¼</button>
           <button data-speed="0.5" aria-pressed="true">×½</button>
@@ -271,9 +328,15 @@ dd { margin: 0 0 4px; color: var(--muted); }
     </div>
   </section>
 
-  <aside id="panel">
-    <div id="capSlot"></div>
-    <div class="brand">
+  <aside id="panel" data-mtab="etape">
+    <div class="drawerHead"><span id="drawerTitle">Étape</span><button id="drawerClose" aria-label="Fermer le panneau">✕</button></div>
+    <div id="capSlot" data-tab="etape"></div>
+    <p class="note" id="roleHint" data-tab="etape" hidden>Choisis ton rôle dans l'onglet <b>Rôle</b> : ton joueur sera mis en valeur et un conseil s'affichera ici à chaque étape.</p>
+    <div class="sec" id="secSteps" data-tab="etape">
+      <h3>Toutes les étapes</h3>
+      <div id="stepsSlot"></div>
+    </div>
+    <div class="brand" data-tab="plus">
       <div class="brandTop">
         <h1>Volley <em>5-1</em> en 3D</h1>
         <div class="themeSw" id="themeSw" role="group" aria-label="Thème de l'interface">
@@ -285,7 +348,7 @@ dd { margin: 0 0 4px; color: var(--muted); }
       <p>Chaque rotation, en attaque et en défense, joueur par joueur. Survole ou touche un joueur pour savoir pourquoi il est là.</p>
     </div>
 
-    <div class="sec">
+    <div class="sec" data-tab="jeu">
       <h3>Phase de jeu</h3>
       <div class="seg" id="modeSeg">
         <button data-mode="attack" aria-pressed="true"><b>Attaque</b><small>L'adversaire sert : réception, passe, attaque</small></button>
@@ -294,20 +357,20 @@ dd { margin: 0 0 4px; color: var(--muted); }
       </div>
     </div>
 
-    <div class="sec">
+    <div class="sec" data-tab="jeu">
       <h3>Rotation</h3>
       <div class="rot" id="rotSeg"></div>
       <p class="hint">P1 = passeur en zone 1. Les boutons suivent l'ordre où l'équipe tourne.</p>
       <p class="note" id="rotNote"></p>
     </div>
 
-    <div class="sec">
+    <div class="sec" data-tab="role">
       <h3>Mon rôle</h3>
       <div class="chips" id="roleChips"></div>
       <p class="hint">Ton joueur est mis en valeur, son trajet est dessiné au sol et un conseil s'affiche à chaque étape.</p>
     </div>
 
-    <div class="sec" id="secRally" hidden>
+    <div class="sec" id="secRally" data-tab="jeu" hidden>
       <h3>Rally aléatoire</h3>
       <label class="hint" for="rallyN">Nombre de tours (un tour = notre attaque, puis la réponse adverse)</label>
       <div class="rallyRow">
@@ -318,22 +381,28 @@ dd { margin: 0 0 4px; color: var(--muted); }
       <p class="hint" id="rallySummary"></p>
     </div>
 
-    <div class="sec" id="secServe">
+    <div class="sec" id="secServe" data-tab="jeu">
       <h3>Le service adverse arrive sur</h3>
       <div class="chips" id="serveChips"></div>
     </div>
 
-    <div class="sec" id="secOpp" hidden>
+    <div class="sec" id="secOpp" data-tab="jeu" hidden>
       <h3>L'adversaire attaque</h3>
       <div class="chips" id="oppChips"></div>
     </div>
 
-    <div class="sec" id="secAtt">
+    <div class="sec" id="secShot" data-tab="jeu" hidden>
+      <h3>Sa frappe</h3>
+      <div class="chips" id="shotChips"></div>
+      <p class="note" id="shotNote" hidden></p>
+    </div>
+
+    <div class="sec" id="secAtt" data-tab="jeu">
       <h3 id="attTitle">Le passeur sert</h3>
       <div class="chips" id="attChips"></div>
     </div>
 
-    <div class="sec">
+    <div class="sec" data-tab="plus">
       <h3>Affichage</h3>
       <div class="toggles">
         <label><input type="checkbox" id="tPath" checked><span>Trajet de mon rôle<small>Pointillés au sol, un repère par étape</small></span></label>
@@ -351,17 +420,17 @@ dd { margin: 0 0 4px; color: var(--muted); }
       </div>
     </div>
 
-    <div class="sec">
+    <div class="sec" data-tab="role">
       <h3>Rôles</h3>
       <div class="legend" id="legend"></div>
     </div>
 
-    <details>
+    <details data-tab="role">
       <summary>Prénoms de l'équipe</summary>
       <div class="names" id="names"></div>
     </details>
 
-    <details>
+    <details data-tab="plus">
       <summary>Lexique</summary>
       <dl>
         <dt>Formation 5-1</dt><dd>5 joueurs qui attaquent et 1 seul passeur, qui fait la passe dans les 6 rotations.</dd>
@@ -378,10 +447,17 @@ dd { margin: 0 0 4px; color: var(--muted); }
       </dl>
     </details>
 
-    <p class="kbd"><kbd>Espace</kbd> lecture/pause · <kbd>←</kbd> <kbd>→</kbd> étapes · <kbd>R</kbd> recommencer · glisser pour tourner, molette pour zoomer.</p>
-    <p class="kbd touchHint">Sur le terrain : un doigt pour tourner, deux doigts pour zoomer ou déplacer. Fais défiler en dehors du terrain.</p>
-    <p class="hint">© 2026 Boris Yang. Tous droits réservés.</p>
+    <p class="kbd" data-tab="plus"><kbd>Espace</kbd> lecture/pause · <kbd>←</kbd> <kbd>→</kbd> étapes · <kbd>R</kbd> recommencer · glisser pour tourner, molette pour zoomer.</p>
+    <p class="kbd touchHint" data-tab="plus">Sur le terrain : un doigt pour tourner, deux doigts pour zoomer ou déplacer. Touche un joueur pour savoir pourquoi il est là.</p>
+    <p class="hint" data-tab="plus">© 2026 Boris Yang. Tous droits réservés.</p>
   </aside>
+
+  <nav id="mNav" aria-label="Sections">
+    <button data-mt="etape" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/></svg>Étape</button>
+    <button data-mt="jeu"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3c-2 4-2 14 0 18M3.5 9c5 2 12 2 17 0M5 17c4-2 10-2 14 0"/></svg>Jeu</button>
+    <button data-mt="role"><svg viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="3.5"/><path d="M5 21c0-4 3.1-7 7-7s7 3 7 7"/></svg>Rôle</button>
+    <button data-mt="plus"><svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Plus</button>
+  </nav>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
@@ -545,7 +621,7 @@ Builder.prototype.add = function (s) {
   if (this.lu) {
     const ids = this.lu.onCourt.filter(id => end[id][1] <= 9 && end[id][1] >= 0);
     const c = s.ctx || {};
-    const fixed = new Set(['S', c.receiver, c.attacker, c.digger, ...(c.blockers || [])].filter(Boolean));
+    const fixed = new Set(['S', c.setter, c.receiver, c.attacker, c.digger, ...(c.blockers || [])].filter(Boolean));
     ids.forEach(id => { if (!s.pos || !s.pos[id]) fixed.add(id); });
     relax(end, ids, fixed);
   }
@@ -565,7 +641,46 @@ const OPP_HIT = {
   L: { who: 'oL', hit: [3.3, -0.6], run: [3.9, -3.8], set: 1.2, apex: 5.0, label: "le poste 4 adverse (en face de notre zone 2)" },
   M: { who: 'oM', hit: [-0.1, -0.6], run: [-0.3, -2.4], set: 0.55, apex: 3.5, label: "le central adverse (au centre)" },
   R: { who: 'oR', hit: [-3.3, -0.6], run: [-3.9, -3.6], set: 0.95, apex: 4.2, label: "le pointu adverse (en face de notre zone 4)" },
+  B: { who: 'oB1', hit: [0.1, -3.5], run: [0.0, -6.6], set: 1.0, apex: 4.5, h: H.hitBack, label: "l'arrière adverse en pipe (au centre, derrière ses 3 m)" },
 };
+// Frappes adverses possibles selon l'attaquant : [clé, libellé, qui défend (zone ou contreur libre), point de défense]
+const OPP_SHOTS_MID = [
+  ['deep', "Dans l'axe (zone 6)", 'z6', [-0.7, 7.6]],
+  ['z5', 'Vers notre zone 5', 'z5', [-2.9, 5.6]],
+  ['z1', 'Vers notre zone 1', 'z1', [3.1, 5.6]],
+  ['tip', 'Feinte (contreur libre)', 'off', [-1.3, 2.5]],
+];
+const OPP_SHOTS = {
+  L: [
+    ['diag', 'Diagonale (vers notre zone 5)', 'z5', [-2.9, 5.7]],
+    ['line', 'Ligne (vers notre zone 1)', 'z1', [3.6, 5.9]],
+    ['tip', 'Feinte derrière le contre', 'z1', [2.4, 2.7]],
+    ['deep', 'Balle longue (zone 6)', 'z6', [1.2, 8.1]],
+  ],
+  R: [
+    ['diag', 'Diagonale (vers notre zone 1)', 'z1', [3.0, 5.7]],
+    ['line', 'Ligne (vers notre zone 5)', 'z5', [-3.6, 5.9]],
+    ['tip', 'Feinte derrière le contre', 'z5', [-2.4, 2.7]],
+    ['deep', 'Balle longue (zone 6)', 'z6', [-1.2, 8.1]],
+  ],
+  M: OPP_SHOTS_MID,
+  B: OPP_SHOTS_MID,
+};
+const SHOT_W = { diag: 0.4, line: 0.25, tip: 0.15, deep: 0.2, z5: 0.25, z1: 0.25 };
+const RELAY_SPOT = [1.0, 2.3];   // passe de relais : un peu plus loin du filet que la cible
+// Qui défend la frappe adverse ; si c'est le passeur, le pointu fait la passe (relais).
+function oppShotPlan(lu, side, shot) {
+  const list = OPP_SHOTS[side];
+  const sh = list.find(x => x[0] === shot) || list[0];
+  const offBlocker = side === 'R' ? lu.roleAt.RF : lu.roleAt.OHf;
+  const digger = sh[2] === 'off' ? offBlocker : lu.roleAt[sh[2]];
+  const relay = digger === 'S' ? { id: 'OP', spot: RELAY_SPOT } : null;
+  return { shot: sh[0], label: sh[1], digger, spot: sh[3], relay };
+}
+// Attaques possibles après la défense (avec un relais : ni 2e main, ni balle rapide, ni attaque du passeur ou du relayeur)
+function validAtts(lu, relay) {
+  return Object.keys(lu.att).filter(k => !relay || (k !== 'dump' && k !== 'p3' && lu.att[k] !== relay.id && lu.att[k] !== 'S'));
+}
 
 function oppBlock(ax, cur) {
   const front = ['oL', 'oM', 'oR'];
@@ -595,7 +710,7 @@ function bestAssign(ids, slots, pos) {
   ids.forEach((id, k) => { out[id] = slots[best[k]]; });
   return out;
 }
-function coverPlan(lu, attacker, attKey, pos) {
+function coverPlan(lu, attacker, attKey, pos, setter = 'S', spot = T) {
   const others = lu.onCourt.filter(id => id !== attacker);
   const out = {};
   if (attKey === 'dump') {
@@ -603,14 +718,14 @@ function coverPlan(lu, attacker, attKey, pos) {
     return bestAssign(others, [[clx(ax - 1.3), 1.7], [clx(ax + 1.3), 1.7], [ax, 2.7], [clx(ax - 2.3), 4.6], [clx(ax + 2.0), 4.6]], pos);
   }
   const A = HIT[attKey], ax = A.hit[0];
-  const rest = others.filter(id => id !== 'S');
+  const rest = others.filter(id => id !== setter);
   if (attKey === 'pipe' || attKey === 'd1') {
     // Attaque arrière : les avants (après leur feinte) couvrent devant, le passeur sur le côté, deux arrières derrière.
-    out.S = lerp2(T, [ax, 2.2], 0.45);
+    out[setter] = lerp2(spot, [ax, 2.2], 0.45);
     return Object.assign(out, bestAssign(rest, [[clx(ax - 1.7), 2.2], [clx(ax + 1.7), 2.2], [clx(ax - 1.5), 5.2], [clx(ax + 1.5), 5.2]], pos));
   }
   if (attKey === 'p3') {
-    out.S = [ax + 1.2, 1.6];
+    out[setter] = [ax + 1.2, 1.6];
     return Object.assign(out, bestAssign(rest, [[ax - 1.2, 1.7], [ax, 2.7], [ax - 2.0, 4.4], [ax + 1.9, 4.4]], pos));
   }
   // Attaque d'aile (poste 4 ou poste 2)
@@ -620,8 +735,8 @@ function coverPlan(lu, attacker, attKey, pos) {
   const midS = [clx(ax + inw * 2.5), 2.0];
   const deep1 = [clx(ax + inw * 0.5), 4.6];
   const deep2 = [clx(ax + inw * 2.3), 4.4];
-  const dNet = Math.hypot(T[0] - netS[0], T[1] - netS[1]), dMid = Math.hypot(T[0] - midS[0], T[1] - midS[1]);
-  out.S = dNet <= dMid ? netS : midS;
+  const dNet = Math.hypot(spot[0] - netS[0], spot[1] - netS[1]), dMid = Math.hypot(spot[0] - midS[0], spot[1] - midS[1]);
+  out[setter] = dNet <= dMid ? netS : midS;
   const mb = lu.roleAt.MBf;
   out[mb] = dNet <= dMid ? midS : netS;
   // Le joueur arrière du côté de l'attaque couvre juste derrière lui ; les deux autres prennent les trous au fond.
@@ -634,26 +749,28 @@ function coverPlan(lu, attacker, attKey, pos) {
 }
 
 // Phase commune : passe, attaque, replacement
-function addSetAttack(b, lu, attKey, mode, cont) {
+function addSetAttack(b, lu, attKey, mode, cont, relay) {
   const attacker = lu.att[attKey];
+  const setter = relay ? relay.id : 'S', spot = relay ? relay.spot : T;
   const A = HIT[attKey];
   const pos0 = b.cur;
   if (attKey === 'dump') {
     const pos = coverPlan(lu, 'S', 'dump', pos0);
     const blk = oppBlock(T[0], pos0);
-    const jump = { S: { type: 'hop', h: 0.55 } };
-    for (const o in blk) jump[o] = { type: 'hop', h: 0.5 };
+    // saut au début de l'étape, contact du ballon au sommet du saut
+    const jump = { S: { type: 'hop', h: 0.55, a: 0.02, b: 0.6 } };
+    for (const o in blk) jump[o] = { type: 'hop', h: 0.5, a: 0.1, b: 0.7 };
     b.add({ key: 'set', title: "2e main du passeur",
       text: "Le passeur est en ligne avant : au lieu de faire la passe, il saute comme pour passer et pousse le ballon chez l'adversaire, dans la zone vide derrière le contre. Ses coéquipiers viennent quand même en couverture autour de lui.",
-      dur: 1.1, pos: Object.assign(pos, blk), jump, ball: { to: [HIT.dump.land[0], 0.11, HIT.dump.land[1]], apex: 3.7 },
+      dur: 1.1, pos: Object.assign(pos, blk), jump, ball: { to: [HIT.dump.land[0], 0.11, HIT.dump.land[1]], apex: 3.4, win: [0.3, 0.85], bounce: true },
       ctx: { attacker: 'S', attKey, phase: 'dump' } });
     b.add({ key: 'replace', title: "Point ! Puis replacement", text: replaceText(lu), dur: 1.8, pos: replacePos(lu), ctx: { attacker: 'S', attKey } });
     return;
   }
-  const plan = coverPlan(lu, attacker, attKey, pos0);
+  const plan = coverPlan(lu, attacker, attKey, pos0, setter, spot);
   // Feintes : les autres attaquants avant font leur course d'élan (le central saute en même temps que l'attaque)
   const decoys = {}; const jumpSet = {};
-  lu.front.filter(id => id !== attacker && id !== 'S').forEach(id => {
+  lu.front.filter(id => id !== attacker && id !== 'S' && id !== setter).forEach(id => {
     const key = Object.keys(lu.att).find(k => lu.att[k] === id && k !== 'dump');
     if (!key) return;
     const tgt = [HIT[key].hit[0], HIT[key].hit[1] + (key === 'p3' ? 0.5 : 1.0)];
@@ -661,7 +778,7 @@ function addSetAttack(b, lu, attKey, mode, cont) {
     if (key === 'p3') jumpSet[id] = { type: 'hop', h: 0.5 };
   });
   const setPos = {};
-  lu.onCourt.forEach(id => { if (id !== attacker && !decoys[id]) setPos[id] = id === 'S' ? [T[0], T[1] + 0.3] : plan[id]; });
+  lu.onCourt.forEach(id => { if (id !== attacker && !decoys[id]) setPos[id] = id === setter ? [spot[0], spot[1] + 0.3] : plan[id]; });
   Object.assign(setPos, decoys);
   setPos[attacker] = A.hit;
   const blk = oppBlock(A.hit[0], pos0);
@@ -669,10 +786,13 @@ function addSetAttack(b, lu, attKey, mode, cont) {
   if (cont) Object.assign(setPos, { oB1: [0.4, -7.4], oB2: [-3.0, -5.8], oS: [2.9, -5.9] }, { [cont.digger]: cont.spot });
   jumpSet[attacker] = { type: 'up', h: A.h > 3.1 ? 0.75 : 0.7 };
   for (const o in blk) jumpSet[o] = { type: 'up', h: 0.6 };
-  b.add({ key: 'set', title: "Passe",
-    text: `Le passeur donne une ${A.name} pour ${nm(attacker)}. ${Object.keys(decoys).length ? "Les autres attaquants avant font leur course d'élan pour tromper le contre ; " : ''}les joueurs arrière vont déjà vers leur place de couverture.`,
-    dur: A.set + 0.15, pos: setPos, jump: jumpSet,
-    ball: { to: [A.hit[0], A.h, A.hit[1]], apex: A.apex }, ctx: { attacker, attKey, decoys: Object.keys(decoys), plan } });
+  const decoyTxt = Object.keys(decoys).length ? "Les autres attaquants avant font leur course d'élan pour tromper le contre ; " : '';
+  b.add({ key: 'set', title: relay ? "Passe de relais du pointu" : "Passe",
+    text: relay
+      ? `Le passeur a joué le premier ballon : il ne peut pas faire la passe. ${cap(nm(setter))} assure le relais avec une passe haute, un peu loin du filet, pour ${nm(attacker)} (${attKey === 'pipe' ? 'pipe' : 'poste ' + attKey.slice(1)}), qui a ainsi le temps de prendre son élan. ${decoyTxt}${cap(nm('S'))} rejoint la couverture.`
+      : `Le passeur donne une ${A.name} pour ${nm(attacker)}. ${decoyTxt}les joueurs arrière vont déjà vers leur place de couverture.`,
+    dur: A.set + (relay ? 0.45 : 0.15), pos: setPos, jump: jumpSet,
+    ball: { to: [A.hit[0], A.h, A.hit[1]], apex: A.apex + (relay ? 0.5 : 0) }, ctx: { attacker, attKey, decoys: Object.keys(decoys), plan, setter } });
   const cov = Object.assign({}, plan);
   cov[attacker] = [A.hit[0], A.hit[1] + 0.4];
   const jumpAtt = { [attacker]: { type: 'down', h: 0.72 } };
@@ -680,12 +800,12 @@ function addSetAttack(b, lu, attKey, mode, cont) {
   if (cont) {
     b.add({ key: 'attack', title: "Attaque et couverture",
       text: `${cap(nm(attacker))} frappe. Les coéquipiers forment la couverture « 3-2 » autour de lui. Mais l'adversaire défend le ballon : l'échange continue.`,
-      dur: 1.0, pos: cov, jump: jumpAtt, ball: { to: [cont.spot[0] + 0.1, H.pass, cont.spot[1] + 0.15], apex: A.h > 3.1 ? 3.75 : 0 }, ctx: { attacker, attKey, plan, oppDigger: cont.digger } });
+      dur: 1.0, pos: cov, jump: jumpAtt, ball: { to: [cont.spot[0] + 0.1, H.pass, cont.spot[1] + 0.15], arc: 0.35, win: [0, 0.42] }, ctx: { attacker, attKey, plan, oppDigger: cont.digger, setter } });
     return;
   }
   b.add({ key: 'attack', title: "Attaque et couverture",
     text: `${cap(nm(attacker))} frappe dans une zone libre. Les coéquipiers forment la couverture « 3-2 » : trois joueurs bas tout près de l'attaquant, deux autres plus loin dans les trous, pour relever un ballon renvoyé par le contre.`,
-    dur: 1.0, pos: cov, jump: jumpAtt, ball: { to: [A.land[0], 0.11, A.land[1]], apex: A.h > 3.1 ? 3.75 : 0 }, ctx: { attacker, attKey, plan } });
+    dur: 1.0, pos: cov, jump: jumpAtt, ball: { to: [A.land[0], 0.11, A.land[1]], arc: 0.35, win: [0, 0.38], bounce: true }, ctx: { attacker, attKey, plan, setter } });
   b.add({ key: 'replace', title: "Point ! Puis replacement", text: replaceText(lu), dur: 1.8, pos: replacePos(lu), ctx: { attacker, attKey } });
 }
 function replacePos(lu) {
@@ -763,51 +883,75 @@ function buildAttack(rot, opts) {
   return b;
 }
 
-function addDefenseCycle(b, lu, side, attKey) {
+// Défense périphérique « 6 arrière » contre une attaque adverse, selon le côté et le type de frappe.
+// Renvoie le relais éventuel (si le passeur défend le premier ballon, le pointu fait la passe).
+function addDefenseCycle(b, lu, side, attKey, shotKey) {
   const OH = OPP_HIT[side];
   const r = lu.roleAt;
-  // Défense selon le côté
-  const d = {}; const jump = {}; let digger, digSpot, blockers, offBlocker;
+  const plan = oppShotPlan(lu, side, shotKey);
+  const { digger, relay } = plan, digSpot = plan.spot, shot = plan.shot;
+  const d = {}; const jump = {}; let blockers, offBlocker;
   if (side === 'L') {
     blockers = [r.RF, r.MBf]; d[r.RF] = [3.4, 0.35]; d[r.MBf] = [2.6, 0.35];
     offBlocker = r.OHf; d[r.OHf] = [-2.6, 3.0];
     d[r.z1] = [3.7, 6.0]; d[r.z6] = [1.0, 8.2]; d[r.z5] = [-3.0, 5.8];
-    digger = r.z5; digSpot = [-2.9, 5.7];
-  } else if (side === 'M') {
-    blockers = [r.MBf, r.RF]; d[r.MBf] = [-0.1, 0.35]; d[r.RF] = [0.7, 0.35];
-    offBlocker = r.OHf; d[r.OHf] = [-2.6, 3.0];
-    d[r.z1] = [3.2, 5.8]; d[r.z6] = [-0.6, 7.8]; d[r.z5] = [-3.0, 6.0];
-    digger = r.z6; digSpot = [-0.7, 7.6];
-  } else {
+  } else if (side === 'R') {
     blockers = [r.OHf, r.MBf]; d[r.OHf] = [-3.4, 0.35]; d[r.MBf] = [-2.6, 0.35];
     offBlocker = r.RF; d[r.RF] = [2.6, 3.0];
     d[r.z5] = [-3.7, 6.0]; d[r.z6] = [-1.0, 8.2]; d[r.z1] = [3.0, 5.8];
-    if (r.z1 === 'S') { digger = r.z6; digSpot = [-0.9, 8.0]; } else { digger = r.z1; digSpot = [3.0, 5.7]; }
+  } else {
+    // central ou pipe adverse : contre au centre
+    blockers = [r.MBf, r.RF]; d[r.MBf] = [-0.1, 0.35]; d[r.RF] = [0.7, 0.35];
+    offBlocker = r.OHf; d[r.OHf] = [-2.6, 3.0];
+    d[r.z1] = [3.2, 5.8]; d[r.z6] = [-0.6, 7.8]; d[r.z5] = [-3.0, 6.0];
   }
-  blockers.forEach(id => { jump[id] = { type: 'up', h: 0.55 }; });
+  const hitH = OH.h || H.hit;
+  blockers.forEach(id => { jump[id] = { type: 'up', h: side === 'B' ? 0.45 : 0.55 }; });
   d[OH.who] = OH.hit; jump[OH.who] = { type: 'up', h: 0.7 };
-  b.add({ key: 'oppSet', title: "Passe adverse : contre et défense",
-    text: `La passe part vers ${OH.label}. ${cap(nm(blockers[0]))} et ${nm(blockers[1])} se déplacent ensemble pour former un double contre ; ${nm(offBlocker)}, le contreur libre, recule vers la ligne des 3 m pour les feintes. Les arrières se placent autour du contre : le joueur en zone 6 reste au fond.`,
-    dur: OH.set + 0.2, pos: d, jump, ball: { to: [OH.hit[0], H.hit, OH.hit[1]], apex: OH.apex },
-    ctx: { blockers, offBlocker, digger, side } });
-  const j2 = {}; blockers.forEach(id => { j2[id] = { type: 'down', h: 0.55 }; }); j2[OH.who] = { type: 'down', h: 0.7 };
-  b.add({ key: 'oppAttack', title: "Attaque adverse",
-    text: `Les contreurs sautent, mains au-dessus du filet. Le ballon passe à côté du contre et arrive sur ${nm(digger)}, bien placé dans l'axe de la frappe.`,
-    dur: 0.8, pos: { [digger]: digSpot, [OH.who]: [OH.hit[0], OH.hit[1] - 0.4] }, jump: j2,
-    ball: { to: [digSpot[0] + 0.1, H.pass, digSpot[1] - 0.15], apex: 0 }, ctx: { blockers, offBlocker, digger, side } });
+  const blockTxt = side === 'B'
+    ? `${cap(nm(blockers[0]))} et ${nm(blockers[1])} montent au contre au centre (l'attaque part de loin, le contre a moins d'importance) ; ${nm(offBlocker)}, le contreur libre, recule vers la ligne des 3 m.`
+    : `${cap(nm(blockers[0]))} et ${nm(blockers[1])} se déplacent ensemble pour former un double contre ; ${nm(offBlocker)}, le contreur libre, recule vers la ligne des 3 m pour les feintes.`;
+  b.add({ key: 'oppSet', title: side === 'B' ? "Pipe adverse : contre et défense" : "Passe adverse : contre et défense",
+    text: `La passe part vers ${OH.label}. ${blockTxt} Les arrières se placent autour du contre : le joueur en zone 6 reste au fond.`,
+    dur: OH.set + 0.2, pos: d, jump, ball: { to: [OH.hit[0], hitH, OH.hit[1]], apex: OH.apex },
+    ctx: { blockers, offBlocker, digger, side, shot, setter: relay ? relay.id : 'S' } });
+  const j2 = {}; blockers.forEach(id => { j2[id] = { type: 'down', h: side === 'B' ? 0.45 : 0.55 }; }); j2[OH.who] = { type: 'down', h: 0.7 };
+  const D = cap(nm(digger));
+  const SHOT_TXT = {
+    diag: `L'attaquant frappe en diagonale, à côté du contre. ${D}, placé dans l'axe de la diagonale, défend.`,
+    line: `L'attaquant frappe le long de la ligne, entre le contre et la ligne de côté. ${D} défend la ligne.`,
+    tip: `L'attaquant feinte : il pose le ballon juste derrière le contre. ${D} se jette en avant pour le récupérer.`,
+    deep: `L'attaquant frappe long, vers le fond du terrain. ${D}, resté au fond, défend.`,
+    z5: `L'attaquant frappe vers notre zone 5. ${D} défend.`,
+    z1: `L'attaquant frappe vers notre zone 1. ${D} défend.`,
+  };
+  const relayTxt = relay ? " C'est le passeur qui touche le premier ballon : il ne pourra pas faire la passe." : '';
+  const isTip = shot === 'tip';
+  b.add({ key: 'oppAttack', title: isTip ? "Feinte adverse" : "Attaque adverse",
+    text: (isTip ? '' : "Les contreurs sautent, mains au-dessus du filet. ") + SHOT_TXT[shot] + relayTxt,
+    dur: isTip ? 1.2 : 0.8, pos: { [digger]: digSpot, [OH.who]: [OH.hit[0], OH.hit[1] - 0.4] }, jump: j2,
+    ball: isTip
+      ? { to: [digSpot[0] + 0.1, H.pass - 0.15, digSpot[1] - 0.2], apex: hitH + 0.45, win: [0.05, 0.92] }
+      : { to: [digSpot[0] + 0.1, H.pass, digSpot[1] - 0.15], arc: 0.3, win: [0, 0.5] },
+    ctx: { blockers, offBlocker, digger, side, shot, setter: relay ? relay.id : 'S' } });
   // Transition
-  const tr = { S: T.slice() };
+  const setter = relay ? relay.id : 'S', setSpot = relay ? relay.spot : T;
+  const tr = { [setter]: setSpot.slice() };
   for (const k in lu.att) {
     const id = lu.att[k];
-    if (k === 'dump' || id === 'S' || id === digger) continue;
+    if (k === 'dump' || id === 'S' || id === setter || id === digger || (relay && k === 'p3')) continue;
     tr[id] = HIT[k].run;
   }
   if (lu.att[attKey] === digger) tr[digger] = lerp2(digSpot, HIT[attKey].run, 0.6);
+  if (relay) tr.S = lerp2(digSpot, [1.6, 3.4], 0.5);   // le passeur se relève et vient vers la couverture
   Object.assign(tr, { oL: [3.0, -0.6], oM: [0, -0.6], oR: [-3.0, -0.6], oS: [1.5, -5.5], oB1: [0, -7.8], oB2: [-2.8, -6.0] });
-  const setterTxt = r.z1 === 'S' ? "Le passeur, qui défendait en zone 1, file vers la cible." : (blockers.includes('S') ? "Le passeur, qui contrait, se retourne vers la cible." : "Le passeur rejoint la cible.");
+  const setterTxt = relay
+    ? `${cap(nm(setter))} annonce « Relais ! » et vient se placer sous le ballon pour faire la passe.`
+    : (r.z1 === 'S' ? "Le passeur, qui défendait en zone 1, file vers la cible." : (blockers.includes('S') ? "Le passeur, qui contrait, se retourne vers la cible." : "Le passeur rejoint la cible."));
   b.add({ key: 'dig', title: "Défense",
-    text: `${cap(nm(digger))} défend le ballon haut, vers le centre du terrain. ${setterTxt} Les contreurs reculent vite pour reprendre leur élan : c'est la transition vers la contre-attaque.`,
-    dur: 1.8, pos: tr, ball: { to: [T[0], H.set, T[1] + 0.4], apex: 4.8 }, ctx: { digger, blockers, offBlocker } });
+    text: `${D} défend le ballon haut, vers le centre du terrain. ${setterTxt} Les contreurs reculent vite pour reprendre leur élan : c'est la transition vers la contre-attaque.`,
+    dur: 1.8, pos: tr, ball: { to: [setSpot[0], H.set, setSpot[1] + 0.4], apex: 4.8 }, ctx: { digger, blockers, offBlocker, shot, setter } });
+  return relay;
 }
 
 function buildDefense(rot, opts) {
@@ -834,9 +978,10 @@ function buildDefense(rot, opts) {
     text: "L'adversaire réceptionne. On reste en position de base : les avants au filet, mains hautes ; les arrières entre 6 et 8 m. Tout le monde regarde le passeur adverse.",
     dur: 1.6, pos: { oS: T_OPP, oL: [3.9, -3.8], oM: [-0.3, -2.4], oR: [-3.9, -3.6], oB1: [0, -6.0] },
     ball: { to: [T_OPP[0], H.set, T_OPP[1] - 0.25], apex: 4.6 }, ctx: {} });
-  const attKey = lu.att[opts.attack] ? opts.attack : 'p4';
-  addDefenseCycle(b, lu, side, attKey);
-  addSetAttack(b, lu, attKey, 'defense');
+  const valid = validAtts(lu, oppShotPlan(lu, side, opts.shot).relay);
+  const attKey = valid.includes(opts.attack) ? opts.attack : 'p4';
+  const relay = addDefenseCycle(b, lu, side, attKey, opts.shot);
+  addSetAttack(b, lu, attKey, 'defense', null, relay);
   // renommer l'attaque en contre-attaque
   b.steps.forEach(s => { if (s.key === 'attack') s.title = 'Contre-attaque'; });
   return b;
@@ -846,7 +991,7 @@ function buildDefense(rot, opts) {
 function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 function pickW(rng, items) { const tot = items.reduce((x, it) => x + it[1], 0); let r = rng() * tot; for (const it of items) { if ((r -= it[1]) <= 0) return it[0]; } return items[items.length - 1][0]; }
 const ATT_W = { p4: 0.36, p3: 0.2, p2: 0.22, pipe: 0.11, d1: 0.11, dump: 0.08 };
-function pickAttack(rng, lu, allowDump) { return pickW(rng, Object.keys(lu.att).filter(k => allowDump || k !== 'dump').map(k => [k, ATT_W[k] || 0.1])); }
+function pickAttack(rng, lu, allowDump, relay) { return pickW(rng, validAtts(lu, relay).filter(k => allowDump || k !== 'dump').map(k => [k, ATT_W[k] || 0.1])); }
 function buildRally(rot, opts) {
   const rng = mulberry32(opts.seed || 1);
   const luA = lineup(rot, 'attack');
@@ -859,30 +1004,32 @@ function buildRally(rot, opts) {
 function rallyLoop(b, luA, rot, firstKey, R) {
   const luR = lineup(rot, 'rally');
   const rng = R.rng, n = R.n;
-  let key = firstKey;
-  const SIDE_LBL = { L: 'à gauche', M: 'au centre', R: 'à droite' };
+  let key = firstKey, relay = null;
+  const SIDE_LBL = { L: 'à gauche', M: 'au centre', R: 'à droite', B: 'en pipe, au centre' };
   for (let k = 1; k <= n; k++) {
     const lu = k === 1 ? luA : luR;
     const from = b.steps.length;
     if (k === n) {
-      addSetAttack(b, lu, key, 'rally');
+      addSetAttack(b, lu, key, 'rally', null, relay);
       const last = b.steps[b.steps.length - 1];
       last.title = "Point gagné ! Puis replacement";
     } else {
-      const digger = rng() < 0.5 ? 'oB1' : 'oB2';
+      // attaque adverse tirée au sort : côté puis type de frappe (la pipe part de l'arrière centre, oB1)
+      const side = pickW(rng, [['L', 0.4], ['M', 0.18], ['R', 0.3], ['B', 0.12]]);
+      const shot = pickW(rng, OPP_SHOTS[side].map(x => [x[0], SHOT_W[x[0]]]));
+      const digger = side === 'B' || rng() < 0.5 ? 'oB2' : 'oB1';
       const base = digger === 'oB1' ? [0.4, -7.4] : [-3.0, -5.8];
       const spot = [base[0] + (rng() - 0.5) * 1.2, base[1] + (rng() - 0.5) * 1.0];
-      addSetAttack(b, lu, key, 'rally', { digger, spot });
-      const side = pickW(rng, [['L', 0.45], ['M', 0.2], ['R', 0.35]]);
-      const OH = OPP_HIT[side];
+      addSetAttack(b, lu, key, 'rally', { digger, spot }, relay);
       const op = { oS: T_OPP, oL: OPP_HIT.L.run, oM: OPP_HIT.M.run, oR: OPP_HIT.R.run };
       op[digger] = spot;
-      op[digger === 'oB1' ? 'oB2' : 'oB1'] = digger === 'oB1' ? [-2.8, -6.2] : [0.3, -7.2];
+      op[digger === 'oB1' ? 'oB2' : 'oB1'] = side === 'B' ? OPP_HIT.B.run : (digger === 'oB1' ? [-2.8, -6.2] : [0.3, -7.2]);
       b.add({ key: 'oDig', title: "Défense adverse",
         text: `L'adversaire défend et relance vers son passeur. Notre équipe quitte la couverture et revient en position de base : les avants au filet, mains hautes, les arrières en défense. L'attaque adverse va partir ${SIDE_LBL[side]}.`,
         dur: 1.7, pos: Object.assign(replacePos(luR), op), ball: { to: [T_OPP[0], H.set, T_OPP[1] - 0.25], apex: 4.6 }, ctx: { oppDigger: digger } });
-      key = pickAttack(rng, luR, k + 1 === n);
-      addDefenseCycle(b, luR, side, key);
+      const r2 = oppShotPlan(luR, side, shot).relay;
+      key = pickAttack(rng, luR, k + 1 === n && !r2, r2);
+      relay = addDefenseCycle(b, luR, side, key, shot);
     }
     for (let i = from; i < b.steps.length; i++) b.steps[i].tour = k;
   }
@@ -938,6 +1085,8 @@ function tipFor(id, step, lu, scen) {
       return "Avance un peu, prêt à couvrir l'attaque.";
     case 'set':
       if (c.attKey === 'dump') return id === 'S' ? "Saute comme pour une passe, puis pousse le ballon d'une main dans la zone vide derrière le contre." : "Viens en couverture autour du passeur, au cas où le contre renvoie le ballon.";
+      if (c.setter && c.setter !== 'S' && id === c.setter) return `Passe de relais pour ${nm(c.attacker)} : haute, un peu loin du filet, pour qu'il ait le temps de frapper fort. Pas de balle rapide, la sécurité d'abord.`;
+      if (id === 'S' && c.setter && c.setter !== 'S') return "Tu as joué le premier ballon : laisse la passe au pointu et viens en couverture.";
       if (id === 'S') return `Passe pour ${nm(c.attacker)}. Garde la même posture pour toutes tes passes : le contre adverse ne doit pas deviner.`;
       if (isAtt) return "Course d'élan en 3 pas (gauche-droite-gauche pour un droitier), bras lancés en arrière, saut au dernier moment.";
       if (c.decoys && c.decoys.includes(id)) return "Fais ta course comme si le ballon était pour toi : tu fixes un contreur adverse. Dès que la passe part ailleurs, file en couverture.";
@@ -962,16 +1111,21 @@ function tipFor(id, step, lu, scen) {
     case 'oppSet':
       if (c.blockers && c.blockers.includes(id)) { const o = c.blockers.find(x => x !== id); return `Déplace-toi en pas chassés et forme le double contre avec ${nm(o)}.`; }
       if (id === c.offBlocker) return "Tu ne contres pas : recule vers la ligne des 3 m pour récupérer les feintes et les ballons déviés.";
-      if (z === 'z1') return "Défends la ligne derrière le contre, à environ 6 m du filet.";
+      if (z === 'z1' && c.side === 'L') return "Défends la ligne derrière le contre, à environ 6 m du filet : c'est toi qui avances sur les feintes derrière le contre.";
+      if (z === 'z5' && c.side === 'R') return "Défends la ligne derrière le contre, à environ 6 m du filet : c'est toi qui avances sur les feintes derrière le contre.";
+      if (z === 'z1') return c.side === 'R' ? "Défends la diagonale côté droit : c'est là qu'arrivent le plus d'attaques." : "Défends ta zone, à environ 6 m du filet.";
       if (z === 'z6') return "Reste au fond, dans l'axe entre les contreurs : tu prends les balles longues.";
       if (z === 'z5') return "Défends la diagonale : c'est là qu'arrivent le plus d'attaques.";
       return "Place-toi autour du contre.";
     case 'oppAttack':
       if (c.blockers && c.blockers.includes(id)) return "Saute, mains au-dessus et de l'autre côté du filet, pouces vers le haut.";
+      if (id === c.digger && c.shot === 'tip') return "Feinte : avance vite, bas, et remonte le ballon haut avec les bras tendus (ou d'une main si tu es trop loin).";
       if (id === c.digger) return "Le ballon arrive sur toi : reste bas, immobile au moment de la frappe, plateforme vers la cible.";
       return "Arrête-toi et reste bas au moment de la frappe adverse.";
     case 'dig':
+      if (id === c.digger && id === 'S') return "Tu as défendu le premier ballon : défends haut vers le centre et crie « Relais ! ». Le pointu fera la passe.";
       if (id === c.digger) return "Défends haut vers le centre du terrain, pas trop près du filet : le passeur a besoin de temps.";
+      if (c.setter && c.setter !== 'S' && id === c.setter) return "Le passeur a touché le premier ballon : c'est toi qui fais la passe. Annonce « J'ai ! », va sous le ballon, face au poste 4.";
       if (id === 'S') return "File vers la cible pour faire la passe.";
       if (Object.values(lu.att).includes(id)) return "Recule vite pour reprendre ta course d'élan : c'est la transition.";
       return "Reste en place, prêt à couvrir.";
@@ -1217,8 +1371,12 @@ function poseFor(id, s, u, y) {
   const c = s.ctx || {}, key = s.key, j = s.jump[id];
   const opp = id.charAt(0) === 'o' && id.length > 1 && id !== 'OP' && id !== 'OH1' && id !== 'OH2';
   if (opp) {
-    if (y > 0.05) return (key === 'oppSet' || key === 'oppAttack') ? (key === 'oppSet' ? POSES.spikePrep : mixPose(POSES.spikePrep, POSES.spikeHit, Math.min(1, u * 3))) : POSES.block;
-    if (c.oppDigger === id && ((key === 'attack' && u > 0.35) || (key === 'oDig' && u < 0.3))) return POSES.dig;
+    if (y > 0.05) {
+      if (key === 'oppSet') return c.shot === 'tip' && u > 0.6 ? POSES.tip : POSES.spikePrep;
+      if (key === 'oppAttack') return c.shot === 'tip' ? POSES.tip : mixPose(POSES.spikePrep, POSES.spikeHit, Math.min(1, u * 3));
+      return POSES.block;
+    }
+    if (c.oppDigger === id && ((key === 'attack' && u > 0.25) || (key === 'oDig' && u < 0.3))) return POSES.dig;
     if (id === 'oS' && key === 'oDig' && u > 0.7) return POSES.set;
     if (key === 'oDig') return ['oL', 'oM', 'oR'].includes(id) ? POSES.approach : POSES.ready;
     if (id === 'oB2' && (key === 'rotation' || key === 'formation')) return POSES.serve;
@@ -1249,8 +1407,8 @@ function poseFor(id, s, u, y) {
   if (key === 'serve' && state.mode === 'defense' && id === lu.server && u < 0.18) return POSES.serveHit;
   if (key === 'serve' && id === c.receiver) return u > 0.55 ? POSES.pass : POSES.recvReady;
   if (key === 'reception' && id === c.receiver && u < 0.3) return POSES.pass;
-  if (id === 'S' && ((key === 'reception' && u > 0.72) || (key === 'dig' && u > 0.72) || (key === 'set' && u < 0.3))) return POSES.set;
-  if (key === 'oppAttack' && id === c.digger) return u > 0.35 ? POSES.dig : POSES.ready;
+  if (id === (c.setter || 'S') && ((key === 'reception' && u > 0.72) || (key === 'dig' && u > 0.72) || (key === 'set' && u < 0.3))) return POSES.set;
+  if (key === 'oppAttack' && id === c.digger) return u > (c.shot === 'tip' ? 0.6 : 0.25) ? POSES.dig : POSES.ready;
   if (key === 'dig' && id === c.digger && u < 0.3) return POSES.dig;
   // Postures de phase
   if (key === 'rotation' || key === 'serveRot') return POSES.stand;
@@ -1343,7 +1501,7 @@ const store = {
   set(k, v) { try { localStorage.setItem('v51.' + k, JSON.stringify(v)); } catch (e) { /* stockage indisponible */ } },
 };
 const state = {
-  mode: 'attack', rot: 'S1', role: store.get('role', 'S'), serveTo: 'c', oppSide: 'L', attack: 'p4',
+  mode: 'attack', rot: 'S1', role: store.get('role', 'S'), serveTo: 'c', oppSide: 'L', oppShot: 'diag', attack: 'p4',
   rallyN: Math.max(1, Math.min(30, store.get('rallyN', 10))), seed: 1 + Math.floor(Math.random() * 1e9),
   speed: 0.5, playing: false, stepMode: true, t: 0, labels: store.get('labels', { role: true, pos: false, name: false }), names: store.get('names', {}),
   show: { path: true, all: false, overlap: false, zones: true, ballTrail: true, opp: true },
@@ -1421,30 +1579,42 @@ function chipRow(el, items, cur, onPick) {
 }
 function renderOptions(lu) {
   const isAtt = state.mode === 'attack', isRally = state.mode === 'rally';
-  $('secServe').hidden = !isAtt; $('secOpp').hidden = state.mode !== 'defense';
+  $('secServe').hidden = !isAtt; $('secOpp').hidden = $('secShot').hidden = state.mode !== 'defense';
   $('secRally').hidden = !isRally; $('secAtt').hidden = isRally;
   if (isRally) return;
   if (isAtt) {
     const recv = RECV[state.rot];
     const order = ['OH1', 'OH2', 'L'].sort((a, b) => recv[a][0] - recv[b][0]);
     chipRow($('serveChips'), ['g', 'c', 'd'].map((v, i) => ({ v, label: `${['À gauche', 'Au centre', 'À droite'][i]} · ${dispName(order[i])}` })), state.serveTo, v => { state.serveTo = v; rebuild(true); });
-  } else {
-    chipRow($('oppChips'), [
-      { v: 'L', label: 'Côté gauche adverse (vers notre zone 2)' },
-      { v: 'M', label: 'Au centre' },
-      { v: 'R', label: 'Côté droit adverse (vers notre zone 4)' },
-    ], state.oppSide, v => { state.oppSide = v; rebuild(true); });
   }
-  $('attTitle').textContent = isAtt ? 'Le passeur sert' : 'La contre-attaque part vers';
+  let relay = null;
+  if (!isAtt) {
+    chipRow($('oppChips'), [
+      { v: 'L', label: 'Poste 4 adverse (vers notre zone 2)' },
+      { v: 'M', label: 'Central adverse' },
+      { v: 'R', label: 'Pointu adverse (vers notre zone 4)' },
+      { v: 'B', label: 'Pipe adverse (arrière centre)' },
+    ], state.oppSide, v => { state.oppSide = v; rebuild(true); });
+    const shots = OPP_SHOTS[state.oppSide];
+    if (!shots.some(x => x[0] === state.oppShot)) state.oppShot = shots[0][0];
+    const sp = oppShotPlan(lu, state.oppSide, state.oppShot);
+    relay = sp.relay;
+    chipRow($('shotChips'), shots.map(x => ({ v: x[0], label: `${x[1]} · ${dispName(oppShotPlan(lu, state.oppSide, x[0]).digger)}` })), state.oppShot, v => { state.oppShot = v; rebuild(true); });
+    $('shotNote').hidden = !relay;
+    if (relay) $('shotNote').textContent = `Le ballon arrive sur le passeur : il ne peut pas toucher deux fois de suite. ${cap(nm('OP'))} assure la passe de relais, donc pas de balle rapide ni d'attaque du pointu sur cette contre-attaque.`;
+  }
+  $('attTitle').textContent = isAtt ? 'Le passeur sert' : (relay ? 'Le pointu fait la passe vers' : 'La contre-attaque part vers');
+  const valid = validAtts(lu, relay);
+  const off = k => !valid.includes(k) ? { disabled: true, title: 'Impossible avec une passe de relais' } : {};
   const items = [
-    { v: 'p4', label: `Poste 4 · ${dispName(lu.att.p4)}` },
-    { v: 'p3', label: `Centre · ${dispName(lu.att.p3)}` },
+    Object.assign({ v: 'p4', label: `Poste 4 · ${dispName(lu.att.p4)}` }, off('p4')),
+    Object.assign({ v: 'p3', label: `Centre · ${dispName(lu.att.p3)}` }, off('p3')),
   ];
-  if (lu.att.p2) items.push({ v: 'p2', label: `Poste 2 · ${dispName(lu.att.p2)}` });
-  if (lu.att.dump) items.push({ v: 'dump', label: '2e main du passeur', title: 'Possible car le passeur est en ligne avant' });
-  if (lu.att.pipe) items.push({ v: 'pipe', label: `Pipe · ${dispName(lu.att.pipe)}` });
-  if (lu.att.d1) items.push({ v: 'd1', label: `Arrière zone 1 · ${dispName(lu.att.d1)}` });
-  if (!lu.att[state.attack]) state.attack = 'p4';
+  if (lu.att.p2) items.push(Object.assign({ v: 'p2', label: `Poste 2 · ${dispName(lu.att.p2)}` }, off('p2')));
+  if (lu.att.dump) items.push(Object.assign({ v: 'dump', label: '2e main du passeur', title: 'Possible car le passeur est en ligne avant' }, off('dump')));
+  if (lu.att.pipe) items.push(Object.assign({ v: 'pipe', label: `Pipe · ${dispName(lu.att.pipe)}` }, off('pipe')));
+  if (lu.att.d1) items.push(Object.assign({ v: 'd1', label: `Arrière zone 1 · ${dispName(lu.att.d1)}` }, off('d1')));
+  if (!valid.includes(state.attack)) state.attack = 'p4';
   chipRow($('attChips'), items, state.attack, v => { state.attack = v; rebuild(true); });
 }
 const dispName = id => state.names[id] || ROLES[id].label;
@@ -1520,13 +1690,16 @@ function rebuild(resetTime) {
     ? buildAttack(state.rot, { serveTo: state.serveTo, attack: state.attack })
     : state.mode === 'rally'
       ? buildRally(state.rot, { n: state.rallyN, seed: state.seed })
-      : buildDefense(state.rot, { oppSide: state.oppSide, attack: state.attack });
+      : buildDefense(state.rot, { oppSide: state.oppSide, shot: state.oppShot, attack: state.attack });
   if (state.mode === 'rally') {
-    const atts = scen.steps.filter(s => s.key === 'set' || (s.key === 'set' && s.ctx.attKey === 'dump')).map(s => nm(s.ctx.attacker));
+    const atts = scen.steps.filter(s => s.key === 'set').map(s => nm(s.ctx.attacker));
     const opp = scen.steps.filter(s => s.key === 'oppSet').length;
-    $('rallySummary').textContent = `Ce tirage : ${atts.length} attaques de notre équipe (${atts.slice(0, 6).join(', ')}${atts.length > 6 ? '…' : ''}) et ${opp} attaques adverses. Durée : ${Math.round(scen.steps.reduce((x, s) => x + s.dur, 0))} s à vitesse ×1.`;
+    const relays = scen.steps.filter(s => s.key === 'set' && s.ctx.setter && s.ctx.setter !== 'S').length;
+    const tips = scen.steps.filter(s => s.key === 'oppAttack' && s.ctx.shot === 'tip').length;
+    $('rallySummary').textContent = `Ce tirage : ${atts.length} attaques de notre équipe (${atts.slice(0, 6).join(', ')}${atts.length > 6 ? '…' : ''}) et ${opp} attaques adverses${tips ? `, dont ${tips} feinte${tips > 1 ? 's' : ''}` : ''}.${relays ? ` ${relays} passe${relays > 1 ? 's' : ''} de relais du pointu.` : ''} Durée : ${Math.round(scen.steps.reduce((x, s) => x + s.dur, 0))} s à vitesse ×1.`;
   }
   scen.rot = state.rot;
+  computeVel(scen.steps);
   stepStarts = []; total = 0;
   scen.steps.forEach(s => { stepStarts.push(total); total += s.dur; });
   pressed($('modeSeg'), 'mode', state.mode);
@@ -1536,12 +1709,13 @@ function rebuild(resetTime) {
   scen.steps.forEach((s, i) => {
     const b = document.createElement('button');
     b.innerHTML = `<span>${i + 1}</span>${s.title}`;
-    b.onclick = () => gotoStep(i);
+    b.onclick = () => { gotoStep(i); if (document.body.dataset.ui === 'land') closeDrawer(); };
     stepsEl.appendChild(b);
   });
   render._tipStep = -1; render._tour = -1;
   refreshLabels();
   applyRole();
+  updateCtx();
   drawPaths();
   if (resetTime) { pause(); seek(0); }
   else render();
@@ -1568,6 +1742,7 @@ function refreshLabels() {
 
 function applyRole() {
   pressed(roleChips, 'role', state.role);
+  updateCtx();
   OUR.forEach(id => {
     const P = players[id];
     const hl = state.role === 'none' || state.role === id;
@@ -1591,23 +1766,56 @@ function jumpY(j, u) {
   if (!j) return 0;
   if (j.type === 'up') { const u0 = 0.55; return u < u0 ? 0 : j.h * Math.sin((u - u0) / (1 - u0) * Math.PI / 2); }
   if (j.type === 'down') { const u1 = 0.5; return u > u1 ? 0 : j.h * Math.cos(u / u1 * Math.PI / 2); }
-  if (j.type === 'hop') { const a = 0.35, b = 0.85; return u < a || u > b ? 0 : j.h * Math.sin((u - a) / (b - a) * Math.PI); }
+  if (j.type === 'hop') { const a = j.a ?? 0.35, b = j.b ?? 0.85; return u < a || u > b ? 0 : j.h * Math.sin((u - a) / (b - a) * Math.PI); }
   return 0;
 }
+// Ballon : vol parabolique pendant la fenêtre `win` de l'étape (contact au début, arrivée à la fin),
+// `arc` bombe une frappe (effet lifté), `bounce` fait rebondir le ballon au sol après un point.
 function ballAt(s, u) {
   const a = s.ballStart, b = s.ballEnd;
   if (!s.ball) return a;
-  const x = a[0] + (b[0] - a[0]) * u, z = a[2] + (b[2] - a[2]) * u;
-  let y = a[1] + (b[1] - a[1]) * u;
-  const k = Math.max(0, (s.ball.apex || 0) - Math.max(a[1], b[1]));
-  y += 4 * k * u * (1 - u);
+  const [t0, t1] = s.ball.win || [0, 1];
+  if (u > t1 && s.ball.bounce) {
+    const r = (u - t1) / Math.max(1e-3, 1 - t1);
+    return [b[0], b[1] + 0.75 * (1 - r) * (1 - r) * Math.abs(Math.sin(r * Math.PI * 2.5)), b[2]];
+  }
+  const w = Math.max(0, Math.min(1, (u - t0) / (t1 - t0)));
+  const x = a[0] + (b[0] - a[0]) * w, z = a[2] + (b[2] - a[2]) * w;
+  let y = a[1] + (b[1] - a[1]) * w;
+  const k = s.ball.arc != null ? s.ball.arc : Math.max(0, (s.ball.apex || 0) - Math.max(a[1], b[1]));
+  y += 4 * k * w * (1 - w);
   return [x, y, z];
+}
+// Vitesses aux jonctions entre étapes : un joueur qui continue dans la même direction ne s'arrête pas
+// entre deux étapes (interpolation d'Hermite), un joueur qui change de direction ou s'arrête repart de zéro.
+function computeVel(steps) {
+  steps.forEach(s => { s.v0 = {}; s.v1 = {}; });
+  for (let k = 1; k < steps.length; k++) {
+    const p = steps[k - 1], s = steps[k];
+    for (const id in s.start) {
+      const a = p.start[id], m = s.start[id], b = s.end[id];
+      if (!a || !b) continue;
+      const v1 = [(m[0] - a[0]) / p.dur, (m[1] - a[1]) / p.dur], v2 = [(b[0] - m[0]) / s.dur, (b[1] - m[1]) / s.dur];
+      const n1 = Math.hypot(v1[0], v1[1]), n2 = Math.hypot(v2[0], v2[1]);
+      if (n1 < 0.15 || n2 < 0.15) continue;
+      const cos = (v1[0] * v2[0] + v1[1] * v2[1]) / (n1 * n2);
+      if (cos < 0.3) continue;
+      const dx = v1[0] / n1 + v2[0] / n2, dz = v1[1] / n1 + v2[1] / n2, dn = Math.hypot(dx, dz);
+      const sp = Math.min(n1, n2) * cos;
+      const v = [dx / dn * sp, dz / dn * sp];
+      p.v1[id] = v; s.v0[id] = v;
+    }
+  }
 }
 function pathPoint(id, i, u) {
   const s = scen.steps[i];
   const a = s.start[id], b = s.end[id];
-  const e = easeIO(u);
-  return [a[0] + (b[0] - a[0]) * e, a[1] + (b[1] - a[1]) * e];
+  const v0 = s.v0 && s.v0[id], v1 = s.v1 && s.v1[id];
+  if (!v0 && !v1) { const e = easeIO(u); return [a[0] + (b[0] - a[0]) * e, a[1] + (b[1] - a[1]) * e]; }
+  const u2 = u * u, u3 = u2 * u;
+  const h00 = 2 * u3 - 3 * u2 + 1, h10 = u3 - 2 * u2 + u, h01 = -2 * u3 + 3 * u2, h11 = u3 - u2;
+  const m0 = v0 ? [v0[0] * s.dur, v0[1] * s.dur] : [0, 0], m1 = v1 ? [v1[0] * s.dur, v1[1] * s.dur] : [0, 0];
+  return [h00 * a[0] + h10 * m0[0] + h01 * b[0] + h11 * m1[0], h00 * a[1] + h10 * m0[1] + h01 * b[1] + h11 * m1[1]];
 }
 
 function render() {
@@ -1882,15 +2090,64 @@ function setCam(mode) {
   camTween = { from: camera.position.clone(), to: new THREE.Vector3(...c.pos), tf: controls.target.clone(), tt: new THREE.Vector3(...c.tgt), k: 0 };
 }
 
-// Sur téléphone en portrait, le texte de l'étape passe sous le terrain pour ne pas le cacher.
-const portraitMQ = window.matchMedia('(max-width: 900px) and (orientation: portrait), (max-width: 600px), (max-height: 520px) and (orientation: landscape)');
+// ── Version téléphone : vertical (onglets en bas) ou horizontal (terrain plein écran, rail + tiroir) ──
+const landMQ = window.matchMedia('(max-height: 520px) and (orientation: landscape)');
+const portMQ = window.matchMedia('(max-width: 900px) and (orientation: portrait), (max-width: 600px)');
 const captionEl = document.querySelector('.caption');
-function placeCaption() {
-  if (portraitMQ.matches) { if (captionEl.parentElement.id !== 'capSlot') $('capSlot').appendChild(captionEl); }
-  else if (captionEl.parentElement !== wrap) wrap.insertBefore(captionEl, $('miniCap'));
+const appEl = $('app'), panelEl = $('panel'), stageEl = $('stage');
+const TAB_TITLES = { etape: 'Étape', jeu: 'Jeu', role: 'Rôle', plus: 'Plus' };
+const isMobile = () => document.body.dataset.ui !== 'desk';
+function applyUI() {
+  const ui = landMQ.matches ? 'land' : portMQ.matches ? 'port' : 'desk';
+  document.body.dataset.ui = ui;
+  // Sur téléphone, le texte de l'étape et la liste des étapes passent dans l'onglet « Étape »
+  if (ui !== 'desk') {
+    if (captionEl.parentElement.id !== 'capSlot') $('capSlot').appendChild(captionEl);
+    if ($('steps').parentElement.id !== 'stepsSlot') $('stepsSlot').appendChild($('steps'));
+  } else {
+    if (captionEl.parentElement !== wrap) wrap.insertBefore(captionEl, $('miniCap'));
+    if ($('steps').parentElement.id === 'stepsSlot') document.querySelector('.transport').appendChild($('steps'));
+    appEl.classList.remove('drawerOpen');
+  }
+  stageEl.classList.remove('camOpen');
 }
-portraitMQ.addEventListener ? portraitMQ.addEventListener('change', placeCaption) : portraitMQ.addListener(placeCaption);
-placeCaption();
+// Onglet du panneau ; en horizontal, ouvre le tiroir (ou le ferme si on touche l'onglet déjà ouvert)
+function setTab(t, open = true) {
+  const land = document.body.dataset.ui === 'land';
+  if (land && open && appEl.classList.contains('drawerOpen') && panelEl.dataset.mtab === t) { closeDrawer(); return; }
+  panelEl.dataset.mtab = t;
+  $('drawerTitle').textContent = TAB_TITLES[t];
+  panelEl.scrollTop = 0;
+  if (land && open) appEl.classList.add('drawerOpen');
+  pressed($('mNav'), 'mt', land && !appEl.classList.contains('drawerOpen') ? '' : t);
+}
+function closeDrawer() { appEl.classList.remove('drawerOpen'); pressed($('mNav'), 'mt', document.body.dataset.ui === 'land' ? '' : panelEl.dataset.mtab); }
+$('mNav').querySelectorAll('button').forEach(b => { b.onclick = () => setTab(b.dataset.mt); });
+$('drawerClose').onclick = closeDrawer;
+$('miniCap').onclick = () => { if (document.body.dataset.ui === 'land') setTab('etape'); };
+// Vitesse sur téléphone : une touche qui fait défiler les vitesses
+const SPEEDS = [0.25, 0.5, 1, 1.5], SPEED_LBL = { 0.25: '×¼', 0.5: '×½', 1: '×1', 1.5: '×1,5' };
+$('speedCycle').onclick = () => {
+  const v = SPEEDS[(SPEEDS.indexOf(state.speed) + 1) % SPEEDS.length];
+  document.querySelector(`[data-speed="${v}"]`).click();
+  $('speedCycle').textContent = SPEED_LBL[v];
+};
+wrap.addEventListener('pointerdown', e => { if (!e.target.closest('.camBar, .camToggle')) stageEl.classList.remove('camOpen'); });
+$('ctxChip').onclick = () => { if (!(appEl.classList.contains('drawerOpen') && panelEl.dataset.mtab === 'jeu')) setTab('jeu'); };
+// Menu caméra : un bouton qui ouvre la liste des vues
+const CAM_LBL = { team: 'Joueur', top: 'Dessus', side: 'Côté', opp: 'Adverse', follow: 'Suivre' };
+$('camToggle').onclick = e => { e.stopPropagation(); const o = stageEl.classList.toggle('camOpen'); $('camToggle').setAttribute('aria-expanded', String(o)); };
+document.querySelectorAll('[data-cam]').forEach(b => b.addEventListener('click', () => { stageEl.classList.remove('camOpen'); $('camToggle').setAttribute('aria-expanded', 'false'); $('camLbl').textContent = CAM_LBL[b.dataset.cam]; }));
+// Puce de contexte en haut du terrain : phase · rotation · rôle
+function updateCtx() {
+  const m = { attack: 'Attaque', defense: 'Défense', rally: 'Rally' }[state.mode];
+  $('ctxChip').textContent = `${m} · ${state.rot.replace('S', 'P')}${state.role !== 'none' ? ' · ' + dispName(state.role) : ''}`;
+  $('roleHint').hidden = state.role !== 'none';
+}
+[landMQ, portMQ].forEach(mq => mq.addEventListener ? mq.addEventListener('change', () => { applyUI(); setTab(panelEl.dataset.mtab, false); }) : mq.addListener(applyUI));
+applyUI();
+setTab('etape', false);
+updateCtx();
 // Plein écran (si le navigateur l'autorise)
 {
   const stage = $('stage'), bf = $('bFull');

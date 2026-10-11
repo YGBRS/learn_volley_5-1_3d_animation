@@ -27,12 +27,19 @@ Pour tester : ouvrir `index.html` dans un navigateur, ou servir le dossier (`npx
   - `buildAttack`, `buildDefense`, `buildRally` ;
   - couverture 3-2 : `coverPlan` et `bestAssign` ;
   - défense périphérique « 6 arrière » : `addDefenseCycle` ;
-  - passe et attaque : `addSetAttack` (option `cont` pour enchaîner en rally).
+  - passe et attaque : `addSetAttack` (option `cont` pour enchaîner en rally, `relay` pour une passe faite par un autre que le passeur) ;
+  - attaque adverse : `OPP_HIT` (côtés `L`, `M`, `R` et pipe `B`), frappes `OPP_SHOTS` (diagonale, ligne, feinte, balle longue ; zones 5/1/6 et feinte pour le central et la pipe), `oppShotPlan` donne le défenseur. Si le passeur défend le premier ballon, le pointu fait la passe de relais (`RELAY_SPOT`) et `validAtts` retire 2e main, balle rapide et attaques du passeur ou du pointu.
+- Animation : le ballon vole pendant la fenêtre `ball.win` de l'étape (`arc` pour bomber une frappe, `bounce` pour le rebond après un point) ; `computeVel` + `pathPoint` (Hermite) évitent que les joueurs s'arrêtent entre deux étapes quand ils continuent dans la même direction.
 - Rally aléatoire : générateur à graine `mulberry`, tirages pondérés `pickW` (poids `ATT_W`), 10 tours par défaut, jusqu'à 30.
 - Joueurs : rigs articulés, postures dans la table `POSES`, `poseFor` choisit la posture, `applyPose` l'applique (IK 2 os pour les jambes, `aimLimb` pour les bras), `animatePlayers` gère la course, le saut et l'orientation.
 - Bulles d'info au survol ou au toucher : `tipFor`, `tipHTML`, `zoneReason`, `coverTip`, `moveDesc`.
 - Réglages sauvegardés dans `localStorage`, clés préfixées `v51.`, toujours dans un try/catch.
-- Responsive : en portrait, scène collante en haut ; en paysage, hauteur max 520 px ; la légende passe dans `#capSlot` via `matchMedia`. Aucun défilement horizontal sur mobile.
+- Trois mises en page, choisies par `applyUI` et posées dans `body[data-ui]` (`desk`, `port`, `land`) ; un petit script en début de `<body>` fixe la valeur avant le premier affichage.
+  - Téléphone vertical (`port`) : la page ne défile pas ; terrain et lecture en haut, contenu de l'onglet au milieu, barre d'onglets `#mNav` en bas.
+  - Téléphone horizontal (`land`, hauteur ≤ 520 px) : terrain plein écran, lecture en surimpression, rail d'onglets à droite, panneau en tiroir (`#app.drawerOpen`).
+  - Onglets : Étape, Jeu, Rôle, Plus. Chaque bloc du panneau porte `data-tab` ; `setTab` change d'onglet. Sur téléphone, la légende passe dans `#capSlot` et la liste des étapes dans `#stepsSlot`.
+  - Sur téléphone : puce de contexte `#ctxChip` (ouvre Jeu), menu caméra `#camToggle`, vitesse en une touche `#speedCycle`.
+  - Aucun défilement horizontal sur mobile.
 
 ## Choix déjà faits par l'utilisateur
 
