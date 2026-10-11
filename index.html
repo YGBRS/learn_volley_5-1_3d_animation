@@ -948,13 +948,16 @@ function addDefenseCycle(b, lu, side, attKey, shotKey) {
   };
   const relayTxt = relay ? " C'est le passeur qui touche le premier ballon : il ne pourra pas faire la passe." : '';
   const isTip = shot === 'tip';
+  // plongeon si le défenseur doit aller chercher le ballon loin de sa place (ou sur une feinte)
+  const from = b.cur[digger], dive = isTip || Math.hypot(digSpot[0] - from[0], digSpot[1] - from[1]) > 1.0;
+  const ballY = dive ? 0.42 : H.pass;
   b.add({ key: 'oppAttack', title: isTip ? "Feinte adverse" : "Attaque adverse",
     text: (isTip ? '' : "Les contreurs sautent, mains au-dessus du filet. ") + SHOT_TXT[shot] + relayTxt,
     dur: isTip ? 1.2 : 0.8, pos: { [digger]: digSpot, [OH.who]: [OH.hit[0], OH.hit[1] - 0.4] }, jump: j2,
     ball: isTip
-      ? { to: [digSpot[0] + 0.1, H.pass - 0.15, digSpot[1] - 0.2], apex: hitH + 0.45, win: [0.05, 0.92] }
-      : { to: [digSpot[0] + 0.1, H.pass, digSpot[1] - 0.15], arc: 0.3, win: [0, 0.5] },
-    ctx: { blockers, offBlocker, digger, side, shot, setter: relay ? relay.id : 'S' } });
+      ? { to: [digSpot[0] + 0.1, ballY, digSpot[1] - 0.45], apex: hitH + 0.45, win: [0.05, 0.92] }
+      : { to: [digSpot[0] + 0.1, ballY, digSpot[1] - (dive ? 0.45 : 0.15)], arc: 0.3, win: [0, 0.5] },
+    ctx: { blockers, offBlocker, digger, side, shot, dive, setter: relay ? relay.id : 'S' } });
   // Transition
   const setter = relay ? relay.id : 'S', setSpot = relay ? relay.spot : T;
   const tr = { [setter]: setSpot.slice() };
@@ -971,7 +974,7 @@ function addDefenseCycle(b, lu, side, attKey, shotKey) {
     : (r.z1 === 'S' ? "Le passeur, qui défendait en zone 1, file vers la cible." : (blockers.includes('S') ? "Le passeur, qui contrait, se retourne vers la cible." : "Le passeur rejoint la cible."));
   b.add({ key: 'dig', title: "Défense",
     text: `${D} défend le ballon haut, vers le centre du terrain. ${setterTxt} Les contreurs reculent vite pour reprendre leur élan : c'est la transition vers la contre-attaque.`,
-    dur: 1.8, pos: tr, ball: { to: [setSpot[0], H.set, setSpot[1] + 0.4], apex: 4.8 }, ctx: { digger, blockers, offBlocker, shot, setter } });
+    dur: 1.8, pos: tr, ball: { to: [setSpot[0], H.set, setSpot[1] + 0.4], apex: 4.8 }, ctx: { digger, blockers, offBlocker, shot, dive, setter } });
   return relay;
 }
 
@@ -1268,7 +1271,7 @@ function labelTexture(text, color, dark) {
 }
 const isLight = hex => { const c = new THREE.Color(hex); return (0.299 * c.r + 0.587 * c.g + 0.114 * c.b) > 0.62; };
 const players = {};
-const LABEL_H = 0.042;
+const LABEL_H = 0.026;   // hauteur des étiquettes (relative à l'écran)
 const haloTex = canvasTex(4, 128, (g, w, h) => { const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(1, 'rgba(255,255,255,1)'); g.fillStyle = gr; g.fillRect(0, 0, w, h); });
 // ── Joueur articulé : bassin, tronc, tête, bras (épaule/coude), jambes (hanche/genou/cheville)
 const JERSEY_NO = { S: 3, OH1: 7, OH2: 11, MB1: 9, MB2: 14, OP: 4, L: 1, oS: 5, oL: 8, oM: 12, oR: 2, oB1: 6, oB2: 10 };
@@ -1306,7 +1309,8 @@ function makePlayer(id, opp) {
   const cap = (r, l, m) => new THREE.Mesh(new THREE.CapsuleGeometry(r, l, 4, 12), m);
   const G = () => new THREE.Group();
 
-  const body = G();                 // pivot de rotation (orientation)
+  const body = G();                 // pivot de rotation (orientation, puis bascule avant pour le plongeon)
+  body.rotation.order = 'YXZ';
   const pelvis = G(); pelvis.position.y = HIP_STAND; body.add(pelvis);
   const shortsMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.19, 0.24, 16), shorts); shortsMesh.position.y = -0.04; shortsMesh.scale.z = 0.72; pelvis.add(shortsMesh);
   const spine = G(); spine.position.y = 0.06; pelvis.add(spine);
@@ -1348,7 +1352,7 @@ function makePlayer(id, opp) {
   let sprite = null;
   if (!opp) {
     const sm = new THREE.SpriteMaterial({ map: labelTexture(ROLES[id].label, color, isLight(color)), depthTest: false, transparent: true, sizeAttenuation: false });
-    sprite = new THREE.Sprite(sm); sprite.scale.set(LABEL_H * 256 / 112, LABEL_H, 1); sprite.position.y = 2.3; sprite.renderOrder = 10;
+    sprite = new THREE.Sprite(sm); sprite.scale.set(LABEL_H * 256 / 112, LABEL_H, 1); sprite.position.y = 2.12; sprite.renderOrder = 10; sm.opacity = 0.88;
     root.add(sprite); mats.push(sm);
   }
   const ring = new THREE.Mesh(new THREE.RingGeometry(0.42, 0.55, 40), new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.9, depthWrite: false }));
@@ -1359,7 +1363,7 @@ function makePlayer(id, opp) {
   halo.position.y = 1.15; halo.visible = false; halo.renderOrder = 4;
   root.add(halo);
   scene.add(root);
-  const P = { id, opp, root, body, rig, halo, sprite, mats, ring, color, glow: [jersey, sleeve], labelKey: '', pose: Object.assign({}, POSES.stand, { la: POSES.stand.la.slice(), ra: POSES.stand.ra.slice() }), yaw: 0, phase: Math.random() * 6, prev: null, run: 0, air: 0 };
+  const P = { id, opp, root, body, rig, halo, sprite, mats, ring, color, glow: [jersey, sleeve], labelKey: '', pose: Object.assign({}, POSES.stand, { tilt: 0, la: POSES.stand.la.slice(), ra: POSES.stand.ra.slice() }), yaw: 0, phase: Math.random() * 6, prev: null, run: 0, air: 0 };
   players[id] = P;
   return P;
 }
@@ -1372,20 +1376,33 @@ const POSES = {
   pass:       { c: 0.48, lean: 0.32, head: 0.2, w: 0.15, la: [0.95, -0.02, 0.02], ra: [0.95, -0.02, 0.02] },    // manchette : bras tendus et serrés
   dig:        { c: 0.78, lean: 0.48, head: 0.45, w: 0.2, la: [0.7, -0.02, 0.02], ra: [0.7, -0.02, 0.02] },       // défense basse
   cover:      { c: 0.72, lean: 0.5, head: 0.5, w: 0.2, la: [0.6, 0.5, 0.7], ra: [0.6, 0.5, 0.7] },               // couverture : très bas, mains prêtes
-  set:        { c: 0.25, lean: -0.06, head: 0.45, w: 0.1, la: [1.55, 0.7, 1.35], ra: [1.55, 0.7, 1.35] },        // passe haute : mains au-dessus du front
+  set:        { c: 0.32, lean: -0.06, head: 0.45, w: 0.12, la: [1.7, 0.75, 1.55], ra: [1.7, 0.75, 1.55] },        // passe haute : mains en triangle au-dessus du front, coudes ouverts
+  setPush:    { c: 0.04, lean: -0.12, head: 0.5, w: 0.1, la: [2.75, 0.32, 0.25], ra: [2.75, 0.32, 0.25], k: 26 }, // poussée : jambes et bras s'étendent vers la cible
+  passFollow: { c: 0.2, lean: 0.14, head: 0.3, w: 0.13, la: [1.2, -0.02, 0.02], ra: [1.2, -0.02, 0.02], k: 18 },  // manchette : poussée des jambes, plateforme vers la cible
+  dive:       { c: 0.55, lean: 0.35, tilt: 1.05, head: -0.25, w: 0.32, la: [2.25, -0.04, 0.04], ra: [2.25, -0.04, 0.04], k: 14 }, // plongeon : tout le corps bascule vers l'avant, bras tendus sous le ballon
   blockReady: { c: 0.25, lean: 0.02, head: 0.1, w: 0.12, la: [0.5, 0.25, 2.1], ra: [0.5, 0.25, 2.1] },           // au filet, mains à hauteur d'épaules
-  block:      { c: 0.12, lean: -0.05, head: 0.35, w: 0.08, la: [2.95, 0.12, 0.05], ra: [2.95, 0.12, 0.05] },     // contre : bras tendus au-dessus du filet
-  approach:   { c: 0.5,  lean: 0.5, head: 0.2, w: 0.14, la: [-0.95, 0.15, 0.15], ra: [-0.95, 0.15, 0.15] },     // élan : bras lancés en arrière
-  spikePrep:  { c: 0.1, lean: 0.18, head: 0.5, w: 0.1, la: [2.75, 0.25, 0.2], ra: [2.5, 0.85, 2.2] },            // armé : bras gauche vise, bras droit derrière la tête
-  spikeHit:   { c: 0.15, lean: -0.35, head: 0.1, w: 0.1, la: [0.7, 0.3, 0.5], ra: [0.9, 0.2, 0.05] },            // frappe et accompagnement
+  block:      { c: 0.12, lean: -0.05, head: 0.35, w: 0.08, la: [2.72, 0.14, 0.05], ra: [2.72, 0.14, 0.05], k: 22 }, // contre : bras tendus, mains qui passent au-dessus du filet
+  approach:   { c: 0.55, lean: 0.55, head: 0.2, w: 0.14, la: [-1.05, 0.15, 0.15], ra: [-1.05, 0.15, 0.15], k: 16 }, // élan : bras lancés en arrière
+  armsUp:     { c: 0.15, lean: 0.05, head: 0.45, w: 0.1, la: [2.9, 0.2, 0.15], ra: [2.9, 0.2, 0.15], k: 24 },      // impulsion : les deux bras montent
+  spikePrep:  { c: 0.1, lean: 0.22, head: 0.5, w: 0.1, la: [2.75, 0.25, 0.2], ra: [2.35, 0.95, 2.3], k: 20 },     // armé : bras gauche vise, coude droit haut derrière la tête
+  spikeContact: { c: 0.12, lean: -0.1, head: 0.45, w: 0.1, la: [1.6, 0.35, 0.6], ra: [3.0, 0.12, 0.02], k: 60 },  // contact : bras droit tendu au plus haut, devant la tête
+  spikeHit:   { c: 0.18, lean: -0.38, head: 0.15, w: 0.1, la: [0.7, 0.3, 0.5], ra: [0.55, -0.35, 0.1], k: 22 },   // accompagnement : le bras redescend en travers du corps
   serve:      { c: 0.12, lean: 0.05, head: 0.3, w: 0.18, la: [1.25, 0.1, 0.25], ra: [2.4, 0.75, 2.0] },          // service : ballon tenu, bras armé
   serveHit:   { c: 0.1, lean: -0.1, head: 0.4, w: 0.18, la: [2.6, 0.2, 0.1], ra: [2.9, 0.3, 0.05] },
   tip:        { c: 0.15, lean: 0.0, head: 0.5, w: 0.1, la: [1.6, 0.6, 1.3], ra: [2.9, 0.15, 0.25] },              // 2e main
 };
 const mixPose = (a, b, t) => ({
+  tilt: (a.tilt || 0) + ((b.tilt || 0) - (a.tilt || 0)) * t, k: Math.max(a.k || 12, b.k || 12),
   c: a.c + (b.c - a.c) * t, lean: a.lean + (b.lean - a.lean) * t, head: a.head + (b.head - a.head) * t, w: a.w + (b.w - a.w) * t,
   la: a.la.map((v, i) => v + (b.la[i] - v) * t), ra: a.ra.map((v, i) => v + (b.ra[i] - v) * t),
 });
+
+// Gestes décomposés : impulsion (deux bras qui montent) puis armé, contact bras tendu puis accompagnement,
+// passe (triangle puis poussée), manchette (contact puis poussée des jambes)
+const airArms = u => (u - 0.55) / 0.45 < 0.4 ? POSES.armsUp : POSES.spikePrep;
+const swingArm = u => u < 0.07 ? POSES.spikeContact : mixPose(POSES.spikeContact, POSES.spikeHit, Math.min(1, (u - 0.07) * 4));
+const setGesture = u => u < 0.08 ? POSES.set : POSES.setPush;
+const passGesture = u => u < 0.1 ? POSES.pass : POSES.passFollow;
 
 // Choix de la posture selon l'étape et le rôle du joueur à cet instant
 function poseFor(id, s, u, y) {
@@ -1393,17 +1410,20 @@ function poseFor(id, s, u, y) {
   const opp = id.charAt(0) === 'o' && id.length > 1 && id !== 'OP' && id !== 'OH1' && id !== 'OH2';
   if (opp) {
     if (y > 0.05) {
-      if (key === 'oppSet') return c.shot === 'tip' && u > 0.6 ? POSES.tip : POSES.spikePrep;
-      if (key === 'oppAttack') return c.shot === 'tip' ? POSES.tip : mixPose(POSES.spikePrep, POSES.spikeHit, Math.min(1, u * 3));
+      if (key === 'oppSet') return c.shot === 'tip' && u > 0.6 ? POSES.tip : airArms(u);
+      if (key === 'oppAttack') return c.shot === 'tip' ? POSES.tip : swingArm(u);
       return POSES.block;
     }
-    if (c.oppDigger === id && ((key === 'attack' && u > 0.25) || (key === 'oDig' && u < 0.3))) return POSES.dig;
+    if (c.oppDigger === id && key === 'attack' && u > 0.25) return POSES.dig;
+    if (c.oppDigger === id && key === 'oDig' && u < 0.35) return u < 0.08 ? POSES.dig : POSES.passFollow;
     if (id === 'oS' && key === 'oDig' && u > 0.7) return POSES.set;
     if (key === 'oDig') return ['oL', 'oM', 'oR'].includes(id) ? POSES.approach : POSES.ready;
     if (id === 'oB2' && (key === 'rotation' || key === 'formation')) return POSES.serve;
     if (id === 'oB2' && key === 'serve' && u < 0.2) return POSES.serveHit;
-    if (id === 'oB1' && ((key === 'serve' && state.mode === 'defense' && u > 0.65) || (key === 'oppPass' && u < 0.25))) return POSES.pass;
-    if (id === 'oS' && ((key === 'oppPass' && u > 0.7) || (key === 'oppSet' && u < 0.3))) return POSES.set;
+    if (id === 'oB1' && key === 'serve' && state.mode === 'defense' && u > 0.65) return POSES.pass;
+    if (id === 'oB1' && key === 'oppPass' && u < 0.35) return passGesture(u);
+    if (id === 'oS' && key === 'oppPass' && u > 0.7) return POSES.set;
+    if (id === 'oS' && key === 'oppSet' && u < 0.3) return setGesture(u);
     if (key === 'oppSet' && j) return POSES.approach;
     if (['set', 'attack', 'reception', 'dig'].includes(key) && ['oL', 'oM', 'oR'].includes(id)) return POSES.blockReady;
     if (key === 'oppAttack' || key === 'set' || key === 'attack' || key === 'dig') return POSES.ready;
@@ -1415,8 +1435,8 @@ function poseFor(id, s, u, y) {
   // En l'air
   if (y > 0.05) {
     if (key === 'oppSet' || key === 'oppAttack') return POSES.block;
-    if (id === c.attacker && key === 'set') return c.attKey === 'dump' ? POSES.tip : POSES.spikePrep;
-    if (id === c.attacker && key === 'attack') return mixPose(POSES.spikePrep, POSES.spikeHit, Math.min(1, u * 3.5));
+    if (id === c.attacker && key === 'set') return c.attKey === 'dump' ? POSES.tip : airArms(u);
+    if (id === c.attacker && key === 'attack') return swingArm(u);
     if (c.attKey === 'dump' && id === 'S') return POSES.tip;
     return POSES.block;
   }
@@ -1427,10 +1447,15 @@ function poseFor(id, s, u, y) {
   if (key === 'serveRot' && id === lu.server) return POSES.serve;
   if (key === 'serve' && state.mode === 'defense' && id === lu.server && u < 0.18) return POSES.serveHit;
   if (key === 'serve' && id === c.receiver) return u > 0.55 ? POSES.pass : POSES.recvReady;
-  if (key === 'reception' && id === c.receiver && u < 0.3) return POSES.pass;
-  if (id === (c.setter || 'S') && ((key === 'reception' && u > 0.72) || (key === 'dig' && u > 0.72) || (key === 'set' && u < 0.3))) return POSES.set;
-  if (key === 'oppAttack' && id === c.digger) return u > (c.shot === 'tip' ? 0.6 : 0.25) ? POSES.dig : POSES.ready;
-  if (key === 'dig' && id === c.digger && u < 0.3) return POSES.dig;
+  if (key === 'reception' && id === c.receiver && u < 0.35) return passGesture(u);
+  if (id === (c.setter || 'S') && ((key === 'reception' && u > 0.72) || (key === 'dig' && u > 0.72))) return POSES.set;
+  if (id === (c.setter || 'S') && key === 'set' && u < 0.32 && c.attKey !== 'dump') return setGesture(u);
+  if (key === 'oppAttack' && id === c.digger) {
+    const hitU = c.shot === 'tip' ? 0.92 : 0.5;   // arrivée du ballon
+    if (c.dive && u > hitU - 0.22) return POSES.dive;
+    return u > hitU - 0.3 ? POSES.dig : POSES.ready;
+  }
+  if (key === 'dig' && id === c.digger && u < 0.4) return c.dive ? (u < 0.18 ? POSES.dive : POSES.ready) : passGesture(u);
   // Postures de phase
   if (key === 'rotation' || key === 'serveRot') return POSES.stand;
   if (key === 'formation') return ['OH1', 'OH2', 'L'].includes(id) ? POSES.recvReady : POSES.stand;
@@ -1455,32 +1480,41 @@ function aimLimb(group, pitch, spread, side) {
   group.quaternion.setFromUnitVectors(DOWN, _v);
 }
 function applyPose(P) {
-  const R = P.rig, p = P.pose, run = P.run, air = P.air;
-  // Jambes : flexion par cinématique inverse (pied sous la hanche)
-  const crouch = p.c * (1 - air * 0.7);
-  const hipY = HIP_STAND - crouch * 0.42;
+  const R = P.rig, p = P.pose, air = P.air;
+  // Déplacement latéral (pas chassés) : jambes qui s'écartent et se resserrent, haut du corps qui garde sa posture
+  const lat = P.lat || 0, run = P.run, runLeg = run * (1 - 0.75 * lat), runUp = run * (1 - 0.85 * lat);
+  // Jambes : flexion par cinématique inverse (pied sous la hanche) ; amorti à la réception d'un saut
+  const crouch = Math.min(1, p.c * (1 - air * 0.7) + (P.landImp || 0) * 0.5 * (1 - air) + lat * run * 0.25);
+  const ph = P.phase;
+  const bob = (1 - air) * run * 0.035 * Math.abs(Math.sin(ph));   // rebond de la foulée
+  const hipY = HIP_STAND - crouch * 0.42 - bob;
   const D = Math.min(L_THIGH + L_SHIN - 0.001, hipY - ANKLE);
   const a1 = Math.acos(Math.min(1, D / (2 * L_THIGH)));
   const bend = 2 * a1;
   R.pelvis.position.y = hipY;
-  const ph = P.phase;
+  // Bascule de tout le corps (plongeon)
+  P.body.rotation.x = -(p.tilt || 0);
+  P.body.position.y = -(p.tilt || 0) * 0.12;
   [[R.ll, -1, 0], [R.rl, 1, Math.PI]].forEach(([L, side, off]) => {
-    const swing = Math.sin(ph + off) * 0.75 * run;
-    const kneeExtra = Math.max(0, -Math.sin(ph + off)) * 1.1 * run;
+    const swing = Math.sin(ph + off) * 0.75 * runLeg;
+    const kneeExtra = Math.max(0, -Math.sin(ph + off)) * 1.1 * runLeg;
     let thigh = a1 + swing, knee = bend + kneeExtra;
-    // en l'air : jambes repliées
+    // en l'air : jambes repliées ; au plongeon : jambes qui s'allongent derrière
     thigh = thigh * (1 - air) + 0.45 * air; knee = knee * (1 - air) + 0.9 * air;
-    aimLimb(L.hp, thigh, p.w * (1 - run * 0.6), side);
+    const t = p.tilt || 0;
+    if (t > 0.05) { thigh -= t * (side < 0 ? 0.55 : 0.25); knee *= 1 - t * 0.35; }
+    const spread = p.w * (1 - run * 0.6) + lat * run * (0.16 + 0.12 * Math.sin(ph * 2));
+    aimLimb(L.hp, thigh, spread, side);
     L.kn.rotation.set(-knee, 0, 0);
     L.an.rotation.set(-(thigh - knee) * (1 - air * 0.5), 0, 0);
   });
-  R.spine.rotation.set(-(p.lean * (1 - run) + 0.32 * run), 0, 0);
-  R.headG.rotation.set(p.head * (1 - run) + 0.25 * run, P.headYaw || 0, 0);
+  R.spine.rotation.set(-(p.lean * (1 - runUp) + 0.32 * runUp), 0, 0);
+  R.headG.rotation.set(p.head * (1 - runUp) + 0.25 * runUp, P.headYaw || 0, 0);
   [[R.la, p.la, -1, 0], [R.ra, p.ra, 1, Math.PI]].forEach(([A, a, side, off]) => {
-    const swing = Math.sin(ph + off + Math.PI) * 0.7 * run;
-    const pitch = a[0] * (1 - run) + swing * run + 0.1 * run;
-    const elbow = a[2] * (1 - run) + 1.45 * run;
-    aimLimb(A.sh, pitch, a[1] * (1 - run) + 0.12 * run, side);
+    const swing = Math.sin(ph + off + Math.PI) * 0.7 * runUp;
+    const pitch = a[0] * (1 - runUp) + swing * runUp + 0.1 * runUp;
+    const elbow = a[2] * (1 - runUp) + 1.45 * runUp;
+    aimLimb(A.sh, pitch, a[1] * (1 - runUp) + 0.12 * runUp, side);
     A.el.rotation.set(elbow, 0, 0);
   });
 }
@@ -1778,7 +1812,7 @@ function applyRole() {
     P.glow.forEach(m => { m.emissive.set(sel ? ROLES[id].color : '#000000'); m.emissiveIntensity = sel ? 0.45 : 0; });
     P.halo.visible = sel;
     P.halo.material.color.set(ROLES[id].color);
-    P.labelBoost = sel ? 1.35 : 1;
+    P.labelBoost = sel ? 1.2 : 1;
     if (P.sprite) { P.sprite.renderOrder = sel ? 12 : 10; P.labelKey = ''; }
   });
   refreshLabels();
@@ -1869,7 +1903,7 @@ function render() {
     P.root.visible = vis;
     const off = id === benchId;
     const op = P.opp ? 1 : (off ? 0.4 : 1);
-    if (P.op !== op) { P.op = op; P.mats.forEach(m => { m.opacity = op; m.depthWrite = op > 0.95; }); }
+    if (P.op !== op) { P.op = op; P.mats.forEach(m => { m.opacity = op; m.depthWrite = op > 0.95; }); if (P.sprite) P.sprite.material.opacity = op * 0.88; }
     if (P.ring.visible) { const pulse = 1 + 0.12 * Math.sin(performance.now() / 220); P.ring.scale.set(pulse, pulse, pulse); }
   });
   // trace du ballon
@@ -2211,7 +2245,7 @@ function animatePlayers(dt) {
   const simDt = state.t !== lastAnimT && lastAnimT != null ? Math.abs(state.t - lastAnimT) : 0;
   const scrubbing = simDt > 0.3;
   lastAnimT = state.t;
-  const kPose = 1 - Math.exp(-dt * (scrubbing ? 60 : 14));
+  const POSE_KEYS = ['c', 'lean', 'head', 'w', 'tilt'];
   for (const id in players) {
     const P = players[id];
     if (!P.root.visible || !P.target) continue;
@@ -2219,19 +2253,33 @@ function animatePlayers(dt) {
     let v = 0, mdx = 0, mdz = 0;
     if (P.prev) { mdx = pos.x - P.prev[0]; mdz = pos.z - P.prev[1]; const d = Math.hypot(mdx, mdz); if (simDt > 0 && !scrubbing) { v = d / simDt; P.phase += d * 4.4; } }
     P.prev = [pos.x, pos.z];
-    const runT = P.y > 0.05 ? 0 : Math.max(0, Math.min(1, (v - 1.1) / 2.2));
-    P.run += (runT - P.run) * (1 - Math.exp(-dt * 10));
+    const runT = P.y > 0.05 ? 0 : Math.max(0, Math.min(1, (v - 0.9) / 2.0));
+    P.run += (runT - P.run) * (1 - Math.exp(-dt * 8));
     const airT = P.y > 0.05 ? 1 : 0;
     P.air += (airT - P.air) * (1 - Math.exp(-dt * 18));
+    // amorti à la réception d'un saut
+    if (P.wasAir && P.y <= 0.05 && !scrubbing) P.landImp = 1;
+    P.wasAir = P.y > 0.05;
+    P.landImp = (P.landImp || 0) * Math.exp(-dt * 5);
+    // Transition de posture du second ordre (démarre et s'arrête en douceur) ; vitesse propre à chaque geste (t.k)
     const t = P.target, cur = P.pose;
-    cur.c += (t.c - cur.c) * kPose; cur.lean += (t.lean - cur.lean) * kPose; cur.head += (t.head - cur.head) * kPose; cur.w += (t.w - cur.w) * kPose;
-    for (let i = 0; i < 3; i++) { cur.la[i] += (t.la[i] - cur.la[i]) * kPose; cur.ra[i] += (t.ra[i] - cur.ra[i]) * kPose; }
+    if (!P.mid) P.mid = Object.assign({}, cur, { la: cur.la.slice(), ra: cur.ra.slice() });
+    const m = P.mid, kk = 1 - Math.exp(-dt * (scrubbing ? 80 : (t.k || 12) * 1.9));
+    for (const f of POSE_KEYS) { m[f] = (m[f] || 0) + ((t[f] || 0) - (m[f] || 0)) * kk; cur[f] = (cur[f] || 0) + (m[f] - (cur[f] || 0)) * kk; }
+    for (let i = 0; i < 3; i++) {
+      m.la[i] += (t.la[i] - m.la[i]) * kk; cur.la[i] += (m.la[i] - cur.la[i]) * kk;
+      m.ra[i] += (t.ra[i] - m.ra[i]) * kk; cur.ra[i] += (m.ra[i] - cur.ra[i]) * kk;
+    }
     // orientation : vers le ballon, ou vers la course si le ballon est loin
     const [bx, bz] = P.ballDir || [0, -1];
     const bd = Math.hypot(bx, bz);
     let yawT = bd > 0.05 ? Math.atan2(-bx, -bz) : P.yaw;
     if (P.run > 0.5 && bd > 4 && Math.hypot(mdx, mdz) > 1e-4) yawT = Math.atan2(-mdx, -mdz);
     P.yaw = angleLerp(P.yaw, yawT, 1 - Math.exp(-dt * (scrubbing ? 60 : 9)));
+    // part latérale du déplacement par rapport au regard (pas chassés)
+    let latT = 0;
+    if (v > 0.5) { let da = Math.atan2(-mdx, -mdz) - P.yaw; latT = Math.abs(Math.sin(da)); }
+    P.lat = (P.lat || 0) + (latT - (P.lat || 0)) * (1 - Math.exp(-dt * 8));
     P.body.rotation.y = P.yaw;
     let hy = 0;
     if (bd > 0.05) { hy = Math.atan2(-bx, -bz) - P.yaw; while (hy > Math.PI) hy -= 2 * Math.PI; while (hy < -Math.PI) hy += 2 * Math.PI; }
