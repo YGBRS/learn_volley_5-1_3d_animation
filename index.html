@@ -79,6 +79,19 @@ button { cursor: pointer; }
 .camBar { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 4px; }
 .camBar button { background: rgba(10, 16, 23, .72); color: #e6edf3; border: 1px solid rgba(255,255,255,.14); border-radius: 8px; padding: 5px 10px; font-size: 13px; text-align: left; }
 .camBar button[aria-pressed="true"] { background: #e0662a; border-color: #e0662a; color: #fff; }
+/* Panneau « qui reçoit / qui attaque » à droite du terrain (bureau uniquement) */
+.quick { position: absolute; right: 12px; bottom: 12px; width: 236px; max-height: calc(100% - 250px); overflow-y: auto; display: grid; gap: 8px; background: rgba(10, 16, 23, .8); color: #eef3f7; border-radius: 10px; padding: 10px 11px; backdrop-filter: blur(4px); font-size: 12.5px; }
+.quick[hidden], .quick .qSec[hidden] { display: none; }
+.quick .qHead { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-family: var(--display); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 12px; color: #ffb48a; margin-bottom: 5px; }
+.quick .qHead b { font-family: var(--body); letter-spacing: 0; text-transform: none; font-size: 13.5px; color: #fff; display: inline-flex; align-items: center; gap: 5px; }
+.quick .qHead b i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.quick .qChips { display: flex; flex-wrap: wrap; gap: 4px; }
+.quick .qChips button { background: rgba(255,255,255,.07); color: #dfe7ee; border: 1px solid rgba(255,255,255,.16); border-radius: 7px; padding: 3px 8px; font-size: 12px; line-height: 1.3; }
+.quick .qChips button:hover:not(:disabled) { border-color: #f5844a; }
+.quick .qChips button[aria-pressed="true"] { background: #e0662a; border-color: #e0662a; color: #fff; }
+.quick .qChips button:disabled { opacity: .4; cursor: not-allowed; }
+.quick .qNote { color: #c4d0db; font-size: 12px; margin: 0; }
+body:not([data-ui="desk"]) .quick { display: none; }
 
 .transport { background: rgba(8, 12, 18, .92); color: #e6edf3; padding: 8px 12px 10px; display: grid; gap: 8px; }
 .tRow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -319,6 +332,11 @@ document.body.dataset.ui = matchMedia('(max-height: 520px) and (orientation: lan
       <div class="pTip" id="pTip" role="tooltip" hidden></div>
       <button class="ctxChip" id="ctxChip" title="Changer de phase, de rotation ou de scénario" data-en-title="Change phase, rotation or scenario"></button>
       <button class="camToggle" id="camToggle" aria-expanded="false" aria-label="Choisir la caméra" data-en-aria="Choose the camera"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 11l5-3v8l-5-3z"/></svg><span id="camLbl">Joueur</span> ▾</button>
+      <div class="quick" id="quick" role="group" aria-label="Qui reçoit, qui attaque" data-en-aria="Who passes, who attacks">
+        <div class="qSec" id="qOppSec"><div class="qHead" id="qOppT"></div><div class="qChips" id="qOppChips"></div></div>
+        <div class="qSec"><div class="qHead"><span id="qRecvT"></span><b id="qRecvWho"></b></div><div class="qChips" id="qRecvChips"></div></div>
+        <div class="qSec"><div class="qHead"><span id="qSetT"></span><b id="qSetWho"></b></div><div class="qChips" id="qSetChips"></div></div>
+      </div>
       <div class="camBar" role="group" aria-label="Caméra" data-en-aria="Camera">
         <button data-cam="team" aria-pressed="true"><span class="lg" data-en="Player view">Vue joueur</span><span class="sm" data-en="Player">Joueur</span></button>
         <button data-cam="top"><span class="lg" data-en="Top view">Vue tactique</span><span class="sm" data-en="Top">Dessus</span></button>
@@ -1868,26 +1886,44 @@ function renderOptions(lu) {
   const isAtt = state.mode === 'attack', isRally = state.mode === 'rally';
   $('secServe').hidden = !isAtt; $('secOpp').hidden = $('secShot').hidden = state.mode !== 'defense';
   $('secRally').hidden = !isRally; $('secAtt').hidden = isRally;
-  if (isRally) return;
+  // panneau rapide à droite du terrain (bureau) : mêmes choix, libellés courts
+  $('qOppSec').hidden = state.mode !== 'defense';
+  $('qRecvChips').hidden = $('qSetChips').hidden = isRally;
+  if (isRally) { $('qRecvT').textContent = tr('Reçoit ou défend', 'Passes or digs'); $('qSetT').textContent = tr('Attaque', 'Attacks'); updateQuick._k = ''; updateQuick(); return; }
   if (isAtt) {
     const recv = RECV[state.rot];
     const order = ['OH1', 'OH2', 'L'].sort((a, b) => recv[a][0] - recv[b][0]);
     const lanes = tr(['À gauche', 'Au centre', 'À droite'], ['Left', 'Middle', 'Right']);
-    chipRow($('serveChips'), ['g', 'c', 'd'].map((v, i) => ({ v, label: `${lanes[i]} · ${dispName(order[i])}` })), state.serveTo, v => { state.serveTo = v; rebuild(true); });
+    const pick = v => { state.serveTo = v; rebuild(true); };
+    chipRow($('serveChips'), ['g', 'c', 'd'].map((v, i) => ({ v, label: `${lanes[i]} · ${dispName(order[i])}` })), state.serveTo, pick);
+    const qLanes = tr(['Gauche', 'Centre', 'Droite'], ['Left', 'Middle', 'Right']);
+    chipRow($('qRecvChips'), ['g', 'c', 'd'].map((v, i) => ({ v, label: `${qLanes[i]} · ${dispName(order[i])}` })), state.serveTo, pick);
+    $('qRecvT').textContent = tr('Service reçu par', 'Serve passed by');
+    quickWho($('qRecvWho'), order[{ g: 0, c: 1, d: 2 }[state.serveTo] ?? 1]);
   }
   let relay = null;
   if (!isAtt) {
+    const pickSide = v => { state.oppSide = v; rebuild(true); };
     chipRow($('oppChips'), [
       { v: 'L', label: tr('Poste 4 adverse (vers notre zone 2)', 'Their outside hitter (toward our zone 2)') },
       { v: 'M', label: tr('Central adverse', 'Their middle') },
       { v: 'R', label: tr('Pointu adverse (vers notre zone 4)', 'Their opposite (toward our zone 4)') },
       { v: 'B', label: tr('Pipe adverse (arrière centre)', 'Their pipe (back-row middle)') },
-    ], state.oppSide, v => { state.oppSide = v; rebuild(true); });
+    ], state.oppSide, pickSide);
+    $('qOppT').textContent = tr('Attaque adverse', 'Opponent attacks from');
+    chipRow($('qOppChips'), [
+      { v: 'L', label: tr('Poste 4', 'Outside') }, { v: 'M', label: tr('Centre', 'Middle') },
+      { v: 'R', label: tr('Pointu', 'Opposite') }, { v: 'B', label: 'Pipe' },
+    ], state.oppSide, pickSide);
     const shots = OPP_SHOTS[state.oppSide];
     if (!shots.some(x => x[0] === state.oppShot)) state.oppShot = shots[0][0];
     const sp = oppShotPlan(lu, state.oppSide, state.oppShot);
     relay = sp.relay;
-    chipRow($('shotChips'), shots.map(x => ({ v: x[0], label: `${trp(x[1])} · ${dispName(oppShotPlan(lu, state.oppSide, x[0]).digger)}` })), state.oppShot, v => { state.oppShot = v; rebuild(true); });
+    const pickShot = v => { state.oppShot = v; rebuild(true); };
+    chipRow($('shotChips'), shots.map(x => ({ v: x[0], label: `${trp(x[1])} · ${dispName(oppShotPlan(lu, state.oppSide, x[0]).digger)}` })), state.oppShot, pickShot);
+    chipRow($('qRecvChips'), shots.map(x => ({ v: x[0], label: `${trp(x[1]).replace(/\s*\(.*\)/, '')} · ${dispName(oppShotPlan(lu, state.oppSide, x[0]).digger)}`, title: trp(x[1]) })), state.oppShot, pickShot);
+    $('qRecvT').textContent = tr('Défendu par', 'Dug by');
+    quickWho($('qRecvWho'), sp.digger);
     $('shotNote').hidden = !relay;
     if (relay) $('shotNote').textContent = tr(`Le ballon arrive sur le passeur : il ne peut pas toucher deux fois de suite. ${cap(nm('OP'))} assure la passe de relais, donc pas de balle rapide ni d'attaque du pointu sur cette contre-attaque.`,
       `The ball goes to the setter, who can't touch it twice in a row. ${cap(nm('OP'))} takes the second ball, so no quick set and no attack by the opposite on this counter-attack.`);
@@ -1904,7 +1940,35 @@ function renderOptions(lu) {
   if (lu.att.pipe) items.push(Object.assign({ v: 'pipe', label: `Pipe · ${dispName(lu.att.pipe)}` }, off('pipe')));
   if (lu.att.d1) items.push(Object.assign({ v: 'd1', label: `${tr('Arrière zone 1', 'Back row zone 1 (D)')} · ${dispName(lu.att.d1)}` }, off('d1')));
   if (!valid.includes(state.attack)) state.attack = 'p4';
-  chipRow($('attChips'), items, state.attack, v => { state.attack = v; rebuild(true); });
+  const pickAtt = v => { state.attack = v; rebuild(true); };
+  chipRow($('attChips'), items, state.attack, pickAtt);
+  chipRow($('qSetChips'), items.map(it => Object.assign({}, it, { label: it.label.replace(/^Poste (\d)/, 'P$1').replace('2e main du passeur', '2e main').replace('Setter dump', 'Dump').replace('Arrière zone 1', 'Arr. 1').replace('Back row zone 1 (D)', 'Back 1').replace('Outside (4)', 'Outside').replace('Quick (middle)', 'Quick').replace('Right side (2)', 'Right side') })), state.attack, pickAtt);
+  const setter = relay ? 'OP' : 'S';
+  $('qSetT').textContent = tr(`Passe de ${dispName(setter)} vers`, `Set by ${dispName(setter)} to`);
+  quickWho($('qSetWho'), state.attack === 'dump' ? 'S' : lu.att[state.attack], state.attack === 'dump' ? tr('2e main', 'dump') : '');
+}
+// Nom d'un joueur avec sa pastille de couleur
+function quickWho(el, id, extra) {
+  if (!id || !ROLES[id]) { el.textContent = '—'; return; }
+  el.innerHTML = `<i style="background:${ROLES[id].color}"></i>${esc(dispName(id))}${extra ? ' · ' + extra : ''}`;
+}
+// Rally : qui reçoit (ou défend) et qui attaque, lus dans l'échange en cours
+function updateQuick() {
+  if (state.mode !== 'rally' || !scen) return;
+  const i = curStep();
+  let k = i, recv = null;
+  for (; k >= 0; k--) { const c = scen.steps[k].ctx || {}; if (c.receiver || c.digger) { recv = c.receiver || c.digger; break; } }
+  let att = null;
+  for (let j = Math.max(0, k); j < scen.steps.length; j++) {
+    const c = scen.steps[j].ctx || {};
+    if (j > k && (c.receiver || c.digger) && (c.receiver || c.digger) !== recv) break;
+    if (c.attacker && ROLES[c.attacker]) { att = c.attacker; break; }
+  }
+  const key = (recv || '') + '|' + (att || '') + '|' + LANG;
+  if (updateQuick._k === key) return;
+  updateQuick._k = key;
+  quickWho($('qRecvWho'), recv && ROLES[recv] ? recv : null);
+  quickWho($('qSetWho'), att);
 }
 const dispName = id => state.names[id] || ROLES[id].label;
 
@@ -2201,6 +2265,7 @@ function render() {
     trail.visible = true;
   } else trail.visible = false;
   zoneGroup.visible = state.show.zones;
+  updateQuick();
   if (scen.rally) { const tour = s.tour || 0; if (tour !== render._tour) { render._tour = tour; drawPaths(); } }
   drawOverlap(i, u);
   // Légende
