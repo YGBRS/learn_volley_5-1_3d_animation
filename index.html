@@ -567,28 +567,29 @@ const T = [1.2, 0.8];           // cible du passeur
 const T_OPP = [-1.2, -0.8];
 const H = { pass: 0.75, set: 2.15, hit: 3.05, hitBack: 3.2 };
 
-// Placements en réception (respectent la règle de chevauchement).
+// Placements en réception, repris des schémas de balezovolley.fr (système 5-1) : chacun part vers son poste
+// après la réception sans croiser la course d'un coéquipier. Ils respectent la règle de chevauchement.
 const RECV = {
-  S1: { OP: [-3.6, 1.0], MB2: [-0.6, 1.0], OH1: [2.6, 5.6], OH2: [-2.6, 6.0], L: [0, 6.4], S: [4.0, 7.0] },
-  S6: { OH2: [-2.8, 5.4], OP: [1.2, 0.8], MB2: [3.8, 0.9], L: [-0.4, 6.5], S: [1.7, 2.0], OH1: [2.8, 6.3] },
-  S5: { MB1: [-3.8, 0.8], OH2: [-2.2, 5.3], OP: [3.8, 0.8], S: [-3.3, 2.0], OH1: [0.2, 6.4], L: [2.8, 6.2] },
-  S4: { S: [-4.0, 0.8], MB1: [-3.2, 1.0], OH2: [-0.4, 5.6], OH1: [-3.0, 6.4], L: [2.4, 6.3], OP: [4.0, 7.6] },
-  S3: { OH1: [-2.8, 5.4], S: [0.4, 0.8], MB1: [2.0, 1.0], L: [-0.3, 6.5], OP: [1.3, 8.0], OH2: [2.9, 6.3] },
-  S2: { MB2: [-3.6, 0.9], OH1: [-2.3, 5.5], S: [3.6, 0.8], OP: [-1.1, 8.1], OH2: [0.3, 6.6], L: [2.8, 6.3] },
+  S1: { OP: [-3.9, 2.9], MB2: [-0.2, 2.9], OH1: [2.7, 5.2], OH2: [-2.6, 6.5], L: [-0.1, 6.5], S: [4.0, 5.7] },
+  S6: { OP: [1.9, 1.1], S: [1.5, 2.4], MB2: [2.4, 4.1], OH2: [-2.8, 5.1], L: [0.2, 6.5], OH1: [3.0, 6.4] },
+  S5: { MB1: [-3.8, 1.9], S: [-1.8, 3.2], OP: [3.6, 1.9], OH2: [-2.9, 5.7], OH1: [-0.1, 6.5], L: [2.5, 6.5] },
+  S4: { S: [-4.2, 1.6], MB1: [-3.6, 2.8], OH2: [-2.2, 4.6], OH1: [-0.1, 5.7], L: [2.5, 5.7], OP: [3.7, 8.4] },
+  S3: { S: [0.7, 1.3], MB1: [2.1, 3.3], OH1: [-2.8, 4.7], L: [0.3, 5.8], OH2: [2.9, 5.8], OP: [1.8, 8.3] },
+  S2: { MB2: [-3.6, 1.8], S: [2.4, 1.3], OH1: [-2.7, 4.6], OH2: [0.1, 5.6], L: [2.9, 5.6], OP: [-0.9, 8.3] },
 };
 const NOTES = {
   S1: ["Passeur en zone 1 (arrière droit). Il est déjà du bon côté : il se cache derrière le R1 et monte au filet. Exception de cette rotation : le R1 reste à droite (zone 2) et le pointu à gauche (zone 4) pour attaquer.",
     "Setter in zone 1 (right back). Already on the correct side: they hide behind OH1 and release to the net. Exception in this rotation: OH1 stays on the right (zone 2) and the opposite hits from the left (zone 4)."],
-  S6: ["Passeur en zone 6 (arrière centre). Il se cache derrière le pointu, près du filet, puis glisse vers la droite. Le central passe au milieu et le pointu file à droite.",
-    "Setter in zone 6 (middle back). They hide behind the opposite, close to the net, then slide right. The middle moves to the middle and the opposite releases to the right side."],
-  S5: ["Passeur en zone 5 (arrière gauche) : c'est son plus long trajet. Il se cache à gauche près du filet, derrière le central, puis longe le filet jusqu'à la cible.",
-    "Setter in zone 5 (left back): their longest release. They hide on the left near the net, behind the middle, then run along the net to the target."],
-  S4: ["Passeur en zone 4 (avant gauche) : seulement deux attaquants avant (central et R2). Passeur et central se regroupent à gauche ; le pointu peut attaquer de l'arrière (zone 1).",
-    "Setter in zone 4 (left front): only two front-row hitters (middle and OH2). Setter and middle stack on the left; the opposite can hit a back-row attack from zone 1."],
-  S3: ["Passeur en zone 3 (avant centre) : déjà au filet, il glisse juste à droite. Le central part au milieu, le R1 à gauche, le pointu attaque de l'arrière.",
-    "Setter in zone 3 (middle front): already at the net, they just slide right. The middle goes to the middle, OH1 to the left, the opposite hits from the back row."],
-  S2: ["Passeur en zone 2 (avant droit) : il est déjà à sa place. Le central et le R1 se décalent à gauche ; il peut jouer la 2e main ; le R2 peut attaquer en pipe et le pointu, parti tout à droite dès le service, en attaque arrière zone 1.",
-    "Setter in zone 2 (right front): already in place. The middle and OH1 shift left; the setter can dump the second ball; OH2 can hit a pipe and the opposite, who releases all the way right on the serve, can hit a back-row attack from zone 1."],
+  S6: ["Passeur en zone 6 (arrière centre). Il monte juste derrière le pointu, en restant entre le libéro et le R2, puis file à la cible. Le pointu contourne par la droite, le central part en retrait à droite et revient au milieu par derrière, le R2 descend réceptionner à gauche : personne ne se croise.",
+    "Setter in zone 6 (middle back). They move up right behind the opposite, staying between the libero and OH2, then release to the target. The opposite loops out to the right, the middle starts deep on the right and comes back to the middle from behind, OH2 drops to pass on the left: nobody crosses paths."],
+  S5: ["Passeur en zone 5 (arrière gauche) : c'est son plus long trajet. Il se place au centre-gauche, juste derrière le central, puis monte en diagonale vers la cible. Le central monte au milieu ; le R2 avant descend réceptionner à gauche et remonte en 4.",
+    "Setter in zone 5 (left back): their longest release. They stand left of center, right behind the middle, then cut diagonally to the target. The middle moves up to the middle; OH2 (front row) drops to pass on the left and comes back up to 4."],
+  S4: ["Passeur en zone 4 (avant gauche) : seulement deux attaquants avant (central et R2). Passeur et central se regroupent le long de la ligne gauche ; le R2 réceptionne à gauche, près de son attaque en 4, le R1 au centre pour la pipe, le pointu se cache au fond à droite.",
+    "Setter in zone 4 (left front): only two front-row hitters (middle and OH2). Setter and middle stack along the left sideline; OH2 passes on the left, close to their attack in 4, OH1 in the middle for the pipe, the opposite hides deep on the right."],
+  S3: ["Passeur en zone 3 (avant centre) : il attend au centre, près du filet, et glisse à la cible. Le central, en retrait à droite, revient au milieu en passant derrière lui ; le R1 réceptionne à gauche ; le pointu se cache au fond et attaque de l'arrière.",
+    "Setter in zone 3 (middle front): they wait in the middle, close to the net, then slide to the target. The middle starts deep on the right and comes back to the middle behind them; OH1 passes on the left; the opposite hides deep and hits from the back row."],
+  S2: ["Passeur en zone 2 (avant droit) : il est presque à sa place. Le central et le R1 se décalent à gauche ; il peut jouer la 2e main ; le R2 peut attaquer en pipe et le pointu, caché au fond puis parti tout à droite dès le service, en attaque arrière zone 1.",
+    "Setter in zone 2 (right front): almost in place. The middle and OH1 shift left; the setter can dump the second ball; OH2 can hit a pipe and the opposite, hidden deep then releasing all the way right on the serve, can hit a back-row attack from zone 1."],
 };
 // Points de frappe et départs de course d'élan (attaquants de côté : sur la ligne de côté, environ 1 m derrière la ligne des 3 m).
 const HIT = {
@@ -923,6 +924,33 @@ function replacePos(lu) {
   for (const r in lu.roleAt) p[lu.roleAt[r]] = BASE[r];
   return p;
 }
+// Avant notre service : chaque ligne se rapproche déjà des postes de spécialité, sans casser l'ordre de rotation
+// (de gauche à droite, au moins 0,9 m entre voisins). Le serveur n'est pas soumis à la règle de position.
+// Les x sont la régression isotone des x visés (algorithme des blocs adjacents), avec un écart minimal entre voisins.
+function preServePos(lu) {
+  const tgt = replacePos(lu), out = {}, GAP = 0.9;
+  [[4, 3, 2], [5, 6, 1]].forEach((zones, row) => {
+    const ids = zones.map(z => lu.onCourt.find(id => lu.posOf[id] === z)).filter(id => id && id !== lu.server);
+    const blocks = [];
+    ids.forEach((id, i) => {
+      blocks.push({ s: tgt[id][0] - i * GAP, n: 1 });
+      while (blocks.length > 1 && blocks[blocks.length - 2].s / blocks[blocks.length - 2].n > blocks[blocks.length - 1].s / blocks[blocks.length - 1].n) {
+        const b = blocks.pop(); blocks[blocks.length - 1].s += b.s; blocks[blocks.length - 1].n += b.n;
+      }
+    });
+    const xs = [];
+    blocks.forEach(b => { for (let k = 0; k < b.n; k++) xs.push(b.s / b.n + xs.length * GAP); });
+    ids.forEach((id, i) => {
+      const x = Math.max(-4.1, Math.min(4.1, xs[i]));
+      if (row === 0) {
+        // avants au filet ; celui du milieu recule un peu s'il est collé à un voisin
+        const tight = i === 1 && ((xs[1] - xs[0]) < 1.2 || (xs[2] - xs[1]) < 1.2);
+        out[id] = [x, tight ? 1.7 : 1.1];
+      } else out[id] = [x, Math.max(6.0, tgt[id][1])];
+    });
+  });
+  return out;
+}
 function replaceText(lu) {
   const f = lu.roleAt;
   return tr(`Si l'échange continue, chacun rejoint son poste de spécialité. Avant : ${nm(f.OHf)} en 4, ${nm(f.MBf)} en 3, ${nm(f.RF)} en 2. Arrière : ${nm(f.z5)} en 5, ${nm(f.z6)} en 6, ${nm(f.z1)} en 1.`,
@@ -1110,9 +1138,9 @@ function buildDefense(rot, opts) {
   const mbNote = lu.libIn ? '' : tr(` C'est le central qui sert : le libéro ne peut pas servir, donc ${nm(lu.backMB)} reste et défend en zone 5 sur ce point.`,
     ` The middle is serving: the libero can't serve here, so ${nm(lu.backMB)} stays in and plays defense in zone 5 for this rally.`);
   b.add({ key: 'serveRot', title: tr("Au service", "Serving"),
-    text: tr(`On sert en ${rotLbl(rot)} : ${nm(lu.server)} sert depuis le fond, derrière la zone 1. Les autres respectent l'ordre de rotation jusqu'à la frappe.`,
-      `We serve in ${rotLbl(rot)}: ${nm(lu.server)} serves from behind the end line, behind zone 1. The others keep rotational order until the serve is contacted.`) + mbNote,
-    dur: 2.2, pos: {}, ctx: {} });
+    text: tr(`On sert en ${rotLbl(rot)} : ${nm(lu.server)} sert depuis le fond, derrière la zone 1. Les autres respectent l'ordre de rotation jusqu'à la frappe, mais se rapprochent déjà de leur poste : ceux qui vont permuter se resserrent, sans dépasser leur voisin.`,
+      `We serve in ${rotLbl(rot)}: ${nm(lu.server)} serves from behind the end line, behind zone 1. The others keep rotational order until the serve is contacted, but already edge toward their position: players who will switch stack close together without passing their neighbor.`) + mbNote,
+    dur: 2.2, pos: preServePos(lu), ctx: {} });
   b.add({ key: 'serve', title: tr("Service et permutation", "Serve and switch"),
     text: tr("Dès la frappe, chacun rejoint son poste de spécialité : c'est la permutation. ", "On contact, everyone switches to their specialty position. ")
       + replaceText(lu).replace(/^(Si l'échange continue, chacun rejoint son poste de spécialité|If the rally continues, everyone switches to their specialty position)\. /, ''),
@@ -1265,6 +1293,8 @@ function tipFor(id, step, lu, scen) {
       if (isAtt) return tr("Frappe haut devant toi, bras tendu, et vise une zone libre.", "Contact high and in front, arm fully extended, and hit to an open spot.");
       return coverTip(id, c, step) || tr("Reste bas en couverture tant que le ballon n'est pas tombé.", "Stay low in coverage until the ball hits the floor.");
     case 'replace':
+      if (id === 'S' && lu.back.includes('S')) return tr("Tu es en ligne arrière : tu ne peux ni contrer ni attaquer au-dessus du filet, rester devant ne sert à rien. Après ta passe, repars défendre en zone 1, d'où tu remonteras à la cible.",
+        "You're in the back row: you can't block or attack above the net, so staying up front is useless. After your set, get back to defend zone 1, from where you'll release to the target again.");
       return tr(`Rejoins la zone ${zn} pour ${zoneReason(id, lu)}.`, `Go to zone ${zn} to ${zoneReason(id, lu)}.`);
     case 'oDig':
       return lu.front.includes(id)
