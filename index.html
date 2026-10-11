@@ -168,106 +168,127 @@ dd { margin: 0 0 4px; color: var(--muted); }
 
 /* ───────── Version téléphone ─────────
    body[data-ui] vaut « desk », « port » (téléphone vertical) ou « land » (téléphone horizontal), fixé par JS.
-   Sur téléphone, le panneau est découpé en 4 onglets (Étape, Jeu, Rôle, Plus) :
-   en vertical, barre d'onglets en bas et contenu entre le terrain et la barre ;
-   en horizontal, terrain plein écran, rail d'icônes à droite et tiroir qui s'ouvre par-dessus. */
+   Priorité au terrain : commandes fines, texte dense, panneau limité et repliable.
+   Vertical : terrain (tout l'espace libre) + barre de lecture sur une ligne, panneau d'onglets (≈ 1/3 de l'écran,
+   repliable en touchant l'onglet actif), barre d'onglets en bas.
+   Horizontal : terrain plein écran, lecture en surimpression, rail d'icônes à droite, tiroir par-dessus le terrain. */
 #mNav, .ctxChip, .camToggle, .drawerHead, #secSteps, #roleHint, .speedCycle { display: none; }
-/* Téléphone : une seule touche de vitesse (×¼ → ×½ → ×1 → ×1,5), phases de jeu sur une ligne */
-body:not([data-ui="desk"]) .speed { display: none; }
-body:not([data-ui="desk"]) .speedCycle { display: inline-block; min-width: 56px; font-variant-numeric: tabular-nums; font-weight: 600; }
-body:not([data-ui="desk"]) .seg { grid-template-columns: repeat(3, 1fr); }
-body:not([data-ui="desk"]) .seg button[data-mode="rally"] { grid-column: auto; }
-body:not([data-ui="desk"]) .seg button { text-align: center; padding: 8px 4px; }
-body:not([data-ui="desk"]) .seg button small { display: none; }
-body[data-ui="land"] .miniCap { pointer-events: auto; cursor: pointer; right: auto; max-width: calc(100% - 20px); }
-body[data-ui="land"] .miniCap::after { content: "  ⓘ"; opacity: .8; }
 body:not([data-ui="desk"]) #panel[data-mtab="etape"] > [data-tab]:not([data-tab~="etape"]),
 body:not([data-ui="desk"]) #panel[data-mtab="jeu"] > [data-tab]:not([data-tab~="jeu"]),
 body:not([data-ui="desk"]) #panel[data-mtab="role"] > [data-tab]:not([data-tab~="role"]),
 body:not([data-ui="desk"]) #panel[data-mtab="plus"] > [data-tab]:not([data-tab~="plus"]) { display: none; }
 body:not([data-ui="desk"]) #secSteps { display: grid; }
 body:not([data-ui="desk"]) #roleHint:not([hidden]) { display: block; }
-body:not([data-ui="desk"]) .brand p, body:not([data-ui="desk"]) .kbd:not(.touchHint) { display: none; }
-body:not([data-ui="desk"]) .brand h1 { font-size: 24px; }
-body:not([data-ui="desk"]) .time { display: none; }
-/* Légende de l'étape dans l'onglet « Étape » */
-body:not([data-ui="desk"]) #capSlot .caption { position: static; max-width: none; pointer-events: auto; }
-body:not([data-ui="desk"]) #capSlot .caption .card { background: var(--court); }
-body:not([data-ui="desk"]) .caption h2 { font-size: 22px; }
-body:not([data-ui="desk"]) .caption p { font-size: 15px; line-height: 1.5; }
-/* Liste des étapes (déplacée depuis la barre de lecture) */
-#stepsSlot .steps { flex-direction: column; overflow: visible; gap: 4px; }
-#stepsSlot .steps button { background: var(--surface-2); border: 1px solid var(--line); color: var(--fg); border-radius: 10px; padding: 9px 12px; font-size: 14.5px; text-align: left; white-space: normal; min-height: 44px; }
-#stepsSlot .steps button.done { color: var(--muted); border-color: var(--line); }
+body:not([data-ui="desk"]) .brand p, body:not([data-ui="desk"]) .kbd:not(.touchHint), body:not([data-ui="desk"]) .time, body:not([data-ui="desk"]) .speed { display: none; }
+:root:has(body:not([data-ui="desk"])) { padding: 0; }
+
+/* Densité générale */
+body:not([data-ui="desk"]) { font-size: 13px; line-height: 1.38; }
+body:not([data-ui="desk"]) .brand h1 { font-size: 17px; }
+body:not([data-ui="desk"]) .sec { padding: 7px 9px 9px; gap: 6px; border-radius: 9px; }
+body:not([data-ui="desk"]) .sec h3, body:not([data-ui="desk"]) summary { font-size: 11.5px; letter-spacing: .06em; }
+body:not([data-ui="desk"]) .sec h3::before { height: 11px; width: 3px; }
+body:not([data-ui="desk"]) #panel details { border-radius: 9px; }
+body:not([data-ui="desk"]) summary { padding: 0 9px; min-height: 34px; }
+body:not([data-ui="desk"]) details > :not(summary) { margin-left: 9px; margin-right: 9px; }
+body:not([data-ui="desk"]) #panel details[open] { padding-bottom: 9px; }
+body:not([data-ui="desk"]) .hint { font-size: 11.5px; }
+body:not([data-ui="desk"]) .note { font-size: 12px; padding: 6px 8px; border-radius: 7px; }
+body:not([data-ui="desk"]) .seg { grid-template-columns: repeat(3, 1fr); gap: 5px; }
+body:not([data-ui="desk"]) .seg button[data-mode="rally"] { grid-column: auto; }
+body:not([data-ui="desk"]) .seg button { text-align: center; padding: 3px 4px; min-height: 30px; border-radius: 7px; }
+body:not([data-ui="desk"]) .seg button b { font-size: 13px; }
+body:not([data-ui="desk"]) .seg button small { display: none; }
+body:not([data-ui="desk"]) .rot { gap: 4px; }
+body:not([data-ui="desk"]) .rot button { padding: 2px 1px; min-height: 30px; border-radius: 7px; }
+body:not([data-ui="desk"]) .rot button b { font-size: 14px; }
+body:not([data-ui="desk"]) .rot button small { display: none; }
+body:not([data-ui="desk"]) .chips { gap: 4px; }
+body:not([data-ui="desk"]) .chips button { min-height: 28px; font-size: 12px; padding: 3px 8px; border-radius: 7px; gap: 5px; }
+body:not([data-ui="desk"]) .dot { width: 9px; height: 9px; }
+body:not([data-ui="desk"]) .themeSw button { min-height: 26px; padding: 2px 8px; font-size: 11.5px; }
+body:not([data-ui="desk"]) .toggles { gap: 0; }
+body:not([data-ui="desk"]) .toggles label { min-height: 28px; align-items: center; font-size: 12.5px; gap: 7px; }
+body:not([data-ui="desk"]) .toggles input { width: 16px; height: 16px; margin-top: 0; flex: none; }
+body:not([data-ui="desk"]) .toggles small { font-size: 11px; }
+body:not([data-ui="desk"]) .legend { font-size: 11.5px; gap: 2px 8px; }
+body:not([data-ui="desk"]) dl { font-size: 12px; gap: 3px; }
+body:not([data-ui="desk"]) .names { font-size: 12px; gap: 4px 8px; }
+body:not([data-ui="desk"]) .names input { min-height: 30px; font-size: 16px; padding: 2px 8px; }
+body:not([data-ui="desk"]) .rallyRow input[type=range] { height: 22px; }
+body:not([data-ui="desk"]) .rallyRow output { font-size: 16px; }
+body:not([data-ui="desk"]) .btn { min-height: 32px; font-size: 12.5px; padding: 4px 10px; }
+body:not([data-ui="desk"]) .pTip { font-size: 12px; width: min(240px, calc(100% - 16px)); padding: 7px 9px; }
+body:not([data-ui="desk"]) .pTip h4 { font-size: 14px; }
+
+/* Légende de l'étape (dans l'onglet « Étape ») et liste des étapes */
+body:not([data-ui="desk"]) #capSlot .caption { position: static; max-width: none; pointer-events: auto; gap: 5px; }
+body:not([data-ui="desk"]) #capSlot .caption .card { background: var(--court); padding: 7px 10px; border-radius: 8px; }
+body:not([data-ui="desk"]) .caption .eyebrow { font-size: 10.5px; }
+body:not([data-ui="desk"]) .caption h2 { font-size: 16px; margin: 1px 0 3px; }
+body:not([data-ui="desk"]) .caption p { font-size: 12.5px; line-height: 1.4; }
+body:not([data-ui="desk"]) .caption .tip b { font-size: 12.5px; }
+body:not([data-ui="desk"]) .caption .tip p { font-size: 12px; }
+#stepsSlot .steps { flex-direction: column; overflow: visible; gap: 3px; }
+#stepsSlot .steps button { background: var(--surface-2); border: 1px solid var(--line); color: var(--fg); border-radius: 7px; padding: 3px 9px; font-size: 12px; text-align: left; white-space: normal; min-height: 28px; }
+#stepsSlot .steps button.done { color: var(--muted); }
 #stepsSlot .steps button.cur { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
 #stepsSlot .steps button span { display: inline-block; min-width: 2.2ch; }
-/* Titre de l'étape sur le terrain */
-body:not([data-ui="desk"]) .miniCap { display: block; position: absolute; left: 10px; bottom: 8px; right: 10px; pointer-events: none; font-family: var(--display); font-weight: 600; font-size: 16px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* Puce de contexte (mode · rotation · rôle) et menu caméra, en haut du terrain */
-body:not([data-ui="desk"]) .ctxChip { display: inline-flex; align-items: center; gap: 6px; position: absolute; left: 8px; top: 8px; z-index: 4; max-width: calc(100% - 150px); background: rgba(10, 16, 23, .78); color: #fff; border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 0 12px; min-height: 38px; font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; backdrop-filter: blur(4px); }
+body:not([data-ui="desk"]) .steps { display: none; }
+body:not([data-ui="desk"]) #stepsSlot .steps { display: flex; }
+
+/* Sur le terrain : titre de l'étape, puce de contexte, menu caméra */
+body:not([data-ui="desk"]) .miniCap { display: block; position: absolute; left: 8px; bottom: 6px; right: 8px; pointer-events: none; font-family: var(--display); font-weight: 600; font-size: 12.5px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body:not([data-ui="desk"]) .ctxChip, body:not([data-ui="desk"]) .camToggle { display: inline-flex; align-items: center; gap: 4px; position: absolute; top: 6px; z-index: 4; background: rgba(10, 16, 23, .7); color: #fff; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; padding: 0 9px; min-height: 26px; font-size: 11.5px; white-space: nowrap; backdrop-filter: blur(4px); }
+body:not([data-ui="desk"]) .ctxChip { left: 6px; max-width: calc(100% - 120px); overflow: hidden; text-overflow: ellipsis; font-family: var(--display); font-weight: 600; font-size: 12px; letter-spacing: .02em; }
 body:not([data-ui="desk"]) .ctxChip::after { content: "▾"; opacity: .7; }
-body:not([data-ui="desk"]) .camToggle { display: inline-flex; align-items: center; gap: 6px; position: absolute; right: 8px; top: 8px; z-index: 4; background: rgba(10, 16, 23, .78); color: #fff; border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 0 12px; min-height: 38px; font-size: 14px; backdrop-filter: blur(4px); }
-body:not([data-ui="desk"]) .camBar { display: none; top: 52px; right: 8px; left: auto; z-index: 5; background: rgba(10, 16, 23, .94); border-radius: 12px; padding: 6px; gap: 4px; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+body:not([data-ui="desk"]) .camToggle { right: 6px; }
+body:not([data-ui="desk"]) .camToggle svg { width: 14px; height: 14px; }
+body:not([data-ui="desk"]) .camBar { display: none; top: 36px; right: 6px; left: auto; z-index: 5; background: rgba(10, 16, 23, .94); border-radius: 10px; padding: 4px; gap: 2px; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
 body:not([data-ui="desk"]) #stage.camOpen .camBar { display: flex; }
-body:not([data-ui="desk"]) .camBar button { min-height: 42px; min-width: 150px; font-size: 15px; padding: 8px 12px; border-radius: 8px; }
+body:not([data-ui="desk"]) .camBar button { min-height: 30px; min-width: 120px; font-size: 12.5px; padding: 4px 9px; border-radius: 7px; }
 body:not([data-ui="desk"]) .camBar .lg { display: inline; } body:not([data-ui="desk"]) .camBar .sm { display: none; }
-/* Commandes tactiles plus grandes */
-body:not([data-ui="desk"]) .seg button, body:not([data-ui="desk"]) .rot button, body:not([data-ui="desk"]) .chips button { min-height: 44px; }
-body:not([data-ui="desk"]) .chips button { font-size: 15px; padding: 8px 12px; }
-body:not([data-ui="desk"]) .themeSw button { min-height: 40px; padding: 4px 12px; font-size: 14px; }
-body:not([data-ui="desk"]) .rot button b { font-size: 20px; }
-body:not([data-ui="desk"]) .toggles label { min-height: 44px; align-items: center; font-size: 15px; }
-body:not([data-ui="desk"]) .toggles input { width: 22px; height: 22px; margin-top: 0; flex: none; }
-body:not([data-ui="desk"]) .names input { min-height: 42px; font-size: 16px; }
-body:not([data-ui="desk"]) summary { min-height: 48px; }
-body:not([data-ui="desk"]) .rallyRow input[type=range] { height: 32px; }
-body:not([data-ui="desk"]) .btn { min-height: 46px; font-size: 15px; }
-/* Barre d'onglets */
-#mNav button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: none; border: 0; color: var(--muted); font-family: var(--display); font-weight: 600; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; min-height: 56px; padding: 6px 2px; }
-#mNav svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Barre de lecture : une seule ligne fine (⟲ ◀ ▶ ▶▶ ──── Pas ×½) */
+body:not([data-ui="desk"]) .transport { display: flex; align-items: center; gap: 4px; padding: 4px 6px; }
+body:not([data-ui="desk"]) .tRow { display: contents; }
+body:not([data-ui="desk"]) .tBtn { min-height: 30px; min-width: 32px; padding: 2px 6px; font-size: 13px; border-radius: 7px; flex: none; }
+body:not([data-ui="desk"]) .tBtn.primary { min-width: 40px; }
+body:not([data-ui="desk"]) #bPlay .tx { display: none; }
+body:not([data-ui="desk"]) #bRestart { order: 1; } body:not([data-ui="desk"]) #bPrev { order: 2; } body:not([data-ui="desk"]) #bPlay { order: 3; } body:not([data-ui="desk"]) #bNext { order: 4; }
+body:not([data-ui="desk"]) #scrub { order: 5; flex: 1; min-width: 40px; height: 22px; margin: 0 4px; }
+body:not([data-ui="desk"]) #bStepMode { order: 6; font-size: 11px; padding: 2px 6px; }
+body:not([data-ui="desk"]) .speedCycle { display: inline-block; order: 7; min-width: 38px; font-size: 12px; font-variant-numeric: tabular-nums; font-weight: 600; }
+
+/* Barre d'onglets / rail */
+#mNav button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; background: none; border: 0; color: var(--muted); font-family: var(--display); font-weight: 600; font-size: 10px; letter-spacing: .05em; text-transform: uppercase; padding: 3px 2px; }
+#mNav svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 #mNav button[aria-pressed="true"] { color: var(--accent); }
 
-/* Vertical : terrain + lecture en haut, contenu de l'onglet, barre d'onglets en bas ; la page elle-même ne défile pas */
+/* Vertical */
 body[data-ui="port"] { overflow: hidden; }
 body[data-ui="port"] #app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
-body[data-ui="port"] #stage { flex: none; z-index: 5; box-shadow: 0 4px 14px rgba(0,0,0,.25); padding-top: env(safe-area-inset-top, 0px); }
-body[data-ui="port"] #canvasWrap { height: 40vh; height: 40dvh; min-height: 210px; flex: none; }
-body[data-ui="port"] #panel { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; border-left: 0; padding: 12px 12px 18px; gap: 10px; }
-body[data-ui="port"] #mNav { display: flex; flex: none; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
-body[data-ui="port"] .transport { padding: 6px 10px 8px; gap: 6px; }
-body[data-ui="port"] .tRow { flex-wrap: nowrap; gap: 6px; }
-body[data-ui="port"] .tBtn { min-height: 44px; min-width: 46px; font-size: 16px; }
-body[data-ui="port"] .tBtn.primary { flex: 1; min-width: 0; }
-body[data-ui="port"] #bStepMode { font-size: 13px; padding: 4px 8px; }
-body[data-ui="port"] .speed button { min-height: 40px; padding: 6px 9px; }
-body[data-ui="port"] #scrub { height: 32px; }
-body[data-ui="port"] .steps { display: none; }
-body[data-ui="port"] #stepsSlot .steps { display: flex; }
-:root:has(body[data-ui="port"]) { padding: 0; }
+body[data-ui="port"] #stage { flex: 1; min-height: 0; z-index: 5; padding-top: env(safe-area-inset-top, 0px); }
+body[data-ui="port"] #canvasWrap { flex: 1; min-height: 0; height: auto; }
+body[data-ui="port"] #panel { flex: none; height: 36vh; height: 36dvh; overflow-y: auto; overscroll-behavior: contain; border-left: 0; border-top: 1px solid var(--line); padding: 8px 8px 10px; gap: 6px; }
+body[data-ui="port"] #app.sheetMin #panel { display: none; }
+body[data-ui="port"] #mNav { display: flex; flex: none; height: calc(44px + env(safe-area-inset-bottom, 0px)); background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
 
-/* Horizontal : terrain plein écran, lecture en surimpression, rail d'onglets à droite, tiroir par-dessus le terrain */
-body[data-ui="land"] { overflow: hidden; --rail: calc(64px + env(safe-area-inset-right, 0px)); }
-:root:has(body[data-ui="land"]) { padding: 0; }
+/* Horizontal */
+body[data-ui="land"] { overflow: hidden; --rail: calc(48px + env(safe-area-inset-right, 0px)); }
 body[data-ui="land"] #app { display: block; position: relative; height: 100vh; height: 100dvh; overflow: hidden; }
 body[data-ui="land"] #stage { position: absolute; top: 0; bottom: 0; left: 0; right: var(--rail); padding-left: env(safe-area-inset-left, 0px); }
 body[data-ui="land"] #canvasWrap { position: absolute; inset: 0; }
-body[data-ui="land"] .transport { position: absolute; left: env(safe-area-inset-left, 0px); right: 0; bottom: 0; z-index: 3; display: flex; align-items: center; gap: 8px; padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px)); background: rgba(8, 12, 18, .72); backdrop-filter: blur(6px); }
-body[data-ui="land"] .tRow { flex-wrap: nowrap; gap: 6px; }
-body[data-ui="land"] .tRow:nth-child(2) { flex: 1; min-width: 0; }
-body[data-ui="land"] .tBtn { min-height: 42px; min-width: 44px; padding: 4px 8px; font-size: 16px; }
-body[data-ui="land"] .tBtn.primary { min-width: 104px; }
-body[data-ui="land"] #bStepMode { font-size: 13px; }
-body[data-ui="land"] .speed button { min-height: 40px; padding: 4px 8px; }
-body[data-ui="land"] #scrub { min-width: 60px; height: 32px; }
-body[data-ui="land"] .steps { display: none; }
-body[data-ui="land"] #stepsSlot .steps { display: flex; }
-body[data-ui="land"] .miniCap { bottom: 64px; }
+body[data-ui="land"] .transport { position: absolute; left: env(safe-area-inset-left, 0px); right: 0; bottom: 0; z-index: 3; padding: 3px 6px calc(3px + env(safe-area-inset-bottom, 0px)); background: rgba(8, 12, 18, .6); backdrop-filter: blur(6px); }
+body[data-ui="land"] .tBtn { min-height: 28px; }
+body[data-ui="land"] .miniCap { bottom: 40px; pointer-events: auto; cursor: pointer; right: auto; max-width: calc(100% - 16px); }
+body[data-ui="land"] .miniCap::after { content: "  ⓘ"; opacity: .8; }
 body[data-ui="land"] #mNav { display: flex; flex-direction: column; position: absolute; top: 0; bottom: 0; right: 0; width: var(--rail); padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) 0; background: var(--surface); border-left: 1px solid var(--line); z-index: 30; }
-body[data-ui="land"] #mNav button { font-size: 11.5px; min-height: 0; }
-body[data-ui="land"] #panel { position: absolute; top: 0; bottom: 0; right: var(--rail); width: min(400px, 56vw); z-index: 20; overflow-y: auto; overscroll-behavior: contain; padding: 0 12px 16px; gap: 10px; border-left: 1px solid var(--line); box-shadow: -12px 0 30px rgba(0,0,0,.35); transform: translateX(calc(100% + var(--rail))); visibility: hidden; transition: transform .22s ease, visibility 0s linear .22s; }
+body[data-ui="land"] #mNav button { font-size: 8.5px; }
+body[data-ui="land"] #panel { position: absolute; top: 0; bottom: 0; right: var(--rail); width: min(300px, 50vw); z-index: 20; overflow-y: auto; overscroll-behavior: contain; padding: 0 8px 10px; gap: 6px; border-left: 1px solid var(--line); box-shadow: -12px 0 30px rgba(0,0,0,.35); transform: translateX(calc(100% + var(--rail))); visibility: hidden; transition: transform .22s ease, visibility 0s linear .22s; }
 body[data-ui="land"] #app.drawerOpen #panel { transform: none; visibility: visible; transition: transform .22s ease; }
-body[data-ui="land"] .drawerHead { display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 2; background: var(--bg); margin: 0 -12px; padding: 8px 8px 8px 16px; border-bottom: 1px solid var(--line); font-family: var(--display); font-weight: 700; font-size: 18px; letter-spacing: .06em; text-transform: uppercase; }
-.drawerHead button { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; min-width: 44px; min-height: 44px; font-size: 18px; }
+body[data-ui="land"] .drawerHead { display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 2; background: var(--bg); margin: 0 -8px; padding: 4px 5px 4px 12px; border-bottom: 1px solid var(--line); font-family: var(--display); font-weight: 700; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; }
+.drawerHead button { background: var(--surface-2); border: 1px solid var(--line); border-radius: 7px; min-width: 28px; min-height: 28px; font-size: 13px; }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
 </style>
 
@@ -1667,7 +1688,11 @@ function play() {
 }
 function pause() { state.playing = false; pauseAt = null; updatePlayBtn(); }
 function togglePlay() { state.playing ? pause() : play(); }
-function updatePlayBtn() { bPlay.textContent = state.playing ? '❚❚ Pause' : (state.t >= total - 1e-3 ? '⟲ Revoir' : '▶︎ Lecture'); }
+function updatePlayBtn() {
+  const [ic, tx] = state.playing ? ['❚❚', 'Pause'] : (state.t >= total - 1e-3 ? ['⟲', 'Revoir'] : ['▶︎', 'Lecture']);
+  bPlay.innerHTML = `${ic}<span class="tx"> ${tx}</span>`;
+  bPlay.setAttribute('aria-label', tx);
+}
 function seek(t) { state.t = Math.max(0, Math.min(total, t)); trailPts = []; if (state.playing) armPause(); render(); }
 function gotoStep(i) {
   i = Math.max(0, Math.min(scen.steps.length - 1, i));
@@ -2109,11 +2134,18 @@ function applyUI() {
     if ($('steps').parentElement.id === 'stepsSlot') document.querySelector('.transport').appendChild($('steps'));
     appEl.classList.remove('drawerOpen');
   }
+  if (ui !== 'port') appEl.classList.remove('sheetMin');
   stageEl.classList.remove('camOpen');
 }
 // Onglet du panneau ; en horizontal, ouvre le tiroir (ou le ferme si on touche l'onglet déjà ouvert)
 function setTab(t, open = true) {
   const land = document.body.dataset.ui === 'land';
+  // En vertical : toucher l'onglet déjà ouvert replie le panneau (terrain agrandi), toucher un onglet le rouvre
+  if (document.body.dataset.ui === 'port' && open) {
+    const min = appEl.classList.contains('sheetMin');
+    if (!min && panelEl.dataset.mtab === t) { appEl.classList.add('sheetMin'); pressed($('mNav'), 'mt', ''); return; }
+    appEl.classList.remove('sheetMin');
+  }
   if (land && open && appEl.classList.contains('drawerOpen') && panelEl.dataset.mtab === t) { closeDrawer(); return; }
   panelEl.dataset.mtab = t;
   $('drawerTitle').textContent = TAB_TITLES[t];
@@ -2133,7 +2165,10 @@ $('speedCycle').onclick = () => {
   $('speedCycle').textContent = SPEED_LBL[v];
 };
 wrap.addEventListener('pointerdown', e => { if (!e.target.closest('.camBar, .camToggle')) stageEl.classList.remove('camOpen'); });
-$('ctxChip').onclick = () => { if (!(appEl.classList.contains('drawerOpen') && panelEl.dataset.mtab === 'jeu')) setTab('jeu'); };
+$('ctxChip').onclick = () => {
+  const open = document.body.dataset.ui === 'port' ? !appEl.classList.contains('sheetMin') : appEl.classList.contains('drawerOpen');
+  if (!(open && panelEl.dataset.mtab === 'jeu')) setTab('jeu');
+};
 // Menu caméra : un bouton qui ouvre la liste des vues
 const CAM_LBL = { team: 'Joueur', top: 'Dessus', side: 'Côté', opp: 'Adverse', follow: 'Suivre' };
 $('camToggle').onclick = e => { e.stopPropagation(); const o = stageEl.classList.toggle('camOpen'); $('camToggle').setAttribute('aria-expanded', String(o)); };
