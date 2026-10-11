@@ -19,6 +19,7 @@ body { margin: 0; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
 </style>
+<script>var th = 'dark'; try { th = JSON.parse(localStorage.getItem('v51.theme')) || 'dark'; } catch (e) { /* stockage indisponible */ } if (th === 'light' || th === 'dark') document.documentElement.dataset.theme = th;</script>
 <title>Volley 5-1 en 3D</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,14 +43,14 @@ img { max-width: 100%; }
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f151c; --surface: #17202a; --surface-2: #1f2a36; --fg: #e8edf2; --muted: #9aa8b6;
-    --line: #2b3846; --accent: #f07a3c; --accent-fg: #10161d; --court: #0b1118; --ok: #34c08a; --warn: #fb923c;
+    --bg: #0b1016; --surface: #18222e; --surface-2: #253345; --fg: #f2f5f8; --muted: #b4c1cd;
+    --line: #364a5f; --accent: #f5844a; --accent-fg: #10161d; --court: #0b1118; --ok: #34c08a; --warn: #fb923c;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0f151c; --surface: #17202a; --surface-2: #1f2a36; --fg: #e8edf2; --muted: #9aa8b6;
-  --line: #2b3846; --accent: #f07a3c; --accent-fg: #10161d; --court: #0b1118; --ok: #34c08a; --warn: #fb923c;
+  --bg: #0b1016; --surface: #18222e; --surface-2: #253345; --fg: #f2f5f8; --muted: #b4c1cd;
+  --line: #364a5f; --accent: #f5844a; --accent-fg: #10161d; --court: #0b1118; --ok: #34c08a; --warn: #fb923c;
   color-scheme: dark;
 }
 html, body { height: 100%; }
@@ -95,12 +96,21 @@ button { cursor: pointer; }
 .steps button.cur { background: #e0662a; border-color: #e0662a; color: #fff; }
 .steps button span { font-family: var(--display); font-weight: 700; margin-right: 4px; }
 
-#panel { overflow-y: auto; background: var(--surface); border-left: 1px solid var(--line); padding: 16px 16px 28px; display: flex; flex-direction: column; gap: 18px; }
+#panel { overflow-y: auto; background: var(--bg); border-left: 1px solid var(--line); padding: 16px 14px 28px; display: flex; flex-direction: column; gap: 12px; }
+.brand { padding: 0 2px 4px; }
+.brandTop { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; }
+.themeSw { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; flex: none; }
+.themeSw button { background: var(--surface); border: 0; border-left: 1px solid var(--line); padding: 4px 9px; font-size: 13px; color: var(--muted); }
+.themeSw button:first-child { border-left: 0; }
+.themeSw button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
 .brand h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 30px; line-height: 1; letter-spacing: .01em; }
 .brand h1 em { font-style: normal; color: var(--accent); }
 .brand p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
-.sec { display: grid; gap: 8px; }
-.sec h3 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+/* Sections de la sidebar : une carte par section, titre avec repère de couleur */
+.sec, #panel details { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px 14px; box-shadow: 0 1px 2px rgba(16, 24, 32, .05); }
+.sec { display: grid; gap: 10px; }
+.sec h3, summary { margin: 0; font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: .06em; text-transform: uppercase; color: var(--fg); display: flex; align-items: center; gap: 8px; }
+.sec h3::before { content: ""; width: 4px; height: 16px; border-radius: 2px; background: var(--accent); flex: none; }
 .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .seg button[data-mode="rally"] { grid-column: 1 / -1; }
 .rallyRow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -109,14 +119,14 @@ button { cursor: pointer; }
 .btn { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; min-height: 40px; }
 .seg button, .rot button, .chips button { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; text-align: left; }
 .seg button b { display: block; font-family: var(--display); font-size: 19px; font-weight: 700; }
-.seg button small { color: var(--muted); font-size: 12.5px; }
+.seg button small { color: var(--muted); font-size: 13px; }
 .seg button[aria-pressed="true"], .rot button[aria-pressed="true"], .chips button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
 .seg button[aria-pressed="true"] small, .rot button[aria-pressed="true"] small { color: inherit; opacity: .85; }
 .rot { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
 .rot button { text-align: center; padding: 6px 2px; }
 .rot button b { display: block; font-family: var(--display); font-size: 20px; line-height: 1; }
 .rot button small { font-size: 11px; color: var(--muted); }
-.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.hint { color: var(--muted); font-size: 13.5px; margin: 0; }
 .note { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; font-size: 14px; margin: 0; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chips button { padding: 5px 10px; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; }
@@ -125,16 +135,23 @@ button { cursor: pointer; }
 .toggles { display: grid; gap: 6px; }
 .toggles label { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; cursor: pointer; }
 .toggles input { margin-top: 3px; accent-color: var(--accent); }
-.toggles small { display: block; color: var(--muted); font-size: 12.5px; }
+.toggles small { display: block; color: var(--muted); font-size: 13px; }
 .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; font-size: 13.5px; }
 .legend div { display: flex; gap: 6px; align-items: center; min-width: 0; }
-details { border-top: 1px solid var(--line); padding-top: 10px; }
-summary { cursor: pointer; font-family: var(--display); font-weight: 600; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+#panel details { padding: 0; }
+summary { cursor: pointer; list-style: none; padding: 12px 14px; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: ""; width: 7px; height: 7px; border: solid var(--accent); border-width: 0 2.5px 2.5px 0; transform: rotate(-45deg); margin: 0 3px 0 1px; transition: transform .15s; flex: none; }
+details[open] > summary::before { transform: rotate(45deg); }
+details > :not(summary) { margin-left: 14px; margin-right: 14px; }
+#panel details[open] { padding-bottom: 14px; }
+details > .names, details > dl { margin-top: 0; }
 dl { margin: 8px 0 0; display: grid; gap: 6px; font-size: 14px; }
 dt { font-weight: 600; }
 dd { margin: 0 0 4px; color: var(--muted); }
 .names { display: grid; grid-template-columns: auto 1fr; gap: 6px 8px; align-items: center; margin-top: 8px; font-size: 14px; }
-.names input { background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; min-width: 0; }
+.names input { background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; min-width: 0; width: 100%; }
+.names input::placeholder { color: var(--muted); opacity: .75; }
 .kbd { font-size: 12.5px; color: var(--muted); }
 .kbd kbd { font-family: var(--body); background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
 
@@ -170,6 +187,7 @@ dd { margin: 0 0 4px; color: var(--muted); }
   .time { display: none; }
   .steps button { min-height: 32px; }
   .seg button, .rot button, .chips button { min-height: 42px; }
+  .themeSw button { min-height: 36px; }
   .rot button b { font-size: 18px; }
   .toggles label { min-height: 34px; align-items: center; }
   .toggles input { width: 20px; height: 20px; margin-top: 0; }
@@ -256,7 +274,14 @@ dd { margin: 0 0 4px; color: var(--muted); }
   <aside id="panel">
     <div id="capSlot"></div>
     <div class="brand">
-      <h1>Volley <em>5-1</em> en 3D</h1>
+      <div class="brandTop">
+        <h1>Volley <em>5-1</em> en 3D</h1>
+        <div class="themeSw" id="themeSw" role="group" aria-label="Thème de l'interface">
+          <button data-theme-opt="auto" title="Suivre le réglage de l'appareil">Auto</button>
+          <button data-theme-opt="light" title="Mode jour">☀︎ Jour</button>
+          <button data-theme-opt="dark" title="Mode nuit">☾ Nuit</button>
+        </div>
+      </div>
       <p>Chaque rotation, en attaque et en défense, joueur par joueur. Survole ou touche un joueur pour savoir pourquoi il est là.</p>
     </div>
 
@@ -1329,6 +1354,16 @@ const $ = id => document.getElementById(id);
 function pressed(container, attr, val) {
   container.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset[attr] === String(val))));
 }
+
+// Thème de l'interface : auto (réglage de l'appareil), jour ou nuit
+const themeSw = $('themeSw');
+function applyTheme(t) {
+  if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+  else { t = 'auto'; delete document.documentElement.dataset.theme; }
+  pressed(themeSw, 'themeOpt', t);
+}
+themeSw.querySelectorAll('button').forEach(b => { b.onclick = () => { store.set('theme', b.dataset.themeOpt); applyTheme(b.dataset.themeOpt); }; });
+applyTheme(store.get('theme', 'dark'));
 
 // Rotation
 const rotSeg = $('rotSeg');
