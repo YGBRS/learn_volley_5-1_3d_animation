@@ -440,6 +440,7 @@ document.body.dataset.ui = matchMedia('(max-height: 520px) and (orientation: lan
         <label><input type="checkbox" id="tZones" checked><span data-en="Zone numbers">Numéros des zones</span></label>
         <label><input type="checkbox" id="tBallTrail" checked><span data-en="Ball trajectory">Trajectoire du ballon</span></label>
         <label><input type="checkbox" id="tOpp" checked><span data-en="Show the opposing team">Afficher l'équipe adverse</span></label>
+        <label><input type="checkbox" id="tDefZone" checked><span data-en="Defense zone on hover&lt;small&gt;Hover over or tap a player to shade the part of the court they defend&lt;/small&gt;">Zone de défense au survol<small>Survole ou touche un joueur pour colorer la partie du terrain qu'il défend</small></span></label>
       </div>
       <p class="hint" data-en="Labels above the players (can be combined):">Étiquettes au-dessus des joueurs (combinables) :</p>
       <div class="chips" id="labelChips" role="group" aria-label="Étiquettes" data-en-aria="Labels">
@@ -554,7 +555,7 @@ const RECV = {
   S5: { MB1: [-3.8, 0.8], OH2: [-2.2, 5.3], OP: [3.8, 0.8], S: [-3.3, 2.0], OH1: [0.2, 6.4], L: [2.8, 6.2] },
   S4: { S: [-4.0, 0.8], MB1: [-3.2, 1.0], OH2: [-0.4, 5.6], OH1: [-3.0, 6.4], L: [2.4, 6.3], OP: [4.0, 7.6] },
   S3: { OH1: [-2.8, 5.4], S: [0.4, 0.8], MB1: [2.0, 1.0], L: [-0.3, 6.5], OP: [1.3, 8.0], OH2: [2.9, 6.3] },
-  S2: { MB2: [-3.6, 0.9], OH1: [-2.3, 5.5], S: [3.6, 0.8], OP: [-3.9, 7.8], OH2: [0.3, 6.6], L: [2.8, 6.3] },
+  S2: { MB2: [-3.6, 0.9], OH1: [-2.3, 5.5], S: [3.6, 0.8], OP: [-1.1, 8.1], OH2: [0.3, 6.6], L: [2.8, 6.3] },
 };
 const NOTES = {
   S1: ["Passeur en zone 1 (arrière droit). Il est déjà du bon côté : il se cache derrière le R1 et monte au filet. Exception de cette rotation : le R1 reste à droite (zone 2) et le pointu à gauche (zone 4) pour attaquer.",
@@ -1660,7 +1661,7 @@ const state = {
   mode: 'attack', rot: 'S1', role: store.get('role', 'S'), serveTo: 'c', oppSide: 'L', oppShot: 'diag', attack: 'p4',
   rallyN: Math.max(1, Math.min(30, store.get('rallyN', 10))), seed: 1 + Math.floor(Math.random() * 1e9),
   speed: 0.5, playing: false, stepMode: true, t: 0, labels: store.get('labels', { role: true, pos: false, name: false }), names: store.get('names', {}),
-  show: { path: true, all: false, overlap: false, zones: true, ballTrail: true, opp: true },
+  show: { path: true, all: false, overlap: false, zones: true, ballTrail: true, opp: true, defZone: true },
 };
 let scen = null, total = 0, stepStarts = [], pauseAt = null, camMode = 'team';
 
@@ -1782,7 +1783,7 @@ function renderOptions(lu) {
 const dispName = id => state.names[id] || ROLES[id].label;
 
 // Affichage
-const toggles = { tPath: 'path', tAllPaths: 'all', tOverlap: 'overlap', tZones: 'zones', tBallTrail: 'ballTrail', tOpp: 'opp' };
+const toggles = { tPath: 'path', tAllPaths: 'all', tOverlap: 'overlap', tZones: 'zones', tBallTrail: 'ballTrail', tOpp: 'opp', tDefZone: 'defZone' };
 for (const k in toggles) {
   $(k).onchange = e => { state.show[toggles[k]] = e.target.checked; drawPaths(); render(); };
 }
@@ -2177,6 +2178,7 @@ function tipHTML(id) {
   let sub = on ? tr(`Position de rotation ${lu.posOf[id]} (${front ? 'ligne avant' : 'ligne arrière'})`, `Rotational position ${lu.posOf[id]} (${front ? 'front row' : 'back row'})`)
     : tr('Hors du terrain pour ce point', 'Off the court for this rally');
   let html = `<h4>${who}</h4><div class="sub">${sub}</div>`;
+  html += defZoneNote(id);
   const now = tipFor(id, s, lu, scen);
   const colon = tr(' :', ':');
   if (now) html += `<p><b>${tr('Maintenant', 'Now')} (${esc(s.title)})${colon}</b> ${esc(now)}</p>`;
@@ -2226,6 +2228,64 @@ function placeTip() {
   if (y + h > r.height - 8) y = Math.max(8, r.height - h - 8);
   el.style.left = x + 'px'; el.style.top = y + 'px';
 }
+// ── Zone de défense du joueur survolé ──
+// Partie de notre terrain dont il est le défenseur le plus proche (cellule de Voronoï, découpée dans le terrain).
+// En phase de défense (réception, passe et attaque adverses) : positions réelles, les contreurs à part (bande au filet) ;
+// sinon : positions de base en défense.
+const DEF_KEYS = ['oppPass', 'oppSet', 'oppAttack'];
+const defZone = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.3, depthWrite: false, side: THREE.DoubleSide }));
+defZone.rotation.x = -Math.PI / 2; defZone.position.y = 0.028; defZone.renderOrder = 3; defZone.visible = false; scene.add(defZone);
+const defEdge = new THREE.LineLoop(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ transparent: true, opacity: 0.95, depthWrite: false }));
+defEdge.position.y = 0.032; defEdge.renderOrder = 3; defEdge.visible = false; scene.add(defEdge);
+// garde la partie du polygone plus proche de a que de b (demi-plan de la médiatrice)
+function clipCloser(poly, a, b) {
+  const nx = b[0] - a[0], nz = b[1] - a[1], mx = (a[0] + b[0]) / 2, mz = (a[1] + b[1]) / 2;
+  const f = p => (p[0] - mx) * nx + (p[1] - mz) * nz;   // ≤ 0 : côté de a
+  const out = [];
+  for (let k = 0; k < poly.length; k++) {
+    const p = poly[k], q = poly[(k + 1) % poly.length], fp = f(p), fq = f(q);
+    if (fp <= 0) out.push(p);
+    if ((fp <= 0) !== (fq <= 0)) { const t = fp / (fp - fq); out.push([p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t]); }
+  }
+  return out;
+}
+function defZoneOf(id) {
+  if (!lu.onCourt.includes(id)) return null;
+  const s = scen.steps[curStep()];
+  const live = DEF_KEYS.includes(s.key);
+  const blockers = live ? (s.ctx.blockers || []) : [];
+  const base = replacePos(lu);
+  const at = o => live ? [players[o].root.position.x, players[o].root.position.z] : base[o];
+  const me = at(id);
+  if (blockers.includes(id)) {
+    const x0 = Math.max(-4.5, me[0] - 0.8), x1 = Math.min(4.5, me[0] + 0.8);
+    return { mode: 'block', poly: [[x0, 0], [x1, 0], [x1, 1.1], [x0, 1.1]] };
+  }
+  let poly = [[-4.5, 0], [4.5, 0], [4.5, 9], [-4.5, 9]];
+  lu.onCourt.forEach(o => { if (o !== id && !blockers.includes(o)) poly = clipCloser(poly, me, at(o)); });
+  return { mode: live ? 'live' : 'base', poly };
+}
+function updateDefZone() {
+  const z = hoverId && state.show.defZone && scen ? defZoneOf(hoverId) : null;
+  defZone.visible = defEdge.visible = !!(z && z.poly.length >= 3);
+  if (!defZone.visible) return;
+  const shape = new THREE.Shape(z.poly.map(p => new THREE.Vector2(p[0], -p[1])));
+  defZone.geometry.dispose(); defZone.geometry = new THREE.ShapeGeometry(shape);
+  defEdge.geometry.dispose(); defEdge.geometry = new THREE.BufferGeometry().setFromPoints(z.poly.map(p => new THREE.Vector3(p[0], 0, p[1])));
+  defZone.material.color.set(ROLES[hoverId].color); defEdge.material.color.set(ROLES[hoverId].color);
+}
+function defZoneNote(id) {
+  if (!state.show.defZone || !lu.onCourt.includes(id)) return '';
+  const z = defZoneOf(id);
+  if (!z) return '';
+  const t = {
+    block: tr('Zone colorée : tu contres, ta zone est au filet, devant toi.', 'Shaded area: you\'re blocking, your zone is at the net in front of you.'),
+    live: tr('Zone colorée : la partie du terrain que tu défends à ce moment (là où tu es le plus proche du ballon).', 'Shaded area: the part of the court you defend right now (where you\'re the closest player).'),
+    base: tr('Zone colorée : la partie du terrain que tu défends depuis ta position de base en défense.', 'Shaded area: the part of the court you defend from your base defensive position.'),
+  }[z.mode];
+  return `<p class="sub">${t}</p>`;
+}
+
 let downAt = null;
 renderer.domElement.addEventListener('pointermove', e => {
   if (e.pointerType !== 'mouse' || tipPinned) return;
@@ -2460,6 +2520,7 @@ function loop(now) {
   animatePlayers(dt);
   controls.update();
   if (hoverId && !state.playing) placeTip();
+  updateDefZone();
   renderer.render(scene, camera);
   requestAnimationFrame(loop);
 }
