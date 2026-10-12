@@ -835,8 +835,9 @@ function coverPlan(lu, attacker, attKey, pos, setter = 'S', spot = T, late = [])
       cup = [[clx(ax - inw * 0.4), 2.1], [clx(ax + inw * 1.4), 1.6], [clx(ax + inw * 0.6), 2.9]]; zMin = 3.4;
     }
   }
-  // ceux qui ne partent qu'à la frappe (passeur, attaquants qui font une feinte) ont deux fois moins de temps
-  const out = bestAssign(others, cup, from, true, id => (id === setter || late.includes(id) ? 4 : 1));
+  // la coupe doit être en place à la frappe : le passeur part un peu après sa passe, et les feintes avant
+  // (encore en pleine course d'élan à la frappe) n'y vont que s'il n'y a personne d'autre
+  const out = bestAssign(others, cup, from, true, id => (late.includes(id) ? 12 : id === setter ? 2 : 1));
   // deuxième ligne : chacun se rapproche de l'attaquant jusqu'à environ 3,6 m, un peu en retrait, sans trop courir
   others.filter(id => !out[id]).forEach(id => {
     const p = from[id], dx = p[0] - A[0], dz = p[1] - A[1], d = Math.hypot(dx, dz) || 1;
@@ -873,18 +874,30 @@ function addSetAttack(b, lu, attKey, mode, cont, relay) {
   }
   // Feintes : tous les autres attaquants (avant et arrière : pipe, attaque arrière zone 1) restent prêts à recevoir la passe
   // et font leur course d'élan (le central saute en même temps que l'attaque) ; ils ne couvrent qu'au moment de la frappe
-  const decoys = {}; const jumpSet = {};
+  // Les attaquants avant non servis font une vraie feinte (course d'élan complète, le central saute) : ils ne couvrent qu'après.
+  // Les attaquants arrière (pipe, zone 1) restent prêts au début de la passe, puis filent en couverture dès qu'elle part ailleurs.
+  const decoys = {}, backDecoys = []; const jumpSet = {};
   lu.onCourt.filter(id => id !== attacker && id !== 'S' && id !== setter).forEach(id => {
     const key = Object.keys(lu.att).find(k => lu.att[k] === id && k !== 'dump');
     if (!key) return;
+    if (!lu.front.includes(id)) { backDecoys.push(id); return; }
     const tgt = [HIT[key].hit[0], HIT[key].hit[1] + (key === 'p3' ? 0.5 : 1.0)];
     decoys[id] = key === 'p3' ? tgt : lerp2(pos0[id], tgt, 0.6);
     if (key === 'p3') jumpSet[id] = { type: 'hop', h: 0.5 };
   });
-  // les couvreurs partent d'où ils sont vraiment : après leur feinte pour les attaquants avant
+  // les couvreurs partent d'où ils sont vraiment ; les places en coupe vont d'abord à ceux qui peuvent y être à la frappe
   const plan = coverPlan(lu, attacker, attKey, Object.assign({}, pos0, decoys), setter, spot, Object.keys(decoys));
+  // La couverture doit être en place au moment de la frappe (fin de la passe) : dès que la passe part, chacun court vers sa place,
+  // aussi loin qu'il le peut à vitesse de course réaliste (sur une balle rapide, il finit son placement juste à la frappe).
+  const setDur = A.set + (relay ? 0.45 : 0.15), VMAX = 4.0;
   const setPos = {};
-  lu.onCourt.forEach(id => { if (id !== attacker && !decoys[id]) setPos[id] = id === setter ? [spot[0], spot[1] + 0.3] : lerp2(pos0[id], plan[id], A.set < 0.7 ? 0.4 : 0.6); });   // la couverture se forme pendant la passe et la frappe
+  lu.onCourt.forEach(id => {
+    if (id === attacker || decoys[id]) return;
+    const from = pos0[id], d = Math.hypot(plan[id][0] - from[0], plan[id][1] - from[1]);
+    // le passeur ne part qu'une fois sa passe faite, les attaquants arrière une fois la passe partie ailleurs
+    const t = id === setter ? setDur * 0.7 : backDecoys.includes(id) ? setDur * 0.75 : setDur;
+    setPos[id] = lerp2(from, plan[id], Math.min(1, VMAX * t / Math.max(d, 1e-3)));
+  });
   Object.assign(setPos, decoys);
   setPos[attacker] = A.hit;
   const blk = oppBlock(A.hit[0], pos0);
@@ -898,10 +911,10 @@ function addSetAttack(b, lu, attKey, mode, cont, relay) {
     text: relay
       ? tr(`Le passeur a joué le premier ballon : il ne peut pas faire la passe. ${cap(nm(setter))} assure le relais avec une passe haute, un peu loin du filet, pour ${nm(attacker)} (${where}), qui a ainsi le temps de prendre son élan. ${decoyTxt}${cap(nm('S'))} rejoint la couverture.`,
         `The setter played the first ball, so they can't set. ${cap(nm(setter))} takes the second ball with a high set, a little off the net, for ${nm(attacker)} (${where}), who has time for a full approach. ${decoyTxt}${nm('S')} moves into coverage.`)
-      : tr(`Le passeur donne une ${trp(A.name)} pour ${nm(attacker)}. ${decoyTxt}les joueurs arrière vont déjà vers leur place de couverture.`,
-        `The setter delivers a ${trp(A.name)} for ${nm(attacker)}. ${decoyTxt}the back-row players are already moving to their coverage spots.`),
-    dur: A.set + (relay ? 0.45 : 0.15), pos: setPos, jump: jumpSet,
-    ball: { to: [A.hit[0], A.h, A.hit[1]], apex: A.apex + (relay ? 0.5 : 0) }, ctx: { attacker, attKey, decoys: Object.keys(decoys), plan, setter } });
+      : tr(`Le passeur donne une ${trp(A.name)} pour ${nm(attacker)}. ${decoyTxt}dès que la passe part, les autres foncent vers l'attaquant pour être en couverture au moment de sa frappe.`,
+        `The setter delivers a ${trp(A.name)} for ${nm(attacker)}. ${decoyTxt}as soon as the set is away, the others rush toward the hitter to be in coverage when they swing.`),
+    dur: setDur, pos: setPos, jump: jumpSet,
+    ball: { to: [A.hit[0], A.h, A.hit[1]], apex: A.apex + (relay ? 0.5 : 0) }, ctx: { attacker, attKey, decoys: Object.keys(decoys).concat(backDecoys), feint: Object.keys(decoys), plan, setter } });
   const cov = Object.assign({}, plan);
   cov[attacker] = [A.hit[0], A.hit[1] + 0.4];
   const jumpAtt = { [attacker]: { type: 'down', h: 0.72 } };
@@ -1286,8 +1299,10 @@ function tipFor(id, step, lu, scen) {
         `Set ${nm(c.attacker)}. Keep the same body position for every set so the opposing block can't read you.`);
       if (isAtt) return tr("Course d'élan en 3 pas (gauche-droite-gauche pour un droitier), bras lancés en arrière, saut au dernier moment.",
         "3-step approach (left-right-left for a right-hander), arms swing back, jump at the last moment.");
-      if (c.decoys && c.decoys.includes(id)) return tr("Fais ta course comme si le ballon était pour toi : tu fixes un contreur adverse. Dès que la passe part ailleurs, file en couverture.",
+      if (c.feint && c.feint.includes(id)) return tr("Fais ta course comme si le ballon était pour toi : tu fixes un contreur adverse. Dès que la passe part ailleurs, file en couverture.",
         "Run your approach as if the set is yours: you freeze an opposing blocker. As soon as the set goes elsewhere, get into coverage.");
+      if (c.decoys && c.decoys.includes(id)) return tr("Reste prêt à attaquer de l'arrière jusqu'au départ de la passe. Dès qu'elle part ailleurs, fonce vers l'attaquant pour être en couverture au moment de sa frappe.",
+        "Stay ready for a back-row attack until the set leaves. As soon as it goes elsewhere, rush toward the hitter to be in coverage when they swing.");
       return coverTip(id, c, step) || tr("Pars vers ta place de couverture.", "Head to your coverage spot.");
     case 'attack':
       if (isAtt) return tr("Frappe haut devant toi, bras tendu, et vise une zone libre.", "Contact high and in front, arm fully extended, and hit to an open spot.");
@@ -1632,7 +1647,7 @@ function readyKey(id, s, u) {
     case 'set':
       if (c.attKey === 'dump') return null;
       if (id === c.attacker) return u <= 0.3 ? c.attKey : null;
-      return c.decoys && c.decoys.includes(id) && u <= 0.35 ? key : null;
+      return c.decoys && c.decoys.includes(id) && u <= (c.feint && c.feint.includes(id) ? 0.35 : 0.25) ? key : null;
   }
   return null;
 }
@@ -1681,7 +1696,7 @@ function poseBase(id, s, u, y) {
   }
   // Élan de l'attaquant juste avant le saut
   if (key === 'set' && id === c.attacker && j && u > 0.3) return POSES.approach;
-  if (key === 'set' && c.decoys && c.decoys.includes(id) && u > 0.35) return POSES.approach;
+  if (key === 'set' && c.feint && c.feint.includes(id) && u > 0.35) return POSES.approach;
   // Contacts de balle
   if (key === 'serveRot' && id === lu.server) return POSES.serve;
   if (key === 'serve' && state.mode === 'defense' && id === lu.server && u < 0.18) return POSES.serveHit;
@@ -1707,7 +1722,7 @@ function poseBase(id, s, u, y) {
     return POSES.ready;
   }
   if (key === 'attack' || (key === 'set' && c.attKey === 'dump')) return POSES.cover;
-  if (key === 'set') return POSES.ready;
+  if (key === 'set') return c.plan && c.plan[id] && u > 0.55 ? POSES.cover : POSES.ready;   // en couverture, bas, avant la frappe
   if (key === 'replace' || key === 'oDig') return lu.front.includes(id) ? POSES.blockReady : POSES.ready;
   return POSES.ready;
 }
